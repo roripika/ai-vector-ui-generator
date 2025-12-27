@@ -1,0 +1,35 @@
+{
+  "version": "0.1.0",
+  "assetType": "button",
+  "viewBox": [0, 0, 256, 72],
+  "metadata": {
+    "name": "Primary Glow Button",
+    "description": "Rounded CTA button with gradient fill, rim stroke, and soft glow",
+    "tags": ["button", "cta", "glow"]
+  },
+  "layers": [
+    {
+      "id": "button-body",
+      "name": "Button Base",
+      "shape": "roundedRect",
+      "rect": { "x": 8, "y": 8, "width": 240, "height": 56, "radius": 18 },
+      "style": {
+        "fill": "ui.primaryGradient",
+        "stroke": "ui.strokeLight",
+        "strokeWidth": 2,
+        "glow": "ui.softGlow"
+      },
+      "zIndex": 0
+    },
+    {
+      "id": "button-highlight",
+      "name": "Highlight",
+      "shape": "roundedRect",
+      "rect": { "x": 16, "y": 14, "width": 224, "height": 22, "radius": 14 },
+      "style": {
+        "fill": "ui.highlightGradient"
+      },
+      "zIndex": 1
+    }
+  ]
+}
