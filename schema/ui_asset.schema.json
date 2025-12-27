@@ -10,6 +10,10 @@
     "layers"
   ],
   "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
     "assetType": {
       "type": "string",
       "enum": ["button"]
@@ -30,7 +34,13 @@
       "additionalProperties": false,
       "properties": {
         "name": { "type": "string", "maxLength": 120 },
-        "description": { "type": "string", "maxLength": 500 }
+        "description": { "type": "string", "maxLength": 500 },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 32 },
+          "maxItems": 16,
+          "uniqueItems": true
+        }
       }
     },
     "layers": {
@@ -85,7 +95,11 @@
         "fill": { "$ref": "#/definitions/token" },
         "stroke": { "$ref": "#/definitions/token" },
         "strokeWidth": { "$ref": "#/definitions/nonNegativeLength" },
-        "glow": { "$ref": "#/definitions/token" }
+        "glow": { "$ref": "#/definitions/token" },
+        "blendMode": {
+          "type": "string",
+          "enum": ["normal", "screen", "multiply", "overlay", "soft-light"]
+        }
       }
     },
     "layer": {
@@ -102,7 +116,8 @@
         "name": { "type": "string", "maxLength": 80 },
         "shape": { "type": "string", "enum": ["roundedRect"] },
         "rect": { "$ref": "#/definitions/roundedRect" },
-        "style": { "$ref": "#/definitions/style" }
+        "style": { "$ref": "#/definitions/style" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     }
   }
