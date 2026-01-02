@@ -20,23 +20,23 @@
 ## Phase 1: 画面レイアウトの土台（最優先）
 
 ### 1. screen アセットの導入
-- [ ] `assetType: "screen"` を schema に追加
-- [ ] `canvas { w, h, safeArea? }` を定義
-- [ ] 画面全体を1つのSVGとして生成できるようにする
-- [ ] 既存 button/panel を複数配置可能にする
+- [x] `assetType: "screen"` を schema に追加
+- [x] `canvas { w, h, safeArea? }` を定義
+- [x] 画面全体を1つのSVGとして生成できるようにする
+- [x] 既存 button/panel を複数配置可能にする
 
 ### 2. instances による配置モデル
-- [ ] `components`（部品定義）と `instances`（配置）を分離
-- [ ] `anchorTo`（親参照）を実装
-- [ ] `anchor: topLeft | center | bottomRight ...` を enum 化
-- [ ] `offset {x,y}` と `size {w,h}` で最終rectを決定
-- [ ] 描画順を決定論的に固定（zIndex → id順）
+- [x] `components`（部品定義）と `instances`（配置）を分離
+- [x] `anchorTo`（親参照）を実装
+- [x] `anchor: topLeft | center | bottomRight ...` を enum 化
+- [x] `offset {x,y}` と `size {w,h}` で最終rectを決定
+- [x] 描画順を決定論的に固定（zIndex → id順）
 
 ### 3. examples
-- [ ] `examples/screen_dialog.json`
+- [x] `examples/screen_dialog.json`
   - ウィンドウ
   - OK / Cancel ボタン
-- [ ] `python -m src.cli render --in examples/screen_dialog.json --out out/`
+- [x] `python -m src.cli render --in examples/screen_dialog.json --out out/`
 
 ---
 
