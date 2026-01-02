@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from src.compiler import compile_svg
-from src.renderer import export_pdf, export_png
+from src.renderer import (
+    inkscape_export_pdf,
+    inkscape_export_png,
+    resvg_export_png,
+)
 from src.validator import ValidationError, validate_asset
 
 
@@ -29,6 +33,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--size",
         help="PNG export size as WIDTHxHEIGHT (e.g. 512x128)",
     )
+    render_parser.add_argument(
+        "--backend",
+        choices=["inkscape", "resvg"],
+        default="inkscape",
+        help="Renderer backend for PNG export",
+    )
     render_parser.set_defaults(func=cmd_render)
 
     return parser
@@ -47,6 +57,10 @@ def cmd_render(args: argparse.Namespace) -> int:
     stem = args.input_path.stem
 
     size = _parse_size(args.size)
+    backend = args.backend
+
+    png_exporter = inkscape_export_png if backend == "inkscape" else resvg_export_png
+    pdf_exporter = inkscape_export_pdf if backend == "inkscape" else None
 
     if args.only == "svg" or args.only is None:
         svg_path = output_dir / f"{stem}.svg"
@@ -56,7 +70,7 @@ def cmd_render(args: argparse.Namespace) -> int:
 
     if args.only is None:
         svg_source = output_dir / f"{stem}.svg"
-        export_png(svg_source, output_dir / f"{stem}.png", width=size[0], height=size[1])
+        png_exporter(svg_source, output_dir / f"{stem}.png", width=size[0], height=size[1])
         print(f"OK: {svg_source} {output_dir / f'{stem}.png'}")
         return 0
 
@@ -64,16 +78,19 @@ def cmd_render(args: argparse.Namespace) -> int:
         print(f"OK: {output_dir / f'{stem}.svg'}")
         return 0
 
+    if args.only == "pdf" and pdf_exporter is None:
+        raise SystemExit("PDF export requires --backend inkscape.")
+
     with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp:
         tmp_path = Path(tmp.name)
         tmp.write(compile_svg(asset).encode("utf-8"))
 
     try:
         if args.only == "png":
-            export_png(tmp_path, output_dir / f"{stem}.png", width=size[0], height=size[1])
+            png_exporter(tmp_path, output_dir / f"{stem}.png", width=size[0], height=size[1])
             print(f"OK: {output_dir / f'{stem}.png'}")
         elif args.only == "pdf":
-            export_pdf(tmp_path, output_dir / f"{stem}.pdf")
+            pdf_exporter(tmp_path, output_dir / f"{stem}.pdf")
             print(f"OK: {output_dir / f'{stem}.pdf'}")
     finally:
         try:

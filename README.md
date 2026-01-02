@@ -32,6 +32,7 @@ python -m src.cli render --in examples/button_sf.json --out out/
 オプション:
 - `--only svg|png|pdf` : 単一形式のみ出力
 - `--size WIDTHxHEIGHT` : PNG出力サイズを指定（例: `512x128`）
+- `--backend inkscape|resvg` : PNG出力のバックエンド（resvgはPNGのみ対応）
 
 ## ディレクトリ構成
 - `docs/` – 要件定義と運用ルール
@@ -47,3 +48,7 @@ python -m src.cli render --in examples/button_sf.json --out out/
 ```bash
 python -m pytest
 ```
+
+## トラブルシュート
+- `inkscape` コマンドが応答しない場合は、GUIを一度起動して初回セットアップを完了してください。
+- `--backend resvg` を使う場合は `resvg` がPATHにあることを確認してください（PDF出力は非対応）。
