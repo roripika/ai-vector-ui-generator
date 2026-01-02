@@ -1,0 +1,78 @@
+{
+  "version": "0.2.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Dialog Screen",
+    "description": "Centered dialog with OK/Cancel buttons",
+    "tags": ["screen", "dialog"]
+  },
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "dialog-panel",
+      "viewBox": [0, 0, 600, 320],
+      "layers": [
+        {
+          "id": "panel-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 600, "height": 320, "radius": 24 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-button",
+      "viewBox": [0, 0, 240, 56],
+      "layers": [
+        {
+          "id": "button-body",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 240, "height": 56, "radius": 18 },
+          "style": {
+            "fill": "ui.primaryGradient",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2,
+            "glow": "ui.softGlow"
+          }
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "dialog",
+      "componentId": "dialog-panel",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": -20 },
+      "size": { "width": 600, "height": 320 },
+      "zIndex": 0
+    },
+    {
+      "id": "ok-button",
+      "componentId": "primary-button",
+      "anchorTo": "dialog",
+      "anchor": "bottomRight",
+      "offset": { "x": -32, "y": -24 },
+      "size": { "width": 240, "height": 56 },
+      "zIndex": 1
+    },
+    {
+      "id": "cancel-button",
+      "componentId": "primary-button",
+      "anchorTo": "dialog",
+      "anchor": "bottomLeft",
+      "offset": { "x": 32, "y": -24 },
+      "size": { "width": 240, "height": 56 },
+      "zIndex": 1
+    }
+  ]
+}

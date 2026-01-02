@@ -1,55 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://ai-vector-ui-generator/schema/ui_asset.schema.json",
-  "title": "Vector UI Button Asset",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "assetType",
-    "viewBox",
-    "layers"
+  "title": "Vector UI Asset",
+  "oneOf": [
+    { "$ref": "#/definitions/buttonAsset" },
+    { "$ref": "#/definitions/screenAsset" }
   ],
-  "properties": {
-    "version": {
-      "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$"
-    },
-    "assetType": {
-      "type": "string",
-      "enum": ["button"]
-    },
-    "viewBox": {
-      "type": "array",
-      "description": "SVG viewBox [x, y, width, height] (integers)",
-      "minItems": 4,
-      "maxItems": 4,
-      "items": {
-        "type": "integer",
-        "minimum": 0,
-        "maximum": 4096
-      }
-    },
-    "metadata": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "name": { "type": "string", "maxLength": 120 },
-        "description": { "type": "string", "maxLength": 500 },
-        "tags": {
-          "type": "array",
-          "items": { "type": "string", "maxLength": 32 },
-          "maxItems": 16,
-          "uniqueItems": true
-        }
-      }
-    },
-    "layers": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 16,
-      "items": { "$ref": "#/definitions/layer" }
-    }
-  },
   "definitions": {
     "token": {
       "type": "string",
@@ -74,6 +30,30 @@
       "multipleOf": 0.01,
       "minimum": 0,
       "maximum": 4096
+    },
+    "viewBox": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8192
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 500 },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 32 },
+          "maxItems": 16,
+          "uniqueItems": true
+        }
+      }
     },
     "roundedRect": {
       "type": "object",
@@ -118,6 +98,154 @@
         "rect": { "$ref": "#/definitions/roundedRect" },
         "style": { "$ref": "#/definitions/style" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "safeArea": { "$ref": "#/definitions/safeArea" }
+      }
+    },
+    "safeArea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0, "maximum": 8192 },
+        "y": { "type": "integer", "minimum": 0, "maximum": 8192 },
+        "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 8192 }
+      }
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "viewBox", "layers"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "viewBox": { "$ref": "#/definitions/viewBox" },
+        "layers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": { "$ref": "#/definitions/layer" }
+        }
+      }
+    },
+    "offset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "$ref": "#/definitions/finiteNumber" },
+        "y": { "$ref": "#/definitions/finiteNumber" }
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "$ref": "#/definitions/positiveLength" },
+        "height": { "$ref": "#/definitions/positiveLength" }
+      }
+    },
+    "instance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "componentId", "anchorTo", "anchor", "offset", "size"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "componentId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "anchorTo": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "anchor": {
+          "type": "string",
+          "enum": [
+            "topLeft",
+            "top",
+            "topRight",
+            "left",
+            "center",
+            "right",
+            "bottomLeft",
+            "bottom",
+            "bottomRight"
+          ]
+        },
+        "offset": { "$ref": "#/definitions/offset" },
+        "size": { "$ref": "#/definitions/size" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "buttonAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetType", "viewBox", "layers"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "assetType": { "const": "button" },
+        "viewBox": { "$ref": "#/definitions/viewBox" },
+        "metadata": { "$ref": "#/definitions/metadata" },
+        "layers": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/definitions/layer" }
+        }
+      }
+    },
+    "screenAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetType", "canvas", "components", "instances"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "assetType": { "const": "screen" },
+        "metadata": { "$ref": "#/definitions/metadata" },
+        "canvas": { "$ref": "#/definitions/canvas" },
+        "components": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": { "$ref": "#/definitions/component" }
+        },
+        "instances": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": { "$ref": "#/definitions/instance" }
+        }
       }
     }
   }
