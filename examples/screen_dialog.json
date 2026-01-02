@@ -6,11 +6,29 @@
     "description": "Centered dialog with OK/Cancel buttons",
     "tags": ["screen", "dialog"]
   },
+  "patternId": "dialog",
   "canvas": {
     "width": 1280,
     "height": 720,
     "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
   },
+  "slots": [
+    {
+      "id": "title",
+      "rect": { "x": 360, "y": 200, "width": 520, "height": 32 },
+      "description": "Dialog title slot"
+    },
+    {
+      "id": "body",
+      "rect": { "x": 360, "y": 256, "width": 520, "height": 120 },
+      "description": "Dialog body slot"
+    },
+    {
+      "id": "actions",
+      "rect": { "x": 360, "y": 456, "width": 520, "height": 56 },
+      "description": "Dialog action buttons"
+    }
+  ],
   "components": [
     {
       "id": "dialog-panel",

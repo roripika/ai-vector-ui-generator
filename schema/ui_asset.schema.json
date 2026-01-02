@@ -169,6 +169,22 @@
         "size": { "$ref": "#/definitions/size" }
       }
     },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "rect"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "description": { "type": "string", "maxLength": 200 }
+      }
+    },
     "rectLayer": {
       "type": "object",
       "additionalProperties": false,
@@ -419,6 +435,12 @@
           "pattern": "^\\d+\\.\\d+\\.\\d+$"
         },
         "assetType": { "const": "screen" },
+        "patternId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
         "metadata": { "$ref": "#/definitions/metadata" },
         "canvas": { "$ref": "#/definitions/canvas" },
         "components": {
@@ -426,6 +448,12 @@
           "minItems": 1,
           "maxItems": 64,
           "items": { "$ref": "#/definitions/component" }
+        },
+        "slots": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": { "$ref": "#/definitions/slot" }
         },
         "instances": {
           "type": "array",

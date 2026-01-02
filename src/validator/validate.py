@@ -86,6 +86,8 @@ def _check_screen(asset: dict[str, Any]) -> List[str]:
 
     instances = asset.get("instances") or []
     issues.extend(_check_instances(instances, components))
+    slots = asset.get("slots") or []
+    issues.extend(_check_slots(slots, width, height))
     return issues
 
 
@@ -264,6 +266,51 @@ def _check_size(size: dict[str, Any], base_path: str) -> List[str]:
             issues.append(f"{base_path}/{key}: value must be >= 1")
         if not _has_at_most_two_decimals(value):
             issues.append(f"{base_path}/{key}: value must have at most 2 decimal places")
+    return issues
+
+
+def _check_slots(slots: list[dict[str, Any]], canvas_width: Any, canvas_height: Any) -> List[str]:
+    issues: List[str] = []
+    seen_ids: set[str] = set()
+
+    for index, slot in enumerate(slots):
+        base_path = f"/slots/{index}"
+        slot_id = slot.get("id")
+        if not isinstance(slot_id, str) or not slot_id:
+            issues.append(f"{base_path}/id: must be a non-empty string")
+        elif slot_id in seen_ids:
+            issues.append(f"{base_path}/id: duplicate slot id '{slot_id}'")
+        else:
+            seen_ids.add(slot_id)
+
+        rect = slot.get("rect", {})
+        for key in ("x", "y", "width", "height"):
+            value = rect.get(key)
+            if value is None:
+                continue
+            if not _is_number(value):
+                issues.append(f"{base_path}/rect/{key}: expected number, got {type(value).__name__}")
+                continue
+            if not math.isfinite(float(value)):
+                issues.append(f"{base_path}/rect/{key}: value must be finite")
+            if not _has_at_most_two_decimals(value):
+                issues.append(f"{base_path}/rect/{key}: value must have at most 2 decimal places")
+
+        width = rect.get("width")
+        height = rect.get("height")
+        if _is_number(width) and width < 1:
+            issues.append(f"{base_path}/rect/width: width must be >= 1")
+        if _is_number(height) and height < 1:
+            issues.append(f"{base_path}/rect/height: height must be >= 1")
+
+        if _is_number(canvas_width) and _is_number(canvas_height):
+            x = float(rect.get("x", 0))
+            y = float(rect.get("y", 0))
+            w = float(rect.get("width", 0))
+            h = float(rect.get("height", 0))
+            if x < 0 or y < 0 or x + w > float(canvas_width) or y + h > float(canvas_height):
+                issues.append(f"{base_path}/rect: slot must fit inside canvas")
+
     return issues
 
 

@@ -80,8 +80,8 @@
 ## Phase 4: 非戦闘UI パターンカタログ
 
 ### 8. Pattern（テンプレ）設計
-- [ ] `patternId` を screen に追加
-- [ ] slots 方式（枠に何を入れるか）を定義
+- [x] `patternId` を screen に追加
+- [x] slots 方式（枠に何を入れるか）を定義
 
 ### 9. 最低限カバーするパターン
 - [ ] home（上部バー＋中央＋下ナビ）
@@ -96,7 +96,7 @@
 - [ ] party_edit
 - [ ] inventory
 - [ ] profile
-- [ ] dialogs（確認／報酬／エラー）
+- [x] dialogs（確認／報酬／エラー）
 
 ---
 
