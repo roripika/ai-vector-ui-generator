@@ -3,6 +3,13 @@
 AIが出力したJSON設計書を、決定論的にSVG/PDFおよび透過PNGへ変換するCLIファーストのツールチェーンです。`docs/REQUIREMENTS.md` に準拠し、AIはJSONのみを書き、SVG生成は `src/compiler` が担当します。
 
 ## セットアップ
+簡易セットアップ（推奨）:
+```bash
+./setup.command
+```
+※ Homebrewが未導入の場合はインストールを試みます（管理者パスワードが必要になる場合があります）。
+
+手動セットアップ:
 1. Python 3.11+ を用意し、仮想環境を作成します。
    ```bash
    python3 -m venv .venv
