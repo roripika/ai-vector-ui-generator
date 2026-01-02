@@ -62,18 +62,18 @@
 ## Phase 3: レイアウトプリミティブ拡張（画面量産の鍵）
 
 ### 6. Layout primitives
-- [ ] `layoutRow`
+- [x] `layoutRow`
   - padding / gap / align
-- [ ] `layoutColumn`
+- [x] `layoutColumn`
   - padding / gap / align
-- [ ] `layoutGrid`
+- [x] `layoutGrid`
   - cols / rowGap / colGap
-- [ ] ネスト可能にする
+- [x] ネスト可能にする
 
 ### 7. 一覧・グリッド画面
-- [ ] items 配列による反復描画
-- [ ] `examples/list_screen.json`
-- [ ] `examples/grid_screen.json`
+- [x] items 配列による反復描画
+- [x] `examples/list_screen.json`
+- [x] `examples/grid_screen.json`
 
 ---
 

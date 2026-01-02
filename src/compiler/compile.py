@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 from xml.etree import ElementTree as ET
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .tokens import GlowDef, LinearGradientDef, TokenRegistry
 
@@ -30,7 +30,7 @@ def _compile_button(asset: Dict[str, Any]) -> str:
         svg.remove(defs)
 
     clip_ids: set[str] = set()
-    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="")
+    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="", components=None)
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -62,14 +62,15 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
         rect = resolved[instance_id]
         transform = _build_instance_transform(rect, component["viewBox"])
         group = ET.SubElement(svg, "g", {"id": instance_id, "transform": transform})
-        _append_layers(
-            group,
-            component["layers"],
-            registry,
-            defs,
-            clip_ids,
-            id_prefix=f"{instance_id}--",
-        )
+    _append_layers(
+        group,
+        component["layers"],
+        registry,
+        defs,
+        clip_ids,
+        id_prefix=f"{instance_id}--",
+        components=components,
+    )
 
     return ET.tostring(svg, encoding="unicode")
 
@@ -125,6 +126,7 @@ def _append_layers(
     defs: ET.Element,
     clip_ids: set[str],
     id_prefix: str,
+    components: Optional[Dict[str, Dict[str, Any]]],
 ) -> None:
     for layer in layers:
         group = ET.SubElement(parent, "g", {"id": f"{id_prefix}{layer['id']}"})
@@ -135,6 +137,10 @@ def _append_layers(
         elif shape == "text":
             text_element = _build_text_element(layer, registry, defs, clip_ids, id_prefix)
             group.append(text_element)
+        elif shape in ("layoutRow", "layoutColumn", "layoutGrid"):
+            if components is None:
+                raise ValueError("Layout layers require component definitions.")
+            _append_layout_items(group, layer, registry, defs, clip_ids, id_prefix, components)
         else:
             raise ValueError(f"Unsupported shape: {shape}")
 
@@ -206,6 +212,169 @@ def _build_text_element(
         tspan.text = line
 
     return text_el
+
+
+def _append_layout_items(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    defs: ET.Element,
+    clip_ids: set[str],
+    id_prefix: str,
+    components: Dict[str, Dict[str, Any]],
+) -> None:
+    layout_type = layer["shape"]
+    rect = layer["rect"]
+    layout = layer.get("layout", {})
+    items = layer.get("items", [])
+
+    positions = _layout_positions(layout_type, rect, layout, items)
+    for item, item_rect in positions:
+        component_id = item["componentId"]
+        if component_id not in components:
+            raise ValueError(f"Component '{component_id}' is not defined.")
+        component = components[component_id]
+
+        item_group_id = f"{id_prefix}{layer['id']}--{item['id']}"
+        transform = _build_instance_transform(item_rect, component["viewBox"])
+        group = ET.SubElement(parent, "g", {"id": item_group_id, "transform": transform})
+        _append_layers(
+            group,
+            component["layers"],
+            registry,
+            defs,
+            clip_ids,
+            id_prefix=f"{item_group_id}--",
+            components=components,
+        )
+
+
+def _layout_positions(
+    layout_type: str,
+    rect: Dict[str, Any],
+    layout: Dict[str, Any],
+    items: List[Dict[str, Any]],
+) -> List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]]:
+    padding = _normalize_padding(layout.get("padding", {}))
+    gap = float(layout.get("gap", 0) or 0)
+    align = layout.get("align", "start")
+
+    origin_x = float(rect["x"]) + padding["left"]
+    origin_y = float(rect["y"]) + padding["top"]
+    content_w = float(rect["width"]) - padding["left"] - padding["right"]
+    content_h = float(rect["height"]) - padding["top"] - padding["bottom"]
+
+    if layout_type == "layoutRow":
+        return _layout_row(items, origin_x, origin_y, content_w, content_h, gap, align)
+    if layout_type == "layoutColumn":
+        return _layout_column(items, origin_x, origin_y, content_w, content_h, gap, align)
+    if layout_type == "layoutGrid":
+        columns = int(layout["columns"])
+        row_gap = float(layout.get("rowGap", 0) or 0)
+        col_gap = float(layout.get("colGap", 0) or 0)
+        return _layout_grid(items, origin_x, origin_y, content_w, content_h, columns, row_gap, col_gap, align)
+
+    raise ValueError(f"Unsupported layout type: {layout_type}")
+
+
+def _layout_row(
+    items: List[Dict[str, Any]],
+    origin_x: float,
+    origin_y: float,
+    content_w: float,
+    content_h: float,
+    gap: float,
+    align: str,
+) -> List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]]:
+    positions: List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]] = []
+    cursor_x = origin_x
+    for item in items:
+        item_w = float(item["size"]["width"])
+        item_h = float(item["size"]["height"])
+        if align == "stretch":
+            item_h = max(content_h, 0)
+        y = origin_y + _align_offset(align, content_h, item_h)
+        positions.append((item, (cursor_x, y, item_w, item_h)))
+        cursor_x += item_w + gap
+    return positions
+
+
+def _layout_column(
+    items: List[Dict[str, Any]],
+    origin_x: float,
+    origin_y: float,
+    content_w: float,
+    content_h: float,
+    gap: float,
+    align: str,
+) -> List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]]:
+    positions: List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]] = []
+    cursor_y = origin_y
+    for item in items:
+        item_w = float(item["size"]["width"])
+        item_h = float(item["size"]["height"])
+        if align == "stretch":
+            item_w = max(content_w, 0)
+        x = origin_x + _align_offset(align, content_w, item_w)
+        positions.append((item, (x, cursor_y, item_w, item_h)))
+        cursor_y += item_h + gap
+    return positions
+
+
+def _layout_grid(
+    items: List[Dict[str, Any]],
+    origin_x: float,
+    origin_y: float,
+    content_w: float,
+    content_h: float,
+    columns: int,
+    row_gap: float,
+    col_gap: float,
+    align: str,
+) -> List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]]:
+    positions: List[Tuple[Dict[str, Any], Tuple[float, float, float, float]]] = []
+    if columns <= 0:
+        return positions
+
+    rows = max(1, (len(items) + columns - 1) // columns)
+    cell_w = (content_w - col_gap * (columns - 1)) / columns if columns > 0 else 0
+    cell_h = (content_h - row_gap * (rows - 1)) / rows if rows > 0 else 0
+
+    for index, item in enumerate(items):
+        row = index // columns
+        col = index % columns
+        cell_x = origin_x + col * (cell_w + col_gap)
+        cell_y = origin_y + row * (cell_h + row_gap)
+
+        item_w = float(item["size"]["width"])
+        item_h = float(item["size"]["height"])
+        if align == "stretch":
+            item_w = max(cell_w, 0)
+            item_h = max(cell_h, 0)
+            offset_x = 0
+            offset_y = 0
+        else:
+            offset_x = _align_offset(align, cell_w, item_w)
+            offset_y = _align_offset(align, cell_h, item_h)
+        positions.append((item, (cell_x + offset_x, cell_y + offset_y, item_w, item_h)))
+    return positions
+
+
+def _normalize_padding(padding: Dict[str, Any]) -> Dict[str, float]:
+    return {
+        "top": float(padding.get("top", 0) or 0),
+        "right": float(padding.get("right", 0) or 0),
+        "bottom": float(padding.get("bottom", 0) or 0),
+        "left": float(padding.get("left", 0) or 0),
+    }
+
+
+def _align_offset(align: str, container_size: float, item_size: float) -> float:
+    if align == "center":
+        return (container_size - item_size) / 2
+    if align == "end":
+        return container_size - item_size
+    return 0.0
 
 
 def _layout_text_lines(

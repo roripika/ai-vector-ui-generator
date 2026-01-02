@@ -1,0 +1,79 @@
+{
+  "version": "0.3.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Grid Screen",
+    "description": "Grid layout example",
+    "tags": ["screen", "grid"]
+  },
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "components": [
+    {
+      "id": "grid-item",
+      "viewBox": [0, 0, 180, 180],
+      "layers": [
+        {
+          "id": "grid-bg",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 180, "height": 180, "radius": 20 },
+          "style": { "fill": "ui.surface", "stroke": "ui.strokeLight", "strokeWidth": 1 }
+        },
+        {
+          "id": "grid-label",
+          "shape": "text",
+          "rect": { "x": 16, "y": 72, "width": 148, "height": 28 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Item",
+            "font": "ui.font.primary",
+            "size": 18,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "grid-container",
+      "viewBox": [0, 0, 720, 520],
+      "layers": [
+        {
+          "id": "grid-bg",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 720, "height": 520, "radius": 24 },
+          "style": { "fill": "ui.surface", "stroke": "ui.strokeLight", "strokeWidth": 2 }
+        },
+        {
+          "id": "grid-layout",
+          "shape": "layoutGrid",
+          "rect": { "x": 40, "y": 40, "width": 640, "height": 440 },
+          "layout": { "columns": 3, "rowGap": 20, "colGap": 20, "align": "center" },
+          "items": [
+            { "id": "item-1", "componentId": "grid-item", "size": { "width": 180, "height": 180 } },
+            { "id": "item-2", "componentId": "grid-item", "size": { "width": 180, "height": 180 } },
+            { "id": "item-3", "componentId": "grid-item", "size": { "width": 180, "height": 180 } },
+            { "id": "item-4", "componentId": "grid-item", "size": { "width": 180, "height": 180 } },
+            { "id": "item-5", "componentId": "grid-item", "size": { "width": 180, "height": 180 } },
+            { "id": "item-6", "componentId": "grid-item", "size": { "width": 180, "height": 180 } }
+          ]
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "grid",
+      "componentId": "grid-container",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": 0 },
+      "size": { "width": 720, "height": 520 },
+      "zIndex": 0
+    }
+  ]
+}

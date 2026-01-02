@@ -109,6 +109,66 @@
         "align": { "type": "string", "enum": ["left", "center", "right"] }
       }
     },
+    "padding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "top": { "$ref": "#/definitions/nonNegativeLength" },
+        "right": { "$ref": "#/definitions/nonNegativeLength" },
+        "bottom": { "$ref": "#/definitions/nonNegativeLength" },
+        "left": { "$ref": "#/definitions/nonNegativeLength" }
+      }
+    },
+    "layoutRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gap": { "$ref": "#/definitions/nonNegativeLength" },
+        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
+        "padding": { "$ref": "#/definitions/padding" }
+      }
+    },
+    "layoutColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gap": { "$ref": "#/definitions/nonNegativeLength" },
+        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
+        "padding": { "$ref": "#/definitions/padding" }
+      }
+    },
+    "layoutGrid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns"],
+      "properties": {
+        "columns": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "rowGap": { "$ref": "#/definitions/nonNegativeLength" },
+        "colGap": { "$ref": "#/definitions/nonNegativeLength" },
+        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
+        "padding": { "$ref": "#/definitions/padding" }
+      }
+    },
+    "layoutItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "componentId", "size"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "componentId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "size": { "$ref": "#/definitions/size" }
+      }
+    },
     "rectLayer": {
       "type": "object",
       "additionalProperties": false,
@@ -146,10 +206,85 @@
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
+    "layoutRowLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "layout", "items"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "layoutRow" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "layout": { "$ref": "#/definitions/layoutRow" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": { "$ref": "#/definitions/layoutItem" }
+        },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "layoutColumnLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "layout", "items"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "layoutColumn" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "layout": { "$ref": "#/definitions/layoutColumn" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": { "$ref": "#/definitions/layoutItem" }
+        },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "layoutGridLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "layout", "items"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "layoutGrid" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "layout": { "$ref": "#/definitions/layoutGrid" },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/definitions/layoutItem" }
+        },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
     "layer": {
       "oneOf": [
         { "$ref": "#/definitions/rectLayer" },
-        { "$ref": "#/definitions/textLayer" }
+        { "$ref": "#/definitions/textLayer" },
+        { "$ref": "#/definitions/layoutRowLayer" },
+        { "$ref": "#/definitions/layoutColumnLayer" },
+        { "$ref": "#/definitions/layoutGridLayer" }
       ]
     },
     "canvas": {

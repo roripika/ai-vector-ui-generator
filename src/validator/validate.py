@@ -229,6 +229,8 @@ def _check_layers(
 
         if shape == "text":
             issues.extend(_check_text(layer.get("text", {}), f"{base_path}/{index}/text"))
+        if shape in ("layoutRow", "layoutColumn", "layoutGrid"):
+            issues.extend(_check_layout_layer(layer, f"{base_path}/{index}"))
 
     return issues
 
@@ -303,6 +305,88 @@ def _check_text(text: dict[str, Any], base_path: str) -> List[str]:
     align = text.get("align")
     if align is not None and align not in ("left", "center", "right"):
         issues.append(f"{base_path}/align: must be 'left', 'center', or 'right'")
+
+    return issues
+
+
+def _check_layout_layer(layer: dict[str, Any], base_path: str) -> List[str]:
+    issues: List[str] = []
+    shape = layer.get("shape")
+    layout = layer.get("layout", {})
+    items = layer.get("items", [])
+
+    if not isinstance(items, list) or not items:
+        issues.append(f"{base_path}/items: must be a non-empty array")
+        return issues
+
+    issues.extend(_check_layout_config(layout, shape, f"{base_path}/layout"))
+
+    for index, item in enumerate(items):
+        item_path = f"{base_path}/items/{index}"
+        item_id = item.get("id")
+        if not isinstance(item_id, str) or not item_id:
+            issues.append(f"{item_path}/id: must be a non-empty string")
+
+        component_id = item.get("componentId")
+        if not isinstance(component_id, str) or not component_id:
+            issues.append(f"{item_path}/componentId: must be a non-empty string")
+
+        size = item.get("size", {})
+        issues.extend(_check_size(size, f"{item_path}/size"))
+
+    return issues
+
+
+def _check_layout_config(layout: dict[str, Any], shape: str, base_path: str) -> List[str]:
+    issues: List[str] = []
+    align = layout.get("align")
+    if align is not None and align not in ("start", "center", "end", "stretch"):
+        issues.append(f"{base_path}/align: must be 'start', 'center', 'end', or 'stretch'")
+
+    padding = layout.get("padding", {})
+    if isinstance(padding, dict):
+        for key in ("top", "right", "bottom", "left"):
+            value = padding.get(key)
+            if value is None:
+                continue
+            if not _is_number(value):
+                issues.append(f"{base_path}/padding/{key}: expected number, got {type(value).__name__}")
+                continue
+            if value < 0:
+                issues.append(f"{base_path}/padding/{key}: value must be >= 0")
+            if not _has_at_most_two_decimals(value):
+                issues.append(f"{base_path}/padding/{key}: value must have at most 2 decimal places")
+    else:
+        issues.append(f"{base_path}/padding: must be an object")
+
+    if shape in ("layoutRow", "layoutColumn"):
+        gap = layout.get("gap")
+        if gap is not None:
+            if not _is_number(gap):
+                issues.append(f"{base_path}/gap: expected number, got {type(gap).__name__}")
+            elif gap < 0:
+                issues.append(f"{base_path}/gap: value must be >= 0")
+            elif not _has_at_most_two_decimals(gap):
+                issues.append(f"{base_path}/gap: value must have at most 2 decimal places")
+
+    if shape == "layoutGrid":
+        columns = layout.get("columns")
+        if not isinstance(columns, int) or isinstance(columns, bool):
+            issues.append(f"{base_path}/columns: must be an integer")
+        elif columns < 1:
+            issues.append(f"{base_path}/columns: must be >= 1")
+
+        for key in ("rowGap", "colGap"):
+            value = layout.get(key)
+            if value is None:
+                continue
+            if not _is_number(value):
+                issues.append(f"{base_path}/{key}: expected number, got {type(value).__name__}")
+                continue
+            if value < 0:
+                issues.append(f"{base_path}/{key}: value must be >= 0")
+            if not _has_at_most_two_decimals(value):
+                issues.append(f"{base_path}/{key}: value must have at most 2 decimal places")
 
     return issues
 
