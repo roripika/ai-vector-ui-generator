@@ -27,7 +27,8 @@ def test_compiler_outputs_groups_and_rects():
 
     for group in groups:
         rect = group.find("svg:rect", ns)
-        assert rect is not None
+        text = group.find("svg:text", ns)
+        assert rect is not None or text is not None
 
 
 def test_compiler_emits_glow_filter():

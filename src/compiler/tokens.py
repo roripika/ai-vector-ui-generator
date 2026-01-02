@@ -48,11 +48,18 @@ DEFAULT_COLORS: Dict[str, str] = {
     "ui.strokeLight": "#6FD3FF",
     "ui.accent": "#FFC17A",
     "ui.surface": "#1B1D2F",
+    "ui.textPrimary": "#F5F7FF",
+    "ui.textSecondary": "#B8C3E0",
 }
 
 DEFAULT_GLOWS: Dict[str, GlowDef] = {
     "ui.softGlow": GlowDef(color="#6EDAFF", opacity=0.7, std_deviation=9.0, margin=32.0),
     "ui.focusGlow": GlowDef(color="#81FFD8", opacity=0.55, std_deviation=11.0, margin=28.0),
+}
+
+DEFAULT_FONTS: Dict[str, str] = {
+    "ui.font.primary": "Helvetica Neue",
+    "ui.font.title": "Helvetica Neue",
 }
 
 
@@ -64,10 +71,12 @@ class TokenRegistry:
         gradients: Optional[Dict[str, LinearGradientDef]] = None,
         colors: Optional[Dict[str, str]] = None,
         glows: Optional[Dict[str, GlowDef]] = None,
+        fonts: Optional[Dict[str, str]] = None,
     ) -> None:
         self._gradients = {**DEFAULT_LINEAR_GRADIENTS, **(gradients or {})}
         self._colors = {**DEFAULT_COLORS, **(colors or {})}
         self._glows = {**DEFAULT_GLOWS, **(glows or {})}
+        self._fonts = {**DEFAULT_FONTS, **(fonts or {})}
 
     def get_linear_gradient(self, token: Optional[str]) -> Optional[LinearGradientDef]:
         if not token:
@@ -83,6 +92,11 @@ class TokenRegistry:
         if not token:
             return None
         return self._glows.get(token)
+
+    def get_font(self, token: Optional[str]) -> Optional[str]:
+        if not token:
+            return None
+        return self._fonts.get(token)
 
 
 __all__ = [

@@ -55,10 +55,10 @@
         }
       }
     },
-    "roundedRect": {
+    "rectBase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "y", "width", "height", "radius"],
+      "required": ["x", "y", "width", "height"],
       "properties": {
         "x": { "$ref": "#/definitions/finiteNumber" },
         "y": { "$ref": "#/definitions/finiteNumber" },
@@ -67,6 +67,19 @@
         "radius": { "$ref": "#/definitions/nonNegativeLength" }
       }
     },
+    "roundedRect": {
+      "allOf": [
+        { "$ref": "#/definitions/rectBase" },
+        {
+          "type": "object",
+          "required": ["radius"],
+          "properties": {
+            "radius": { "$ref": "#/definitions/nonNegativeLength" }
+          }
+        }
+      ]
+    },
+    "textRect": { "$ref": "#/definitions/rectBase" },
     "style": {
       "type": "object",
       "additionalProperties": false,
@@ -82,7 +95,21 @@
         }
       }
     },
-    "layer": {
+    "textContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "font", "size", "maxLines", "overflow", "fit"],
+      "properties": {
+        "value": { "type": "string", "minLength": 1, "maxLength": 280 },
+        "font": { "$ref": "#/definitions/token" },
+        "size": { "$ref": "#/definitions/positiveLength" },
+        "maxLines": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "overflow": { "type": "string", "enum": ["ellipsis", "clip"] },
+        "fit": { "type": "string", "enum": ["none", "shrink"] },
+        "align": { "type": "string", "enum": ["left", "center", "right"] }
+      }
+    },
+    "rectLayer": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "shape", "rect", "style"],
@@ -94,11 +121,36 @@
           "maxLength": 64
         },
         "name": { "type": "string", "maxLength": 80 },
-        "shape": { "type": "string", "enum": ["roundedRect"] },
+        "shape": { "const": "roundedRect" },
         "rect": { "$ref": "#/definitions/roundedRect" },
         "style": { "$ref": "#/definitions/style" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
+    },
+    "textLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style", "text"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "text" },
+        "rect": { "$ref": "#/definitions/textRect" },
+        "style": { "$ref": "#/definitions/style" },
+        "text": { "$ref": "#/definitions/textContent" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "layer": {
+      "oneOf": [
+        { "$ref": "#/definitions/rectLayer" },
+        { "$ref": "#/definitions/textLayer" }
+      ]
     },
     "canvas": {
       "type": "object",

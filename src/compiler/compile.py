@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 from xml.etree import ElementTree as ET
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, List, Tuple
 
 from .tokens import GlowDef, LinearGradientDef, TokenRegistry
 
@@ -29,7 +29,8 @@ def _compile_button(asset: Dict[str, Any]) -> str:
     if len(defs) == 0:
         svg.remove(defs)
 
-    _append_layers(svg, asset["layers"], registry, id_prefix="")
+    clip_ids: set[str] = set()
+    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="")
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -53,6 +54,7 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
 
     instance_order = sorted(instances, key=lambda item: (item.get("zIndex", 0), item["id"]))
     resolved = _resolve_instances(instance_order, components, view_box)
+    clip_ids: set[str] = set()
 
     for instance in instance_order:
         instance_id = instance["id"]
@@ -60,7 +62,14 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
         rect = resolved[instance_id]
         transform = _build_instance_transform(rect, component["viewBox"])
         group = ET.SubElement(svg, "g", {"id": instance_id, "transform": transform})
-        _append_layers(group, component["layers"], registry, id_prefix=f"{instance_id}--")
+        _append_layers(
+            group,
+            component["layers"],
+            registry,
+            defs,
+            clip_ids,
+            id_prefix=f"{instance_id}--",
+        )
 
     return ET.tostring(svg, encoding="unicode")
 
@@ -113,12 +122,149 @@ def _append_layers(
     parent: ET.Element,
     layers: Iterable[Dict[str, Any]],
     registry: TokenRegistry,
+    defs: ET.Element,
+    clip_ids: set[str],
     id_prefix: str,
 ) -> None:
     for layer in layers:
         group = ET.SubElement(parent, "g", {"id": f"{id_prefix}{layer['id']}"})
-        rect_attrs = _build_rect_attrs(layer, registry)
-        ET.SubElement(group, "rect", rect_attrs)
+        shape = layer.get("shape")
+        if shape == "roundedRect":
+            rect_attrs = _build_rect_attrs(layer, registry)
+            ET.SubElement(group, "rect", rect_attrs)
+        elif shape == "text":
+            text_element = _build_text_element(layer, registry, defs, clip_ids, id_prefix)
+            group.append(text_element)
+        else:
+            raise ValueError(f"Unsupported shape: {shape}")
+
+
+def _build_text_element(
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    defs: ET.Element,
+    clip_ids: set[str],
+    id_prefix: str,
+) -> ET.Element:
+    rect = layer["rect"]
+    text_config = layer["text"]
+    style = layer.get("style", {})
+
+    font_size = float(text_config["size"])
+    align = text_config.get("align", "left")
+    anchor = _text_anchor(align)
+    x, y = _text_position(rect, align)
+
+    attrs = {
+        "x": _fmt(x),
+        "y": _fmt(y),
+        "fill": _resolve_fill(style.get("fill"), registry),
+        "font-family": registry.get_font(text_config["font"]) or "sans-serif",
+        "font-size": _fmt(font_size),
+        "text-anchor": anchor,
+        "dominant-baseline": "hanging",
+    }
+
+    overflow = text_config["overflow"]
+    if overflow in ("clip", "ellipsis"):
+        clip_id = f"clip-{id_prefix}{layer['id']}"
+        if clip_id not in clip_ids:
+            clip_ids.add(clip_id)
+            clip_path = ET.SubElement(defs, "clipPath", {"id": clip_id})
+            ET.SubElement(
+                clip_path,
+                "rect",
+                {
+                    "x": _fmt(rect["x"]),
+                    "y": _fmt(rect["y"]),
+                    "width": _fmt(rect["width"]),
+                    "height": _fmt(rect["height"]),
+                },
+            )
+        attrs["clip-path"] = f"url(#{clip_id})"
+
+    text_el = ET.Element("text", attrs)
+    lines = _layout_text_lines(
+        text_config["value"],
+        int(text_config["maxLines"]),
+        float(rect["width"]),
+        font_size,
+        overflow,
+    )
+    line_height = font_size * 1.2
+    fit = text_config["fit"]
+    for index, line in enumerate(lines):
+        tspan_attrs = {"x": _fmt(x)}
+        if index == 0:
+            tspan_attrs["y"] = _fmt(y)
+        else:
+            tspan_attrs["dy"] = _fmt(line_height)
+        if fit == "shrink":
+            tspan_attrs["textLength"] = _fmt(rect["width"])
+            tspan_attrs["lengthAdjust"] = "spacingAndGlyphs"
+        tspan = ET.SubElement(text_el, "tspan", tspan_attrs)
+        tspan.text = line
+
+    return text_el
+
+
+def _layout_text_lines(
+    value: str,
+    max_lines: int,
+    max_width: float,
+    font_size: float,
+    overflow: str,
+) -> List[str]:
+    text = " ".join(value.split())
+    if not text:
+        return [""]
+
+    max_chars = max(1, int(max_width / max(font_size * 0.6, 1)))
+    words = text.split(" ")
+    lines: List[str] = []
+    current = ""
+
+    for word in words:
+        candidate = word if not current else f"{current} {word}"
+        if len(candidate) <= max_chars:
+            current = candidate
+            continue
+        if current:
+            lines.append(current)
+            current = ""
+        while len(word) > max_chars:
+            lines.append(word[:max_chars])
+            word = word[max_chars:]
+        current = word
+
+    if current:
+        lines.append(current)
+
+    if len(lines) <= max_lines:
+        return lines
+
+    truncated = lines[:max_lines]
+    if overflow == "ellipsis" and truncated:
+        last = truncated[-1]
+        if len(last) >= max_chars:
+            last = last[: max(1, max_chars - 1)]
+        truncated[-1] = f"{last}..."
+    return truncated
+
+
+def _text_anchor(align: str) -> str:
+    return {"left": "start", "center": "middle", "right": "end"}[align]
+
+
+def _text_position(rect: Dict[str, Any], align: str) -> Tuple[float, float]:
+    x = float(rect["x"])
+    y = float(rect["y"])
+    width = float(rect["width"])
+    if align == "center":
+        x += width / 2
+    elif align == "right":
+        x += width
+    return x, y
 
 
 def _collect_defs(

@@ -25,11 +25,41 @@
             "stroke": "ui.strokeLight",
             "strokeWidth": 2
           }
+        },
+        {
+          "id": "dialog-title",
+          "shape": "text",
+          "rect": { "x": 40, "y": 32, "width": 520, "height": 32 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Confirm Action",
+            "font": "ui.font.title",
+            "size": 26,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "left"
+          }
+        },
+        {
+          "id": "dialog-body",
+          "shape": "text",
+          "rect": { "x": 40, "y": 88, "width": 520, "height": 120 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "This action will consume resources and cannot be undone.",
+            "font": "ui.font.primary",
+            "size": 18,
+            "maxLines": 3,
+            "overflow": "clip",
+            "fit": "none",
+            "align": "left"
+          }
         }
       ]
     },
     {
-      "id": "primary-button",
+      "id": "primary-button-ok",
       "viewBox": [0, 0, 240, 56],
       "layers": [
         {
@@ -41,6 +71,53 @@
             "stroke": "ui.strokeLight",
             "strokeWidth": 2,
             "glow": "ui.softGlow"
+          }
+        },
+        {
+          "id": "button-label",
+          "shape": "text",
+          "rect": { "x": 24, "y": 16, "width": 192, "height": 24 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "OK",
+            "font": "ui.font.primary",
+            "size": 20,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-button-cancel",
+      "viewBox": [0, 0, 240, 56],
+      "layers": [
+        {
+          "id": "button-body",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 240, "height": 56, "radius": 18 },
+          "style": {
+            "fill": "ui.primaryGradient",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2,
+            "glow": "ui.softGlow"
+          }
+        },
+        {
+          "id": "button-label",
+          "shape": "text",
+          "rect": { "x": 24, "y": 16, "width": 192, "height": 24 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Cancel",
+            "font": "ui.font.primary",
+            "size": 20,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
           }
         }
       ]
@@ -58,7 +135,7 @@
     },
     {
       "id": "ok-button",
-      "componentId": "primary-button",
+      "componentId": "primary-button-ok",
       "anchorTo": "dialog",
       "anchor": "bottomRight",
       "offset": { "x": -32, "y": -24 },
@@ -67,7 +144,7 @@
     },
     {
       "id": "cancel-button",
-      "componentId": "primary-button",
+      "componentId": "primary-button-cancel",
       "anchorTo": "dialog",
       "anchor": "bottomLeft",
       "offset": { "x": 32, "y": -24 },

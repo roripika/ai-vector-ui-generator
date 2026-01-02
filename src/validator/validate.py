@@ -180,11 +180,16 @@ def _check_layers(
 
     for index, layer in enumerate(layers):
         rect = layer.get("rect", {})
+        shape = layer.get("shape")
         path_prefix = f"{base_path}/{index}/rect"
         width = rect.get("width")
         height = rect.get("height")
 
-        for key in ("x", "y", "width", "height", "radius"):
+        rect_keys = ("x", "y", "width", "height")
+        if shape == "roundedRect":
+            rect_keys = rect_keys + ("radius",)
+
+        for key in rect_keys:
             value = rect.get(key)
             if value is None:
                 continue
@@ -222,6 +227,9 @@ def _check_layers(
                         f"{base_path}/{index}/style/strokeWidth: value must have at most 2 decimal places"
                     )
 
+        if shape == "text":
+            issues.extend(_check_text(layer.get("text", {}), f"{base_path}/{index}/text"))
+
     return issues
 
 
@@ -254,6 +262,48 @@ def _check_size(size: dict[str, Any], base_path: str) -> List[str]:
             issues.append(f"{base_path}/{key}: value must be >= 1")
         if not _has_at_most_two_decimals(value):
             issues.append(f"{base_path}/{key}: value must have at most 2 decimal places")
+    return issues
+
+
+def _check_text(text: dict[str, Any], base_path: str) -> List[str]:
+    issues: List[str] = []
+    value = text.get("value")
+    if not isinstance(value, str) or not value.strip():
+        issues.append(f"{base_path}/value: must be a non-empty string")
+
+    font = text.get("font")
+    if not isinstance(font, str) or not font:
+        issues.append(f"{base_path}/font: must be a token string")
+
+    size = text.get("size")
+    if size is None:
+        issues.append(f"{base_path}/size: must be provided")
+    elif not _is_number(size):
+        issues.append(f"{base_path}/size: expected number, got {type(size).__name__}")
+    else:
+        if size <= 0:
+            issues.append(f"{base_path}/size: value must be > 0")
+        if not _has_at_most_two_decimals(size):
+            issues.append(f"{base_path}/size: value must have at most 2 decimal places")
+
+    max_lines = text.get("maxLines")
+    if not isinstance(max_lines, int) or isinstance(max_lines, bool):
+        issues.append(f"{base_path}/maxLines: must be an integer")
+    elif max_lines < 1:
+        issues.append(f"{base_path}/maxLines: must be >= 1")
+
+    overflow = text.get("overflow")
+    if overflow not in ("ellipsis", "clip"):
+        issues.append(f"{base_path}/overflow: must be 'ellipsis' or 'clip'")
+
+    fit = text.get("fit")
+    if fit not in ("none", "shrink"):
+        issues.append(f"{base_path}/fit: must be 'none' or 'shrink'")
+
+    align = text.get("align")
+    if align is not None and align not in ("left", "center", "right"):
+        issues.append(f"{base_path}/align: must be 'left', 'center', or 'right'")
+
     return issues
 
 

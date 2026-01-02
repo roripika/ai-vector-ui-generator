@@ -43,19 +43,19 @@
 ## Phase 2: Text 表示（ゲームUI必須）
 
 ### 4. text widget（制約付き）
-- [ ] `shape: "text"` を schema に追加
-- [ ] フォントは token 固定（生フォント名禁止）
-- [ ] 以下のみ許可：
+- [x] `shape: "text"` を schema に追加
+- [x] フォントは token 固定（生フォント名禁止）
+- [x] 以下のみ許可：
   - `maxLines`
   - `overflow: ellipsis | clip`
   - `fit: none | shrink`
-- [ ] 自動折り返しはルール固定 or 禁止
-- [ ] SVG text / textLength による決定論的描画
+- [x] 自動折り返しはルール固定 or 禁止
+- [x] SVG text / textLength による決定論的描画
 
 ### 5. text を含む examples
-- [ ] ボタンラベル
-- [ ] ダイアログタイトル
-- [ ] 注意文 / 説明文
+- [x] ボタンラベル
+- [x] ダイアログタイトル
+- [x] 注意文 / 説明文
 
 ---
 
