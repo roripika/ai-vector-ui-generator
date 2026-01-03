@@ -128,13 +128,13 @@
 ## Phase 6: 決定論保証と品質固定
 
 ### 13. ゴールデンテスト
-- [ ] screen 全体の SVG ハッシュ固定
-- [ ] 同一JSON → 同一SVG を pytest で保証
-- [ ] layout / text / binding を含むケースを網羅
+- [x] screen 全体の SVG ハッシュ固定
+- [x] 同一JSON → 同一SVG を pytest で保証
+- [x] layout / text / binding を含むケースを網羅
 
 ### 14. CI
-- [ ] GitHub Actions で pytest 実行
-- [ ] Inkscape 非依存テストと分離
+- [x] GitHub Actions で pytest 実行
+- [x] Inkscape 非依存テストと分離
 
 ---
 
