@@ -109,6 +109,63 @@
         "align": { "type": "string", "enum": ["left", "center", "right"] }
       }
     },
+    "bindVar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["var"],
+      "properties": {
+        "var": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.]*$",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "bindLiteral": {
+      "type": ["number", "boolean"]
+    },
+    "bindExpr": {
+      "oneOf": [
+        { "$ref": "#/definitions/bindVar" },
+        { "$ref": "#/definitions/bindLiteral" },
+        { "$ref": "#/definitions/bindOp" }
+      ]
+    },
+    "bindOp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "args"],
+      "properties": {
+        "op": { "type": "string", "enum": ["gt", "lt", "eq", "and", "or"] },
+        "args": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": { "$ref": "#/definitions/bindExpr" }
+        }
+      }
+    },
+    "bind": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": { "$ref": "#/definitions/bindVar" },
+        "visibleWhen": { "$ref": "#/definitions/bindExpr" },
+        "enabledWhen": { "$ref": "#/definitions/bindExpr" }
+      }
+    },
+    "stateValue": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "boolean" },
+        { "$ref": "#/definitions/stateObject" }
+      ]
+    },
+    "stateObject": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/stateValue" }
+    },
     "padding": {
       "type": "object",
       "additionalProperties": false,
@@ -200,6 +257,7 @@
         "shape": { "const": "roundedRect" },
         "rect": { "$ref": "#/definitions/roundedRect" },
         "style": { "$ref": "#/definitions/style" },
+        "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
@@ -219,6 +277,7 @@
         "rect": { "$ref": "#/definitions/textRect" },
         "style": { "$ref": "#/definitions/style" },
         "text": { "$ref": "#/definitions/textContent" },
+        "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
@@ -243,6 +302,7 @@
           "maxItems": 128,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
+        "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
@@ -267,6 +327,7 @@
           "maxItems": 128,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
+        "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
@@ -291,6 +352,92 @@
           "maxItems": 256,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
+        "bind": { "$ref": "#/definitions/bind" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "progressBarLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style", "track"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "progressBar" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "style": { "$ref": "#/definitions/style" },
+        "track": { "$ref": "#/definitions/token" },
+        "value": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
+        "direction": { "type": "string", "enum": ["leftToRight", "rightToLeft"] },
+        "bind": { "$ref": "#/definitions/bind" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "cooldownLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "cooldownOverlay" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "style": { "$ref": "#/definitions/style" },
+        "progress": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
+        "direction": { "type": "string", "enum": ["topToBottom", "bottomToTop"] },
+        "bind": { "$ref": "#/definitions/bind" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "toggleLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style", "knobFill"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "toggle" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "style": { "$ref": "#/definitions/style" },
+        "knobFill": { "$ref": "#/definitions/token" },
+        "state": { "type": "string", "enum": ["on", "off"] },
+        "bind": { "$ref": "#/definitions/bind" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
+    "badgeLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style", "text"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "badge" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "style": { "$ref": "#/definitions/style" },
+        "textStyle": { "$ref": "#/definitions/style" },
+        "text": { "$ref": "#/definitions/textContent" },
+        "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
@@ -300,7 +447,11 @@
         { "$ref": "#/definitions/textLayer" },
         { "$ref": "#/definitions/layoutRowLayer" },
         { "$ref": "#/definitions/layoutColumnLayer" },
-        { "$ref": "#/definitions/layoutGridLayer" }
+        { "$ref": "#/definitions/layoutGridLayer" },
+        { "$ref": "#/definitions/progressBarLayer" },
+        { "$ref": "#/definitions/cooldownLayer" },
+        { "$ref": "#/definitions/toggleLayer" },
+        { "$ref": "#/definitions/badgeLayer" }
       ]
     },
     "canvas": {
@@ -442,6 +593,7 @@
           "maxLength": 64
         },
         "metadata": { "$ref": "#/definitions/metadata" },
+        "mockState": { "$ref": "#/definitions/stateObject" },
         "canvas": { "$ref": "#/definitions/canvas" },
         "components": {
           "type": "array",

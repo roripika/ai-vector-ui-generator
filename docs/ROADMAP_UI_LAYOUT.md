@@ -103,22 +103,22 @@
 ## Phase 5: 戦闘HUD対応（Bルート本丸）
 
 ### 10. Binding（状態バインド）
-- [ ] widget に `bind` を追加
+- [x] widget に `bind` を追加
   - `bind.value`
   - `bind.visibleWhen`
   - `bind.enabledWhen`
-- [ ] 条件式は最小限（gt / lt / eq / and / or）
-- [ ] `mockState` を screen に定義可能にする
+- [x] 条件式は最小限（gt / lt / eq / and / or）
+- [x] `mockState` を screen に定義可能にする
 
 ### 11. HUD向け widgets
-- [ ] `progressBar`（HP / MP）
-- [ ] cooldown overlay（矩形 or 円）
-- [ ] toggle（auto / 倍速）
-- [ ] badge（残り回数 / 通知）
+- [x] `progressBar`（HP / MP）
+- [x] cooldown overlay（矩形 or 円）
+- [x] toggle（auto / 倍速）
+- [x] badge（残り回数 / 通知）
 
 ### 12. HUD examples
-- [ ] `examples/hud_basic.json`
-- [ ] `examples/hud_basic.mock.json`
+- [x] `examples/hud_basic.json`
+- [x] `examples/hud_basic.mock.json`
   - HP減少
   - スキルCD中
   - 無効状態

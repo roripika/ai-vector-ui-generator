@@ -231,8 +231,24 @@ def _check_layers(
 
         if shape == "text":
             issues.extend(_check_text(layer.get("text", {}), f"{base_path}/{index}/text"))
+        if shape == "badge":
+            issues.extend(_check_text(layer.get("text", {}), f"{base_path}/{index}/text"))
         if shape in ("layoutRow", "layoutColumn", "layoutGrid"):
             issues.extend(_check_layout_layer(layer, f"{base_path}/{index}"))
+        if shape == "progressBar":
+            issues.extend(
+                _check_unit_interval(
+                    layer.get("value"),
+                    f"{base_path}/{index}/value",
+                )
+            )
+        if shape == "cooldownOverlay":
+            issues.extend(
+                _check_unit_interval(
+                    layer.get("progress"),
+                    f"{base_path}/{index}/progress",
+                )
+            )
 
     return issues
 
@@ -435,6 +451,20 @@ def _check_layout_config(layout: dict[str, Any], shape: str, base_path: str) -> 
             if not _has_at_most_two_decimals(value):
                 issues.append(f"{base_path}/{key}: value must have at most 2 decimal places")
 
+    return issues
+
+
+def _check_unit_interval(value: Any, base_path: str) -> List[str]:
+    issues: List[str] = []
+    if value is None:
+        return issues
+    if not _is_number(value):
+        issues.append(f"{base_path}: expected number, got {type(value).__name__}")
+        return issues
+    if value < 0 or value > 1:
+        issues.append(f"{base_path}: value must be between 0 and 1")
+    if not _has_at_most_two_decimals(value):
+        issues.append(f"{base_path}: value must have at most 2 decimal places")
     return issues
 
 

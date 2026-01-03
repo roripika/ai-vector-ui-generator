@@ -1,0 +1,172 @@
+{
+  "version": "0.3.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "HUD Basic",
+    "description": "HUD widgets with binding placeholders",
+    "tags": ["screen", "hud"]
+  },
+  "patternId": "hud_basic",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "hud-hp-bar",
+      "viewBox": [0, 0, 320, 32],
+      "layers": [
+        {
+          "id": "hp-progress",
+          "shape": "progressBar",
+          "rect": { "x": 0, "y": 4, "width": 320, "height": 24, "radius": 12 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "value": 0.85,
+          "bind": { "value": { "var": "player.hpRatio" } }
+        },
+        {
+          "id": "hp-label",
+          "shape": "text",
+          "rect": { "x": 12, "y": 4, "width": 296, "height": 24 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "HP",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hud-skill",
+      "viewBox": [0, 0, 64, 64],
+      "layers": [
+        {
+          "id": "skill-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 64, "height": 64, "radius": 12 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          }
+        },
+        {
+          "id": "skill-cooldown",
+          "shape": "cooldownOverlay",
+          "rect": { "x": 0, "y": 0, "width": 64, "height": 64 },
+          "style": { "fill": "ui.accent" },
+          "progress": 0.0,
+          "direction": "bottomToTop",
+          "bind": { "value": { "var": "skill.cooldown" } }
+        }
+      ]
+    },
+    {
+      "id": "hud-toggle",
+      "viewBox": [0, 0, 96, 48],
+      "layers": [
+        {
+          "id": "auto-toggle",
+          "shape": "toggle",
+          "rect": { "x": 0, "y": 4, "width": 96, "height": 40 },
+          "style": { "fill": "ui.surface" },
+          "knobFill": "ui.accent",
+          "state": "on",
+          "bind": {
+            "value": { "var": "settings.auto" },
+            "enabledWhen": { "var": "settings.autoEnabled" }
+          }
+        },
+        {
+          "id": "auto-label",
+          "shape": "text",
+          "rect": { "x": 0, "y": 0, "width": 96, "height": 16 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "AUTO",
+            "font": "ui.font.primary",
+            "size": 12,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hud-badge",
+      "viewBox": [0, 0, 80, 32],
+      "layers": [
+        {
+          "id": "notice-badge",
+          "shape": "badge",
+          "rect": { "x": 0, "y": 0, "width": 80, "height": 32 },
+          "style": { "fill": "ui.accent" },
+          "textStyle": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "3",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          },
+          "bind": {
+            "value": { "var": "badge.count" },
+            "visibleWhen": {
+              "op": "gt",
+              "args": [{ "var": "badge.count" }, 0]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "hud-hp",
+      "componentId": "hud-hp-bar",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 48, "y": 32 },
+      "size": { "width": 320, "height": 32 },
+      "zIndex": 0
+    },
+    {
+      "id": "hud-toggle-auto",
+      "componentId": "hud-toggle",
+      "anchorTo": "canvas",
+      "anchor": "topRight",
+      "offset": { "x": -220, "y": 32 },
+      "size": { "width": 96, "height": 48 },
+      "zIndex": 1
+    },
+    {
+      "id": "hud-skill-1",
+      "componentId": "hud-skill",
+      "anchorTo": "canvas",
+      "anchor": "topRight",
+      "offset": { "x": -96, "y": 32 },
+      "size": { "width": 64, "height": 64 },
+      "zIndex": 2
+    },
+    {
+      "id": "hud-badge",
+      "componentId": "hud-badge",
+      "anchorTo": "canvas",
+      "anchor": "bottomRight",
+      "offset": { "x": -48, "y": -48 },
+      "size": { "width": 80, "height": 32 },
+      "zIndex": 3
+    }
+  ]
+}

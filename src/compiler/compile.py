@@ -20,6 +20,7 @@ def _compile_button(asset: Dict[str, Any]) -> str:
     registry = TokenRegistry()
     view_box = asset["viewBox"]
     svg = _build_svg_root(view_box)
+    state = asset.get("mockState") or {}
 
     defs = ET.SubElement(svg, "defs")
     gradient_ids: set[str] = set()
@@ -30,7 +31,7 @@ def _compile_button(asset: Dict[str, Any]) -> str:
         svg.remove(defs)
 
     clip_ids: set[str] = set()
-    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="", components=None)
+    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="", components=None, state=state)
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -39,6 +40,7 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
     canvas = asset["canvas"]
     view_box = [0, 0, canvas["width"], canvas["height"]]
     svg = _build_svg_root(view_box)
+    state = asset.get("mockState") or {}
 
     components = {component["id"]: component for component in asset["components"]}
     instances = asset["instances"]
@@ -62,15 +64,16 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
         rect = resolved[instance_id]
         transform = _build_instance_transform(rect, component["viewBox"])
         group = ET.SubElement(svg, "g", {"id": instance_id, "transform": transform})
-    _append_layers(
-        group,
-        component["layers"],
-        registry,
-        defs,
-        clip_ids,
-        id_prefix=f"{instance_id}--",
-        components=components,
-    )
+        _append_layers(
+            group,
+            component["layers"],
+            registry,
+            defs,
+            clip_ids,
+            id_prefix=f"{instance_id}--",
+            components=components,
+            state=state,
+        )
 
     return ET.tostring(svg, encoding="unicode")
 
@@ -127,20 +130,36 @@ def _append_layers(
     clip_ids: set[str],
     id_prefix: str,
     components: Optional[Dict[str, Dict[str, Any]]],
+    state: Dict[str, Any],
 ) -> None:
     for layer in layers:
         group = ET.SubElement(parent, "g", {"id": f"{id_prefix}{layer['id']}"})
+        bind = layer.get("bind") or {}
+        if not _bind_visible(bind, state):
+            group.set("display", "none")
+        if not _bind_enabled(bind, state):
+            group.set("data-enabled", "false")
+
         shape = layer.get("shape")
         if shape == "roundedRect":
             rect_attrs = _build_rect_attrs(layer, registry)
             ET.SubElement(group, "rect", rect_attrs)
         elif shape == "text":
-            text_element = _build_text_element(layer, registry, defs, clip_ids, id_prefix)
+            text_layer = _apply_text_binding(layer, bind, state)
+            text_element = _build_text_element(text_layer, registry, defs, clip_ids, id_prefix)
             group.append(text_element)
         elif shape in ("layoutRow", "layoutColumn", "layoutGrid"):
             if components is None:
                 raise ValueError("Layout layers require component definitions.")
-            _append_layout_items(group, layer, registry, defs, clip_ids, id_prefix, components)
+            _append_layout_items(group, layer, registry, defs, clip_ids, id_prefix, components, state)
+        elif shape == "progressBar":
+            _append_progress_bar(group, layer, registry, bind, state)
+        elif shape == "cooldownOverlay":
+            _append_cooldown_overlay(group, layer, registry, bind, state)
+        elif shape == "toggle":
+            _append_toggle(group, layer, registry, bind, state)
+        elif shape == "badge":
+            _append_badge(group, layer, registry, defs, clip_ids, id_prefix, bind, state)
         else:
             raise ValueError(f"Unsupported shape: {shape}")
 
@@ -214,6 +233,155 @@ def _build_text_element(
     return text_el
 
 
+def _apply_text_binding(
+    layer: Dict[str, Any],
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> Dict[str, Any]:
+    bound_value = _resolve_bind_value(bind, state)
+    if bound_value is None:
+        return layer
+    text = dict(layer.get("text", {}))
+    text["value"] = _format_bind_value(bound_value)
+    return {**layer, "text": text}
+
+
+def _append_progress_bar(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> None:
+    rect = layer["rect"]
+    radius = _radius_for_rect(rect, rect.get("radius", 0))
+    track_fill = _resolve_fill(layer.get("track"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(rect, track_fill, radius))
+
+    bound_value = _resolve_bind_value(bind, state)
+    value = _resolve_number(bound_value, layer.get("value"))
+    value = _clamp_unit(value)
+    fill_width = float(rect["width"]) * value
+    if fill_width <= 0:
+        return
+
+    direction = layer.get("direction", "leftToRight")
+    x = float(rect["x"])
+    if direction == "rightToLeft":
+        x = x + float(rect["width"]) - fill_width
+
+    fill_rect = {
+        "x": x,
+        "y": rect["y"],
+        "width": fill_width,
+        "height": rect["height"],
+        "radius": _radius_for_rect({"width": fill_width, "height": rect["height"]}, radius),
+    }
+    bar_fill = _resolve_fill(layer.get("style", {}).get("fill"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(fill_rect, bar_fill, fill_rect["radius"]))
+
+
+def _append_cooldown_overlay(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> None:
+    rect = layer["rect"]
+    bound_value = _resolve_bind_value(bind, state)
+    progress = _resolve_number(bound_value, layer.get("progress"))
+    progress = _clamp_unit(progress)
+    overlay_height = float(rect["height"]) * progress
+    if overlay_height <= 0:
+        return
+
+    direction = layer.get("direction", "topToBottom")
+    y = float(rect["y"])
+    if direction == "bottomToTop":
+        y = y + float(rect["height"]) - overlay_height
+
+    overlay_rect = {
+        "x": rect["x"],
+        "y": y,
+        "width": rect["width"],
+        "height": overlay_height,
+        "radius": 0,
+    }
+    overlay_fill = _resolve_fill(layer.get("style", {}).get("fill"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(overlay_rect, overlay_fill, 0))
+
+
+def _append_toggle(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> None:
+    rect = layer["rect"]
+    width = float(rect["width"])
+    height = float(rect["height"])
+    radius = rect.get("radius")
+    if radius is None:
+        radius = height / 2
+    radius = _radius_for_rect(rect, radius)
+
+    track_fill = _resolve_fill(layer.get("style", {}).get("fill"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(rect, track_fill, radius))
+
+    is_on = layer.get("state") == "on"
+    bound_value = _resolve_bind_value(bind, state)
+    bound_bool = _coerce_bool(bound_value)
+    if bound_bool is not None:
+        is_on = bound_bool
+
+    knob_size = height * 0.9
+    margin = max((height - knob_size) / 2, 0)
+    knob_y = float(rect["y"]) + margin
+    knob_x = float(rect["x"]) + margin
+    if is_on:
+        knob_x = float(rect["x"]) + width - knob_size - margin
+
+    knob_rect = {
+        "x": knob_x,
+        "y": knob_y,
+        "width": knob_size,
+        "height": knob_size,
+        "radius": knob_size / 2,
+    }
+    knob_fill = _resolve_fill(layer.get("knobFill"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(knob_rect, knob_fill, knob_rect["radius"]))
+
+
+def _append_badge(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    defs: ET.Element,
+    clip_ids: set[str],
+    id_prefix: str,
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> None:
+    rect = layer["rect"]
+    width = float(rect["width"])
+    height = float(rect["height"])
+    radius = rect.get("radius")
+    if radius is None:
+        radius = height / 2
+    radius = _radius_for_rect({"width": width, "height": height}, radius)
+
+    bg_fill = _resolve_fill(layer.get("style", {}).get("fill"), registry)
+    ET.SubElement(parent, "rect", _rect_attrs(rect, bg_fill, radius))
+
+    text_style = layer.get("textStyle") or layer.get("style", {})
+    text_layer = {**layer, "style": text_style}
+    text_layer = _apply_text_binding(text_layer, bind, state)
+    text_element = _build_text_element(text_layer, registry, defs, clip_ids, id_prefix)
+    parent.append(text_element)
+
+
 def _append_layout_items(
     parent: ET.Element,
     layer: Dict[str, Any],
@@ -222,6 +390,7 @@ def _append_layout_items(
     clip_ids: set[str],
     id_prefix: str,
     components: Dict[str, Dict[str, Any]],
+    state: Dict[str, Any],
 ) -> None:
     layout_type = layer["shape"]
     rect = layer["rect"]
@@ -246,6 +415,7 @@ def _append_layout_items(
             clip_ids,
             id_prefix=f"{item_group_id}--",
             components=components,
+            state=state,
         )
 
 
@@ -436,6 +606,158 @@ def _text_position(rect: Dict[str, Any], align: str) -> Tuple[float, float]:
     return x, y
 
 
+def _rect_attrs(rect: Dict[str, Any], fill: str, radius: float) -> Dict[str, str]:
+    return {
+        "x": _fmt(float(rect["x"])),
+        "y": _fmt(float(rect["y"])),
+        "width": _fmt(float(rect["width"])),
+        "height": _fmt(float(rect["height"])),
+        "rx": _fmt(radius),
+        "ry": _fmt(radius),
+        "fill": fill,
+    }
+
+
+def _radius_for_rect(rect: Dict[str, Any], radius: float) -> float:
+    width = float(rect["width"])
+    height = float(rect["height"])
+    return max(min(float(radius or 0), width / 2, height / 2), 0.0)
+
+
+def _resolve_bind_value(bind: Dict[str, Any], state: Dict[str, Any]) -> Optional[Any]:
+    if not bind:
+        return None
+    value_ref = bind.get("value")
+    if isinstance(value_ref, dict):
+        var_name = value_ref.get("var")
+        if isinstance(var_name, str):
+            return _resolve_state_var(state, var_name)
+    return None
+
+
+def _resolve_state_var(state: Dict[str, Any], var_path: str) -> Optional[Any]:
+    current: Any = state
+    for segment in var_path.split("."):
+        if not isinstance(current, dict) or segment not in current:
+            return None
+        current = current[segment]
+    return current
+
+
+def _bind_visible(bind: Dict[str, Any], state: Dict[str, Any]) -> bool:
+    expr = bind.get("visibleWhen")
+    if expr is None:
+        return True
+    result = _eval_bind_expr(expr, state)
+    if result is None:
+        return True
+    coerced = _coerce_bool(result)
+    return True if coerced is None else coerced
+
+
+def _bind_enabled(bind: Dict[str, Any], state: Dict[str, Any]) -> bool:
+    expr = bind.get("enabledWhen")
+    if expr is None:
+        return True
+    result = _eval_bind_expr(expr, state)
+    if result is None:
+        return True
+    coerced = _coerce_bool(result)
+    return True if coerced is None else coerced
+
+
+def _eval_bind_expr(expr: Any, state: Dict[str, Any]) -> Optional[Any]:
+    if isinstance(expr, dict) and "var" in expr:
+        var_name = expr.get("var")
+        if isinstance(var_name, str):
+            return _resolve_state_var(state, var_name)
+        return None
+
+    if isinstance(expr, bool):
+        return expr
+    if isinstance(expr, (int, float)) and not isinstance(expr, bool):
+        return float(expr)
+
+    if isinstance(expr, dict) and "op" in expr:
+        op = expr.get("op")
+        args = expr.get("args")
+        if not isinstance(args, list):
+            return None
+        values = [_eval_bind_expr(arg, state) for arg in args]
+        if op == "eq":
+            if any(value is None for value in values):
+                return None
+            first = values[0]
+            return all(value == first for value in values[1:])
+        if op in ("gt", "lt"):
+            numbers = [_coerce_number(value) for value in values]
+            if any(number is None for number in numbers):
+                return None
+            if op == "gt":
+                return all(numbers[index] > numbers[index + 1] for index in range(len(numbers) - 1))
+            return all(numbers[index] < numbers[index + 1] for index in range(len(numbers) - 1))
+        if op == "and":
+            bools = [_coerce_bool(value) for value in values]
+            if any(value is False for value in bools):
+                return False
+            if all(value is True for value in bools):
+                return True
+            return None
+        if op == "or":
+            bools = [_coerce_bool(value) for value in values]
+            if any(value is True for value in bools):
+                return True
+            if all(value is False for value in bools):
+                return False
+            return None
+    return None
+
+
+def _coerce_number(value: Any) -> Optional[float]:
+    if isinstance(value, bool):
+        return float(value)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        number = float(value)
+        if math.isfinite(number):
+            return number
+    return None
+
+
+def _coerce_bool(value: Any) -> Optional[bool]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    number = _coerce_number(value)
+    if number is not None:
+        return bool(number)
+    return None
+
+
+def _resolve_number(primary: Any, fallback: Any) -> float:
+    value = _coerce_number(primary)
+    if value is not None:
+        return value
+    value = _coerce_number(fallback)
+    return value if value is not None else 0.0
+
+
+def _clamp_unit(value: float) -> float:
+    if not math.isfinite(float(value)):
+        return 0.0
+    return max(0.0, min(1.0, float(value)))
+
+
+def _format_bind_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        number = float(value)
+        if math.isfinite(number):
+            return f"{number:g}"
+    return str(value)
+
+
 def _collect_defs(
     layers: Iterable[Dict[str, Any]],
     registry: TokenRegistry,
@@ -457,6 +779,27 @@ def _collect_defs(
         if glow_def and glow_token not in glow_ids:
             defs.append(_build_glow_filter(glow_token, glow_def, view_box))
             glow_ids.add(glow_token)
+
+        shape = layer.get("shape")
+        if shape == "progressBar":
+            track_token = layer.get("track")
+            gradient_def = registry.get_linear_gradient(track_token)
+            if gradient_def and track_token not in gradient_ids:
+                defs.append(_build_linear_gradient(track_token, gradient_def))
+                gradient_ids.add(track_token)
+        if shape == "toggle":
+            knob_token = layer.get("knobFill")
+            gradient_def = registry.get_linear_gradient(knob_token)
+            if gradient_def and knob_token not in gradient_ids:
+                defs.append(_build_linear_gradient(knob_token, gradient_def))
+                gradient_ids.add(knob_token)
+        if shape == "badge":
+            text_style = layer.get("textStyle") or {}
+            text_fill = text_style.get("fill")
+            gradient_def = registry.get_linear_gradient(text_fill)
+            if gradient_def and text_fill not in gradient_ids:
+                defs.append(_build_linear_gradient(text_fill, gradient_def))
+                gradient_ids.add(text_fill)
 
 
 def _resolve_instances(
