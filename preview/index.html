@@ -39,6 +39,32 @@
             </div>
           </div>
           <p class="selection" id="selection-a">Selected: -</p>
+          <div class="meta" id="meta-a">
+            <div class="meta-row">
+              <span class="meta-label">id</span>
+              <span class="meta-value" data-field="id">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">role</span>
+              <span class="meta-value" data-field="role">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">importance</span>
+              <span class="meta-value" data-field="importance">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">state</span>
+              <span class="meta-value" data-field="state">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">constraints</span>
+              <span class="meta-value" data-field="constraints">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">layout_ref</span>
+              <span class="meta-value" data-field="layout_ref">-</span>
+            </div>
+          </div>
           <p class="hint">Click a group to show id and component mapping.</p>
         </div>
 
@@ -59,7 +85,53 @@
             </div>
           </div>
           <p class="selection" id="selection-b">Selected: -</p>
+          <div class="meta" id="meta-b">
+            <div class="meta-row">
+              <span class="meta-label">id</span>
+              <span class="meta-value" data-field="id">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">role</span>
+              <span class="meta-value" data-field="role">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">importance</span>
+              <span class="meta-value" data-field="importance">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">state</span>
+              <span class="meta-value" data-field="state">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">constraints</span>
+              <span class="meta-value" data-field="constraints">-</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">layout_ref</span>
+              <span class="meta-value" data-field="layout_ref">-</span>
+            </div>
+          </div>
           <p class="hint">Use B for before/after comparison.</p>
+        </div>
+      </section>
+
+      <section class="patch">
+        <div class="panel patch-panel">
+          <div class="panel-header">
+            <h2>Patch</h2>
+            <p class="status" id="status-patch">JSON Patch</p>
+          </div>
+          <textarea
+            id="patch-input"
+            rows="6"
+            placeholder='[{"op":"replace","path":"/layers/0/style/fill","value":"ui.accent"}]'
+          ></textarea>
+          <div class="row">
+            <button id="apply-patch-a">Apply Patch → A</button>
+            <button id="apply-patch-b">Apply Patch → B (from A)</button>
+            <button id="save-patch">Save Patch</button>
+          </div>
+          <p class="hint">Use Panel A as the base for before/after comparisons.</p>
         </div>
       </section>
 

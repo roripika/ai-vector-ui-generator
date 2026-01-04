@@ -120,6 +120,16 @@ main {
   background: #fcfbf8;
 }
 
+textarea {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  resize: vertical;
+  background: #fcfbf8;
+}
+
 .row {
   display: flex;
   gap: 8px;
@@ -148,6 +158,39 @@ button:disabled {
   border-radius: 10px;
 }
 
+.meta {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+  background: #fbf7f0;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.meta-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.meta-value {
+  color: var(--ink);
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .hint {
   font-size: 0.8rem;
   color: var(--muted);
@@ -157,6 +200,14 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.patch {
+  display: block;
+}
+
+.patch-panel .row {
+  flex-wrap: wrap;
 }
 
 .canvas.single {

@@ -16,6 +16,7 @@
 - クリック選択でID表示（screenはinstance→componentの対応も表示）
 - A/B比較（2ペイン表示）
 - ExportはCLIに委譲（UIにCLIコマンド表示）
+- JSON Patch入力→適用→再レンダ（最小ループ）
 
 ## 起動方法
 ```bash
@@ -29,6 +30,10 @@ python -m src.preview
   - ファイル選択 または パス入力（例: `examples/screen_dialog.json`）
 - クリックした要素のIDを表示
 - Split Viewで2ペインの表示を切り替え
+- Patch欄にJSON Patchを入力して適用
+  - `Apply Patch → A`: Aに適用
+  - `Apply Patch → B (from A)`: Aをベースにパッチを当ててBへ描画
+  - `Save Patch`: パッチJSONを保存
 
 ## API（内部）
 - `POST /api/compile`
@@ -39,6 +44,7 @@ python -m src.preview
 - GUI上の編集は未対応
 - component id は instance id から推定（screenのみに対応）
 - ExportはCLI実行が前提
+- JSON Patchは add/replace/remove のみ対応
 
 ## 次の拡張候補
 - component/role/importanceの可視化
