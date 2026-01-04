@@ -181,6 +181,22 @@ button:disabled {
   font-size: 0.65rem;
 }
 
+.meta-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-right: auto;
+  margin-left: 6px;
+  cursor: help;
+  background: #f8f4ee;
+}
+
 .meta-value {
   color: var(--ink);
   font-family: "JetBrains Mono", "Fira Code", monospace;
