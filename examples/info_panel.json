@@ -1,0 +1,144 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Info Panel",
+    "description": "Data display panel with grid layout reference",
+    "tags": ["screen", "panel", "data"]
+  },
+  "patternId": "info_panel",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "info-panel",
+      "name": "Info Panel",
+      "role": "data_display",
+      "importance": "info",
+      "constraints": ["padding", "nine_slice"],
+      "viewBox": [0, 0, 480, 220],
+      "layers": [
+        {
+          "id": "panel-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 480, "height": 220, "radius": 20 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "container",
+          "importance": "secondary",
+          "constraints": { "padding": { "top": 12, "left": 12 } }
+        },
+        {
+          "id": "panel-title",
+          "shape": "text",
+          "rect": { "x": 24, "y": 20, "width": 432, "height": 28 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Character Stats",
+            "font": "ui.font.title",
+            "size": 22,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "left"
+          },
+          "role": "text",
+          "importance": "primary",
+          "constraints": ["max_lines"],
+          "layout_ref": "grid:stats_panel"
+        },
+        {
+          "id": "stat-hp",
+          "shape": "text",
+          "rect": { "x": 24, "y": 64, "width": 200, "height": 22 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "HP 1200",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          },
+          "role": "data_display",
+          "importance": "info",
+          "constraints": ["baseline"],
+          "layout_ref": "grid:stats_panel"
+        },
+        {
+          "id": "stat-atk",
+          "shape": "text",
+          "rect": { "x": 24, "y": 92, "width": 200, "height": 22 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "ATK 340",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          },
+          "role": "data_display",
+          "importance": "info",
+          "constraints": ["baseline"],
+          "layout_ref": "grid:stats_panel"
+        },
+        {
+          "id": "stat-def",
+          "shape": "text",
+          "rect": { "x": 24, "y": 120, "width": 200, "height": 22 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "DEF 210",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          },
+          "role": "data_display",
+          "importance": "info",
+          "constraints": ["baseline"],
+          "layout_ref": "grid:stats_panel"
+        },
+        {
+          "id": "stat-progress",
+          "shape": "progressBar",
+          "rect": { "x": 24, "y": 160, "width": 432, "height": 20, "radius": 10 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "value": 0.72,
+          "role": "progress",
+          "importance": "info",
+          "state": "active",
+          "layout_ref": "grid:stats_panel"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "info-panel-main",
+      "componentId": "info-panel",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": 0 },
+      "size": { "width": 480, "height": 220 },
+      "role": "data_display",
+      "importance": "info",
+      "state": "default",
+      "constraints": ["safe_area"],
+      "layout_ref": "grid:stats_panel",
+      "zIndex": 1
+    }
+  ]
+}

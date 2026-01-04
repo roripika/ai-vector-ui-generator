@@ -1,0 +1,88 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Primary Action States",
+    "description": "Primary action button with pressed/disabled states",
+    "tags": ["screen", "button", "state"]
+  },
+  "patternId": "actions",
+  "canvas": {
+    "width": 960,
+    "height": 540,
+    "safeArea": { "x": 40, "y": 40, "width": 880, "height": 460 }
+  },
+  "components": [
+    {
+      "id": "primary-button",
+      "name": "Primary Button",
+      "role": "action",
+      "importance": "primary",
+      "constraints": ["min_tap"],
+      "viewBox": [0, 0, 240, 64],
+      "layers": [
+        {
+          "id": "button-body",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 240, "height": 64, "radius": 20 },
+          "style": {
+            "fill": "ui.primaryGradient",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2,
+            "glow": "ui.softGlow"
+          },
+          "role": "container",
+          "importance": "primary"
+        },
+        {
+          "id": "button-label",
+          "shape": "text",
+          "rect": { "x": 24, "y": 18, "width": 192, "height": 28 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Start",
+            "font": "ui.font.primary",
+            "size": 22,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          },
+          "role": "text",
+          "importance": "primary",
+          "constraints": ["baseline"]
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "primary-pressed",
+      "componentId": "primary-button",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": -60 },
+      "size": { "width": 240, "height": 64 },
+      "role": "action",
+      "importance": "primary",
+      "state": "pressed",
+      "constraints": ["min_tap", "safe_area"],
+      "layout_ref": "flow:primary_actions",
+      "zIndex": 1
+    },
+    {
+      "id": "primary-disabled",
+      "componentId": "primary-button",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": 40 },
+      "size": { "width": 240, "height": 64 },
+      "role": "action",
+      "importance": "primary",
+      "state": "disabled",
+      "constraints": ["min_tap", "safe_area"],
+      "layout_ref": "flow:primary_actions",
+      "zIndex": 1
+    }
+  ]
+}

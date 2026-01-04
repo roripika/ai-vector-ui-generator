@@ -1,0 +1,169 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Modal Overlay",
+    "description": "Modal with overlay and close button",
+    "tags": ["screen", "modal", "overlay"]
+  },
+  "patternId": "modal",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "slots": [
+    {
+      "id": "modal_title",
+      "rect": { "x": 320, "y": 200, "width": 640, "height": 40 },
+      "description": "Modal title slot"
+    },
+    {
+      "id": "modal_body",
+      "rect": { "x": 320, "y": 260, "width": 640, "height": 200 },
+      "description": "Modal body slot"
+    }
+  ],
+  "components": [
+    {
+      "id": "screen-overlay",
+      "name": "Screen Overlay",
+      "role": "overlay",
+      "importance": "muted",
+      "constraints": ["overlap"],
+      "viewBox": [0, 0, 1280, 720],
+      "layers": [
+        {
+          "id": "overlay-fill",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 1280, "height": 720, "radius": 0 },
+          "style": { "fill": "ui.surface" },
+          "role": "overlay",
+          "importance": "muted"
+        }
+      ]
+    },
+    {
+      "id": "modal-panel",
+      "name": "Modal Panel",
+      "role": "modal",
+      "importance": "primary",
+      "constraints": ["padding", "nine_slice"],
+      "viewBox": [0, 0, 720, 420],
+      "layers": [
+        {
+          "id": "panel-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 720, "height": 420, "radius": 24 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "container",
+          "importance": "secondary",
+          "constraints": ["nine_slice"]
+        },
+        {
+          "id": "panel-title",
+          "shape": "text",
+          "rect": { "x": 40, "y": 32, "width": 640, "height": 36 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Item Details",
+            "font": "ui.font.title",
+            "size": 26,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "left"
+          },
+          "role": "text",
+          "importance": "primary",
+          "constraints": ["max_lines"],
+          "layout_ref": "slot:modal_title"
+        },
+        {
+          "id": "panel-body",
+          "shape": "text",
+          "rect": { "x": 40, "y": 92, "width": 640, "height": 200 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "This modal explains how the item behaves during battle.",
+            "font": "ui.font.primary",
+            "size": 18,
+            "maxLines": 4,
+            "overflow": "clip",
+            "fit": "none",
+            "align": "left"
+          },
+          "role": "data_display",
+          "importance": "info",
+          "constraints": ["max_lines"],
+          "layout_ref": "slot:modal_body"
+        }
+      ]
+    },
+    {
+      "id": "close-button",
+      "name": "Close Button",
+      "role": "action",
+      "importance": "secondary",
+      "constraints": ["min_tap", "hit_area"],
+      "viewBox": [0, 0, 40, 40],
+      "layers": [
+        {
+          "id": "close-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 40, "height": 40, "radius": 12 },
+          "style": { "fill": "ui.accent" },
+          "role": "action",
+          "importance": "secondary"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "overlay",
+      "componentId": "screen-overlay",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 0, "y": 0 },
+      "size": { "width": 1280, "height": 720 },
+      "role": "overlay",
+      "importance": "muted",
+      "state": "default",
+      "layout_ref": "stack:modal_overlay",
+      "zIndex": 0
+    },
+    {
+      "id": "modal",
+      "componentId": "modal-panel",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": -10 },
+      "size": { "width": 720, "height": 420 },
+      "role": "modal",
+      "importance": "primary",
+      "state": "default",
+      "constraints": ["safe_area"],
+      "layout_ref": "slot:modal_root",
+      "zIndex": 1
+    },
+    {
+      "id": "modal-close",
+      "componentId": "close-button",
+      "anchorTo": "modal",
+      "anchor": "topRight",
+      "offset": { "x": -24, "y": 24 },
+      "size": { "width": 40, "height": 40 },
+      "role": "action",
+      "importance": "secondary",
+      "state": "default",
+      "constraints": ["min_tap", "hit_area"],
+      "layout_ref": "slot:modal_close",
+      "zIndex": 2
+    }
+  ]
+}

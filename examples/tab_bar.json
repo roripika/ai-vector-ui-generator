@@ -1,0 +1,154 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Tab Bar",
+    "description": "Tab bar with selected state and badge",
+    "tags": ["screen", "tab", "navigation"]
+  },
+  "patternId": "tabs",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "tab-item",
+      "name": "Tab Item",
+      "role": "navigation",
+      "importance": "secondary",
+      "viewBox": [0, 0, 160, 72],
+      "layers": [
+        {
+          "id": "tab-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 160, "height": 72, "radius": 16 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "container",
+          "importance": "secondary"
+        },
+        {
+          "id": "tab-icon",
+          "shape": "roundedRect",
+          "rect": { "x": 64, "y": 10, "width": 32, "height": 24, "radius": 6 },
+          "style": { "fill": "ui.accent" },
+          "role": "icon",
+          "importance": "secondary",
+          "constraints": ["aspect_ratio"]
+        },
+        {
+          "id": "tab-label",
+          "shape": "text",
+          "rect": { "x": 12, "y": 40, "width": 136, "height": 20 },
+          "style": { "fill": "ui.textSecondary" },
+          "text": {
+            "value": "Tab",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          },
+          "role": "text",
+          "importance": "secondary",
+          "constraints": ["baseline"]
+        },
+        {
+          "id": "tab-badge",
+          "shape": "badge",
+          "rect": { "x": 112, "y": 6, "width": 40, "height": 20 },
+          "style": { "fill": "ui.accent" },
+          "textStyle": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "3",
+            "font": "ui.font.primary",
+            "size": 12,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          },
+          "role": "badge",
+          "importance": "info",
+          "constraints": ["snap"]
+        }
+      ]
+    },
+    {
+      "id": "tab-bar",
+      "name": "Tab Bar",
+      "role": "navigation",
+      "importance": "secondary",
+      "constraints": ["spacing"],
+      "viewBox": [0, 0, 640, 72],
+      "layers": [
+        {
+          "id": "tabs-row",
+          "shape": "layoutRow",
+          "rect": { "x": 0, "y": 0, "width": 640, "height": 72 },
+          "layout": { "gap": 12, "align": "center", "padding": { "left": 0, "right": 0 } },
+          "items": [
+            {
+              "id": "tab-home",
+              "componentId": "tab-item",
+              "size": { "width": 160, "height": 72 },
+              "role": "navigation",
+              "importance": "primary",
+              "state": "selected"
+            },
+            {
+              "id": "tab-messages",
+              "componentId": "tab-item",
+              "size": { "width": 160, "height": 72 },
+              "role": "navigation",
+              "importance": "secondary",
+              "state": "default"
+            },
+            {
+              "id": "tab-shop",
+              "componentId": "tab-item",
+              "size": { "width": 160, "height": 72 },
+              "role": "navigation",
+              "importance": "secondary",
+              "state": "default"
+            },
+            {
+              "id": "tab-settings",
+              "componentId": "tab-item",
+              "size": { "width": 160, "height": 72 },
+              "role": "navigation",
+              "importance": "secondary",
+              "state": "default"
+            }
+          ],
+          "role": "navigation",
+          "importance": "secondary",
+          "constraints": ["spacing"],
+          "layout_ref": "flow:tab_row"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "main-tab-bar",
+      "componentId": "tab-bar",
+      "anchorTo": "canvas",
+      "anchor": "bottom",
+      "offset": { "x": 0, "y": -24 },
+      "size": { "width": 640, "height": 72 },
+      "role": "navigation",
+      "importance": "secondary",
+      "state": "default",
+      "constraints": ["safe_area"],
+      "layout_ref": "flow:tab_row",
+      "zIndex": 1
+    }
+  ]
+}

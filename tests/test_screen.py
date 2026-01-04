@@ -12,6 +12,11 @@ HUD_EXAMPLE_PATH = Path(__file__).resolve().parents[1] / "examples" / "hud_basic
 HUD_MOCK_EXAMPLE_PATH = (
     Path(__file__).resolve().parents[1] / "examples" / "hud_basic.mock.json"
 )
+PRIMARY_BUTTON_PATH = Path(__file__).resolve().parents[1] / "examples" / "primary_action_states.json"
+MODAL_PATH = Path(__file__).resolve().parents[1] / "examples" / "modal_overlay.json"
+TAB_BAR_PATH = Path(__file__).resolve().parents[1] / "examples" / "tab_bar.json"
+INFO_PANEL_PATH = Path(__file__).resolve().parents[1] / "examples" / "info_panel.json"
+TOAST_PATH = Path(__file__).resolve().parents[1] / "examples" / "toast_feedback.json"
 
 
 def load_asset() -> dict:
@@ -39,6 +44,31 @@ def load_hud_mock_asset() -> dict:
         return json.load(handle)
 
 
+def load_primary_button_asset() -> dict:
+    with PRIMARY_BUTTON_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_modal_asset() -> dict:
+    with MODAL_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_tab_bar_asset() -> dict:
+    with TAB_BAR_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_info_panel_asset() -> dict:
+    with INFO_PANEL_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_toast_asset() -> dict:
+    with TOAST_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def test_screen_example_validates():
     asset = load_asset()
     validate_asset(asset)
@@ -54,6 +84,12 @@ def test_screen_example_validates():
 
     hud_mock_asset = load_hud_mock_asset()
     validate_asset(hud_mock_asset)
+
+    validate_asset(load_primary_button_asset())
+    validate_asset(load_modal_asset())
+    validate_asset(load_tab_bar_asset())
+    validate_asset(load_info_panel_asset())
+    validate_asset(load_toast_asset())
 
 
 def test_screen_compiles_with_canvas_viewbox():
@@ -77,3 +113,23 @@ def test_screen_compiles_with_canvas_viewbox():
     hud_mock_svg = compile_svg(load_hud_mock_asset())
     hud_mock_root = ET.fromstring(hud_mock_svg)
     assert hud_mock_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    primary_svg = compile_svg(load_primary_button_asset())
+    primary_root = ET.fromstring(primary_svg)
+    assert primary_root.attrib.get("viewBox") == "0 0 960 540"
+
+    modal_svg = compile_svg(load_modal_asset())
+    modal_root = ET.fromstring(modal_svg)
+    assert modal_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    tab_svg = compile_svg(load_tab_bar_asset())
+    tab_root = ET.fromstring(tab_svg)
+    assert tab_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    info_svg = compile_svg(load_info_panel_asset())
+    info_root = ET.fromstring(info_svg)
+    assert info_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    toast_svg = compile_svg(load_toast_asset())
+    toast_root = ET.fromstring(toast_svg)
+    assert toast_root.attrib.get("viewBox") == "0 0 1280 720"

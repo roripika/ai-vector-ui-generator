@@ -1,0 +1,74 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Toast Feedback",
+    "description": "Non-blocking toast message",
+    "tags": ["screen", "toast", "feedback"]
+  },
+  "patternId": "toast",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "toast",
+      "name": "Toast",
+      "role": "feedback",
+      "importance": "info",
+      "state": "success",
+      "constraints": ["overlap"],
+      "viewBox": [0, 0, 520, 64],
+      "layers": [
+        {
+          "id": "toast-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 520, "height": 64, "radius": 18 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "feedback",
+          "importance": "info"
+        },
+        {
+          "id": "toast-message",
+          "shape": "text",
+          "rect": { "x": 24, "y": 20, "width": 472, "height": 24 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Saved successfully",
+            "font": "ui.font.primary",
+            "size": 18,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "left"
+          },
+          "role": "feedback",
+          "importance": "info",
+          "constraints": ["max_lines"]
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "toast-main",
+      "componentId": "toast",
+      "anchorTo": "canvas",
+      "anchor": "bottom",
+      "offset": { "x": 0, "y": -80 },
+      "size": { "width": 520, "height": 64 },
+      "role": "feedback",
+      "importance": "info",
+      "state": "success",
+      "constraints": ["safe_area"],
+      "layout_ref": "stack:toast_queue",
+      "zIndex": 2
+    }
+  ]
+}
