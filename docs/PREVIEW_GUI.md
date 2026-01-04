@@ -34,6 +34,7 @@ python -m src.preview
   - `Apply Patch → A`: Aに適用
   - `Apply Patch → B (from A)`: Aをベースにパッチを当ててBへ描画
   - `Save Patch`: パッチJSONを保存
+- 語彙ガイドは `docs/SCHEMA_FIELD_RULES.md` を参照
 
 ## API（内部）
 - `POST /api/compile`

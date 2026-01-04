@@ -55,17 +55,115 @@
         }
       }
     },
-    "semanticTag": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 64
+    "roleTag": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "action",
+            "navigation",
+            "container",
+            "data_display",
+            "feedback",
+            "decoration",
+            "text",
+            "icon",
+            "media",
+            "control",
+            "status",
+            "modal",
+            "overlay",
+            "header",
+            "footer",
+            "list",
+            "grid",
+            "tab",
+            "badge",
+            "progress",
+            "toggle",
+            "input"
+          ]
+        },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
+        { "type": "string", "enum": ["unknown"] }
+      ]
+    },
+    "importanceTag": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "primary",
+            "secondary",
+            "tertiary",
+            "emphasis",
+            "muted",
+            "info",
+            "warning",
+            "critical",
+            "decorative"
+          ]
+        },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
+        { "type": "string", "enum": ["unknown"] }
+      ]
+    },
+    "stateTag": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "default",
+            "hover",
+            "pressed",
+            "disabled",
+            "selected",
+            "active",
+            "focused",
+            "loading",
+            "success",
+            "error",
+            "warning",
+            "cooldown",
+            "locked",
+            "expanded",
+            "collapsed",
+            "on",
+            "off"
+          ]
+        },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
+        { "type": "string", "enum": ["unknown"] }
+      ]
+    },
+    "constraintKey": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "min_tap",
+            "safe_area",
+            "overlap",
+            "padding",
+            "spacing",
+            "nine_slice",
+            "aspect_ratio",
+            "hit_area",
+            "baseline",
+            "snap",
+            "max_lines"
+          ]
+        },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
+        { "type": "string", "enum": ["unknown"] }
+      ]
     },
     "constraints": {
       "oneOf": [
         {
           "type": "array",
           "maxItems": 32,
-          "items": { "$ref": "#/definitions/semanticTag" }
+          "items": { "$ref": "#/definitions/constraintKey" }
         },
         {
           "type": "object",
@@ -74,12 +172,11 @@
       ]
     },
     "layoutRef": {
-      "oneOf": [
-        { "$ref": "#/definitions/semanticTag" },
-        {
-          "type": "object",
-          "additionalProperties": true
-        }
+      "anyOf": [
+        { "type": "string", "pattern": "^(slot|grid|flow|stack|list):[A-Za-z0-9_-]+$" },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
+        { "type": "string", "enum": ["unknown"] },
+        { "type": "object", "additionalProperties": true }
       ]
     },
     "rectBase": {
@@ -318,9 +415,9 @@
           "maxLength": 64
         },
         "size": { "$ref": "#/definitions/size" },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" }
       }
@@ -356,9 +453,9 @@
         "shape": { "const": "roundedRect" },
         "rect": { "$ref": "#/definitions/roundedRect" },
         "style": { "$ref": "#/definitions/style" },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -381,9 +478,9 @@
         "rect": { "$ref": "#/definitions/textRect" },
         "style": { "$ref": "#/definitions/style" },
         "text": { "$ref": "#/definitions/textContent" },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -411,9 +508,9 @@
           "maxItems": 128,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -441,9 +538,9 @@
           "maxItems": 128,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -471,9 +568,9 @@
           "maxItems": 256,
           "items": { "$ref": "#/definitions/layoutItem" }
         },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -498,9 +595,9 @@
         "track": { "$ref": "#/definitions/token" },
         "value": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
         "direction": { "type": "string", "enum": ["leftToRight", "rightToLeft"] },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -524,9 +621,9 @@
         "style": { "$ref": "#/definitions/style" },
         "progress": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
         "direction": { "type": "string", "enum": ["topToBottom", "bottomToTop"] },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -549,14 +646,9 @@
         "rect": { "$ref": "#/definitions/rectBase" },
         "style": { "$ref": "#/definitions/style" },
         "knobFill": { "$ref": "#/definitions/token" },
-        "state": {
-          "anyOf": [
-            { "type": "string", "enum": ["on", "off"] },
-            { "$ref": "#/definitions/semanticTag" }
-          ]
-        },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -580,9 +672,9 @@
         "style": { "$ref": "#/definitions/style" },
         "textStyle": { "$ref": "#/definitions/style" },
         "text": { "$ref": "#/definitions/textContent" },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
@@ -635,9 +727,9 @@
           "maxLength": 64
         },
         "name": { "type": "string", "maxLength": 80 },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "viewBox": { "$ref": "#/definitions/viewBox" },
@@ -684,9 +776,9 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "role": { "$ref": "#/definitions/semanticTag" },
-        "importance": { "$ref": "#/definitions/semanticTag" },
-        "state": { "$ref": "#/definitions/semanticTag" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "anchorTo": {
