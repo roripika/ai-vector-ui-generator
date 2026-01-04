@@ -1,0 +1,25 @@
+id: info_panel
+category: pattern
+role: data_display
+importance: info
+intent: "情報を整理してまとめて提示する"
+when:
+  - "複数の指標や説明を表示したい"
+  - "統計や詳細をまとめたい"
+avoid:
+  - "単一の数値だけを見せたい"
+constraints:
+  - padding
+  - nine_slice
+  - baseline
+states:
+  - default
+layout_ref:
+  type: grid
+  example: "grid:stats_panel"
+export_hint:
+  default_size:
+    width: 480
+    height: 220
+notes:
+  - "grid参照で整列の意図を伝える"

@@ -1,0 +1,27 @@
+id: primary_action_button
+category: pattern
+role: action
+importance: primary
+intent: "主要アクションの実行を明確に示す"
+when:
+  - "画面内で最重要のCTAが必要"
+  - "タップ領域の確保が必要"
+avoid:
+  - "複数のprimaryが並ぶ画面"
+  - "誤タップが致命的な場面"
+constraints:
+  - min_tap
+  - safe_area
+states:
+  - default
+  - pressed
+  - disabled
+layout_ref:
+  type: flow
+  example: "flow:primary_actions"
+export_hint:
+  default_size:
+    width: 240
+    height: 64
+notes:
+  - "座標は必須。layout_refは補助情報。"

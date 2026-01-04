@@ -1,0 +1,24 @@
+# テンプレ目録（最小）
+# summary は1行、path はリポジトリ内の相対パス
+
+templates:
+  - id: primary_action_button
+    summary: "主要アクションボタン（pressed/disabled含む）"
+    path: "ui-templates/patterns/primary_action_button.yaml"
+    tags: [action, primary, flow]
+  - id: modal_overlay
+    summary: "モーダル＋オーバーレイ＋クローズボタン"
+    path: "ui-templates/patterns/modal_overlay.yaml"
+    tags: [modal, overlay, safe_area, slot]
+  - id: tab_bar
+    summary: "タブバー（selected + badge）"
+    path: "ui-templates/patterns/tab_bar.yaml"
+    tags: [navigation, tab, badge, flow]
+  - id: info_panel
+    summary: "情報パネル（data_display）"
+    path: "ui-templates/patterns/info_panel.yaml"
+    tags: [data_display, info, grid]
+  - id: toast
+    summary: "トースト通知（non_blocking）"
+    path: "ui-templates/patterns/toast.yaml"
+    tags: [feedback, stack]

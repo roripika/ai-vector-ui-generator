@@ -1,0 +1,26 @@
+id: tab_bar
+category: pattern
+role: navigation
+importance: secondary
+intent: "主要画面間の移動を提供する"
+when:
+  - "同列のセクション切替が必要"
+  - "常時表示のナビゲーションが必要"
+avoid:
+  - "切替対象が1つだけ"
+constraints:
+  - spacing
+  - safe_area
+states:
+  - default
+  - selected
+layout_ref:
+  type: flow
+  example: "flow:tab_row"
+export_hint:
+  default_size:
+    width: 640
+    height: 72
+notes:
+  - "badgeは未読数や通知に使用"
+  - "座標は必須。layout_refは補助情報。"

@@ -1,0 +1,28 @@
+id: modal_overlay
+category: pattern
+role: modal
+importance: primary
+intent: "背景を遮断して重要情報を提示する"
+when:
+  - "ユーザーの注意を強制的に集めたい"
+  - "確認や詳細表示が必要"
+avoid:
+  - "頻繁に表示される非重要通知"
+constraints:
+  - overlay
+  - safe_area
+  - padding
+  - nine_slice
+states:
+  - default
+  - loading
+layout_ref:
+  type: slot
+  example: "slot:modal_root"
+export_hint:
+  default_size:
+    width: 720
+    height: 420
+notes:
+  - "overlayは画面全体を覆う前提"
+  - "closeボタンはhit_areaを確保"

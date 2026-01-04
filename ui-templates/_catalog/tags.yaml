@@ -1,0 +1,55 @@
+# 最小語彙（MVP 2.0）
+roles:
+  - action
+  - navigation
+  - container
+  - data_display
+  - feedback
+  - modal
+  - overlay
+  - tab
+  - badge
+  - progress
+  - toggle
+  - text
+  - icon
+  - status
+
+importance:
+  - primary
+  - secondary
+  - info
+  - warning
+  - critical
+  - muted
+  - decorative
+
+states:
+  - default
+  - pressed
+  - disabled
+  - selected
+  - active
+  - loading
+  - success
+  - error
+
+constraints:
+  - min_tap
+  - safe_area
+  - overlap
+  - padding
+  - spacing
+  - nine_slice
+  - aspect_ratio
+  - hit_area
+  - baseline
+  - snap
+  - max_lines
+
+layout_ref_types:
+  - slot
+  - grid
+  - flow
+  - stack
+  - list
