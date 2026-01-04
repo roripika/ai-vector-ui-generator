@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UI Preview</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">ai-vector-ui-generator</p>
+        <h1>Preview Console</h1>
+      </div>
+      <div class="toggle">
+        <label class="switch">
+          <input type="checkbox" id="split-toggle" checked />
+          <span>Split View</span>
+        </label>
+      </div>
+    </header>
+
+    <main>
+      <section class="controls">
+        <div class="panel" data-pane="a">
+          <div class="panel-header">
+            <h2>Panel A</h2>
+            <p class="status" id="status-a">Idle</p>
+          </div>
+          <div class="field">
+            <label for="file-a">Load JSON file</label>
+            <input id="file-a" type="file" accept="application/json" />
+          </div>
+          <div class="field">
+            <label for="path-a">Load JSON path</label>
+            <div class="row">
+              <input id="path-a" type="text" placeholder="examples/screen_dialog.json" />
+              <button id="load-a">Load</button>
+            </div>
+          </div>
+          <p class="selection" id="selection-a">Selected: -</p>
+          <p class="hint">Click a group to show id and component mapping.</p>
+        </div>
+
+        <div class="panel" data-pane="b">
+          <div class="panel-header">
+            <h2>Panel B</h2>
+            <p class="status" id="status-b">Idle</p>
+          </div>
+          <div class="field">
+            <label for="file-b">Load JSON file</label>
+            <input id="file-b" type="file" accept="application/json" />
+          </div>
+          <div class="field">
+            <label for="path-b">Load JSON path</label>
+            <div class="row">
+              <input id="path-b" type="text" placeholder="examples/hud_basic.mock.json" />
+              <button id="load-b">Load</button>
+            </div>
+          </div>
+          <p class="selection" id="selection-b">Selected: -</p>
+          <p class="hint">Use B for before/after comparison.</p>
+        </div>
+      </section>
+
+      <section class="canvas" id="canvas">
+        <div class="viewport" id="pane-a">
+          <div class="viewport-header">A</div>
+          <div class="svg-shell" id="svg-a"></div>
+        </div>
+        <div class="viewport" id="pane-b">
+          <div class="viewport-header">B</div>
+          <div class="svg-shell" id="svg-b"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Export runs via CLI: <code>python -m src.cli render --in &lt;file&gt; --out out/</code></p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
