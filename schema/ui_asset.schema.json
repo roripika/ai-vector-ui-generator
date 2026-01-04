@@ -95,6 +95,73 @@
         }
       }
     },
+    "colorValue": {
+      "type": "string",
+      "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$"
+    },
+    "fontValue": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "gradientStop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["offset", "color"],
+      "properties": {
+        "offset": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.001 },
+        "color": { "$ref": "#/definitions/colorValue" },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 }
+      }
+    },
+    "linearGradient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["angle", "stops"],
+      "properties": {
+        "angle": { "type": "number", "minimum": 0, "maximum": 360 },
+        "stops": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": { "$ref": "#/definitions/gradientStop" }
+        },
+        "spreadMethod": { "type": "string", "enum": ["pad", "reflect", "repeat"] }
+      }
+    },
+    "glowSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["color", "opacity", "stdDeviation"],
+      "properties": {
+        "color": { "$ref": "#/definitions/colorValue" },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
+        "stdDeviation": { "$ref": "#/definitions/nonNegativeLength" },
+        "margin": { "$ref": "#/definitions/nonNegativeLength" }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "colors": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/colorValue" }
+        },
+        "fonts": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/fontValue" }
+        },
+        "gradients": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/linearGradient" }
+        },
+        "glows": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/glowSpec" }
+        }
+      }
+    },
     "textContent": {
       "type": "object",
       "additionalProperties": false,
@@ -568,6 +635,7 @@
         "assetType": { "const": "button" },
         "viewBox": { "$ref": "#/definitions/viewBox" },
         "metadata": { "$ref": "#/definitions/metadata" },
+        "theme": { "$ref": "#/definitions/theme" },
         "layers": {
           "type": "array",
           "minItems": 1,
@@ -593,6 +661,7 @@
           "maxLength": 64
         },
         "metadata": { "$ref": "#/definitions/metadata" },
+        "theme": { "$ref": "#/definitions/theme" },
         "mockState": { "$ref": "#/definitions/stateObject" },
         "canvas": { "$ref": "#/definitions/canvas" },
         "components": {

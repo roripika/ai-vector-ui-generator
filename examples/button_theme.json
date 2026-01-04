@@ -1,0 +1,48 @@
+{
+  "version": "0.4.0",
+  "assetType": "button",
+  "viewBox": [0, 0, 256, 72],
+  "metadata": {
+    "name": "Theme Button",
+    "description": "Button with theme overrides",
+    "tags": ["button", "theme"]
+  },
+  "theme": {
+    "colors": {
+      "ui.surface": "#1E2233",
+      "ui.strokeLight": "#E0D7FF",
+      "ui.textPrimary": "#FBE5A6"
+    },
+    "fonts": {
+      "ui.font.primary": "Georgia",
+      "ui.font.title": "Georgia"
+    }
+  },
+  "layers": [
+    {
+      "id": "button-body",
+      "shape": "roundedRect",
+      "rect": { "x": 8, "y": 8, "width": 240, "height": 56, "radius": 18 },
+      "style": {
+        "fill": "ui.surface",
+        "stroke": "ui.strokeLight",
+        "strokeWidth": 2
+      }
+    },
+    {
+      "id": "button-label",
+      "shape": "text",
+      "rect": { "x": 16, "y": 20, "width": 224, "height": 32 },
+      "style": { "fill": "ui.textPrimary" },
+      "text": {
+        "value": "PLAY",
+        "font": "ui.font.primary",
+        "size": 22,
+        "maxLines": 1,
+        "overflow": "ellipsis",
+        "fit": "shrink",
+        "align": "center"
+      }
+    }
+  ]
+}

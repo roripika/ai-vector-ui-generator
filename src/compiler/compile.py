@@ -5,7 +5,7 @@ import math
 from xml.etree import ElementTree as ET
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from .tokens import GlowDef, LinearGradientDef, TokenRegistry
+from .tokens import GlowDef, GradientStop, LinearGradientDef, TokenRegistry
 
 
 def compile_svg(asset: Dict[str, Any]) -> str:
@@ -17,7 +17,7 @@ def compile_svg(asset: Dict[str, Any]) -> str:
 
 
 def _compile_button(asset: Dict[str, Any]) -> str:
-    registry = TokenRegistry()
+    registry = _build_registry(asset)
     view_box = asset["viewBox"]
     svg = _build_svg_root(view_box)
     state = asset.get("mockState") or {}
@@ -36,7 +36,7 @@ def _compile_button(asset: Dict[str, Any]) -> str:
 
 
 def _compile_screen(asset: Dict[str, Any]) -> str:
-    registry = TokenRegistry()
+    registry = _build_registry(asset)
     canvas = asset["canvas"]
     view_box = [0, 0, canvas["width"], canvas["height"]]
     svg = _build_svg_root(view_box)
@@ -76,6 +76,87 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
         )
 
     return ET.tostring(svg, encoding="unicode")
+
+
+def _build_registry(asset: Dict[str, Any]) -> TokenRegistry:
+    theme = asset.get("theme") or {}
+    colors = _parse_theme_map(theme.get("colors"))
+    fonts = _parse_theme_map(theme.get("fonts"))
+    gradients = _parse_gradients(theme.get("gradients"))
+    glows = _parse_glows(theme.get("glows"))
+    return TokenRegistry(gradients=gradients, colors=colors, glows=glows, fonts=fonts)
+
+
+def _parse_theme_map(raw: Any) -> Dict[str, str]:
+    if not isinstance(raw, dict):
+        return {}
+    return {str(key): value for key, value in raw.items() if isinstance(value, str)}
+
+
+def _parse_gradients(raw: Any) -> Dict[str, LinearGradientDef]:
+    gradients: Dict[str, LinearGradientDef] = {}
+    if not isinstance(raw, dict):
+        return gradients
+    for token, spec in raw.items():
+        if not isinstance(token, str) or not isinstance(spec, dict):
+            continue
+        angle = spec.get("angle")
+        stops_raw = spec.get("stops")
+        if not _is_number(angle) or not isinstance(stops_raw, list):
+            continue
+        stops: List[GradientStop] = []
+        for stop in stops_raw:
+            if not isinstance(stop, dict):
+                continue
+            offset = stop.get("offset")
+            color = stop.get("color")
+            opacity = stop.get("opacity", 1.0)
+            if not _is_number(offset) or not isinstance(color, str):
+                continue
+            if not _is_number(opacity):
+                opacity = 1.0
+            stops.append(
+                GradientStop(
+                    offset=float(offset),
+                    color=color,
+                    opacity=float(opacity),
+                )
+            )
+        if len(stops) < 2:
+            continue
+        spread_method = spec.get("spreadMethod", "pad")
+        if spread_method not in ("pad", "reflect", "repeat"):
+            spread_method = "pad"
+        gradients[token] = LinearGradientDef(
+            angle=float(angle),
+            stops=stops,
+            spread_method=spread_method,
+        )
+    return gradients
+
+
+def _parse_glows(raw: Any) -> Dict[str, GlowDef]:
+    glows: Dict[str, GlowDef] = {}
+    if not isinstance(raw, dict):
+        return glows
+    for token, spec in raw.items():
+        if not isinstance(token, str) or not isinstance(spec, dict):
+            continue
+        color = spec.get("color")
+        opacity = spec.get("opacity")
+        std_deviation = spec.get("stdDeviation")
+        margin = spec.get("margin", 24.0)
+        if not isinstance(color, str) or not _is_number(opacity) or not _is_number(std_deviation):
+            continue
+        if not _is_number(margin):
+            margin = 24.0
+        glows[token] = GlowDef(
+            color=color,
+            opacity=float(opacity),
+            std_deviation=float(std_deviation),
+            margin=float(margin),
+        )
+    return glows
 
 
 def _build_rect_attrs(layer: Dict[str, Any], registry: TokenRegistry) -> Dict[str, str]:
@@ -756,6 +837,10 @@ def _format_bind_value(value: Any) -> str:
         if math.isfinite(number):
             return f"{number:g}"
     return str(value)
+
+
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
 def _collect_defs(
