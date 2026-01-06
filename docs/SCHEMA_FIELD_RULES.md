@@ -139,6 +139,18 @@
 
 ---
 
+## タグ運用ルール（decoration / fx_*）
+- `tag: decoration` は **role=decoration 専用** とする
+- ボタン等の「装飾付き」は `fx_*` タグで表現する
+  - 例: `fx_glow`, `fx_shine`
+- `fx_*` は `ui-templates/_catalog/tags.yaml` の `fx_tags` に追加して管理する
+
+### 簡易lint
+- `python scripts/lint_templates.py`
+  - `tag: decoration` と `role` の不一致を警告する
+
+---
+
 ## 語彙メンテ手順（tags/indexの運用）
 
 ### 1. 語彙追加の条件（ポリシー）

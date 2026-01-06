@@ -54,3 +54,6 @@ layout_ref_types:
   - flow
   - stack
   - list
+
+fx_tags:
+  - fx_glow
