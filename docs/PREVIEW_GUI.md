@@ -25,6 +25,10 @@ python -m src.preview
 - デフォルトURL: `http://127.0.0.1:8000`
 - ポート変更: `python -m src.preview --port 8080`
 
+## Studio（Phase 1）
+- `http://127.0.0.1:8000/studio.html`
+- プロンプト入力 → テンプレ選択 → JSON/SVG 出力
+
 ## 画面の使い方
 - Panel A/BでJSONファイルを読み込む
   - ファイル選択 または パス入力（例: `examples/screen_dialog.json`）

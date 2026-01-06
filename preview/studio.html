@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UI Studio</title>
+    <link rel="stylesheet" href="studio.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">ai-vector-ui-generator</p>
+        <h1>UI Studio</h1>
+        <p class="subtitle">Phase 1: プロンプトからUI素材を生成（テンプレベース）</p>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Preview Console</a>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="panel prompt-panel">
+        <div class="panel-header">
+          <h2>プロンプト</h2>
+          <p class="status" id="status">待機中</p>
+        </div>
+        <textarea
+          id="prompt-input"
+          rows="8"
+          placeholder="世界観や意図を書いてください。例: 神殿風の強い発光ボタン / 非ブロッキング通知"
+        ></textarea>
+        <div class="actions">
+          <button id="generate">素材を生成</button>
+          <button id="clear">クリア</button>
+        </div>
+        <div class="chips">
+          <button class="chip" data-prompt="神殿風の発光ボタン">神殿風の発光ボタン</button>
+          <button class="chip" data-prompt="タブバー、未読バッジ付き">タブバー、未読バッジ付き</button>
+          <button class="chip" data-prompt="モーダルで確認ダイアログ">モーダルで確認ダイアログ</button>
+          <button class="chip" data-prompt="トースト通知、成功表示">トースト通知、成功表示</button>
+        </div>
+        <p class="note">AI連携は次フェーズ。現在はテンプレ選択型です。</p>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="panel-header">
+          <h2>出力</h2>
+          <div class="output-actions">
+            <button id="copy-json">JSONをコピー</button>
+            <button id="download-json">JSONを保存</button>
+          </div>
+        </div>
+        <div class="preview" id="preview">
+          <div class="empty">ここにSVGプレビューが表示されます</div>
+        </div>
+        <div class="json">
+          <div class="json-header">
+            <span>生成JSON</span>
+            <span class="template-id" id="template-id">template: -</span>
+          </div>
+          <pre id="json-output">{}</pre>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>CLIは使わず、ブラウザで生成→JSON保存する流れを想定。</p>
+    </footer>
+
+    <script src="studio.js"></script>
+  </body>
+</html>

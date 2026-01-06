@@ -13,6 +13,48 @@ from src.validator import ValidationError, validate_asset
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = ROOT_DIR / "preview"
+GENERATOR_LIBRARY = [
+    {
+        "id": "button_sf",
+        "path": "examples/button_sf.json",
+        "keywords": ["button", "cta", "ボタン", "アクション"],
+    },
+    {
+        "id": "primary_action_states",
+        "path": "examples/primary_action_states.json",
+        "keywords": ["pressed", "disabled", "状態", "primary"],
+    },
+    {
+        "id": "modal_overlay",
+        "path": "examples/modal_overlay.json",
+        "keywords": ["modal", "dialog", "モーダル", "ダイアログ", "overlay"],
+    },
+    {
+        "id": "tab_bar",
+        "path": "examples/tab_bar.json",
+        "keywords": ["tab", "tabs", "タブ", "navigation", "ナビ"],
+    },
+    {
+        "id": "info_panel",
+        "path": "examples/info_panel.json",
+        "keywords": ["info", "panel", "stats", "データ", "パネル"],
+    },
+    {
+        "id": "toast",
+        "path": "examples/toast_feedback.json",
+        "keywords": ["toast", "トースト", "feedback", "通知"],
+    },
+    {
+        "id": "hud_basic",
+        "path": "examples/hud_basic.mock.json",
+        "keywords": ["hud", "ゲージ", "progress", "toggle", "cooldown"],
+    },
+    {
+        "id": "custom_fx_glow",
+        "path": "examples/custom_fx_glow.json",
+        "keywords": ["fx", "glow", "エフェクト", "発光"],
+    },
+]
 
 
 class PreviewHandler(BaseHTTPRequestHandler):
@@ -43,6 +85,9 @@ class PreviewHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path != "/api/compile":
+            if parsed.path == "/api/generate":
+                self._handle_generate()
+                return
             self._send_error(404, "Not found")
             return
 
@@ -80,6 +125,34 @@ class PreviewHandler(BaseHTTPRequestHandler):
         svg = compile_svg(asset)
         self._send_json(200, {"svg": svg, "asset": asset})
 
+    def _handle_generate(self) -> None:
+        length = int(self.headers.get("Content-Length", "0"))
+        raw = self.rfile.read(length)
+        try:
+            payload = json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError:
+            self._send_error(400, "Invalid JSON")
+            return
+
+        prompt = payload.get("prompt", "")
+        if not isinstance(prompt, str) or not prompt.strip():
+            self._send_error(400, "Prompt is required")
+            return
+
+        template_id, asset = _select_template(prompt)
+        if asset is None:
+            self._send_error(500, "Template selection failed")
+            return
+
+        try:
+            validate_asset(asset)
+        except ValidationError as exc:
+            self._send_json(400, {"error": str(exc)})
+            return
+
+        svg = compile_svg(asset)
+        self._send_json(200, {"templateId": template_id, "svg": svg, "asset": asset})
+
     def _send_json(self, status: int, payload: Dict[str, Any]) -> None:
         data = json.dumps(payload).encode("utf-8")
         self.send_response(status)
@@ -101,6 +174,16 @@ def _load_json_from_path(path_text: str) -> Dict[str, Any]:
         raise FileNotFoundError(path)
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _select_template(prompt: str) -> tuple[str, Dict[str, Any] | None]:
+    lowered = prompt.lower()
+    for entry in GENERATOR_LIBRARY:
+        if any(keyword.lower() in lowered for keyword in entry["keywords"]):
+            asset = _load_json_from_path(entry["path"])
+            return entry["id"], asset
+    fallback = GENERATOR_LIBRARY[0]
+    return fallback["id"], _load_json_from_path(fallback["path"])
 
 
 def _content_type(path: Path) -> str:
