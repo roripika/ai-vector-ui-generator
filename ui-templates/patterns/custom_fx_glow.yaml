@@ -1,0 +1,24 @@
+id: custom_fx_glow
+category: pattern
+role: decoration
+importance: secondary
+intent: "標準語彙にない演出（発光/エフェクト）を示す"
+when:
+  - "演出意図を明示したいが標準語彙に項目がない"
+  - "レビュー前の暫定パラメータとして扱う"
+avoid:
+  - "通常の装飾や色変更で十分な場合"
+constraints:
+  - custom:fx_glow
+states:
+  - default
+layout_ref:
+  type: stack
+  example: "stack:fx_layers"
+export_hint:
+  default_size:
+    width: 520
+    height: 240
+notes:
+  - "role/importance/state は標準語彙を使用"
+  - "custom:* はレビュー後に語彙へ昇格または削除"

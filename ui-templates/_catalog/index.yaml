@@ -22,3 +22,7 @@ templates:
     summary: "トースト通知（non_blocking）"
     path: "ui-templates/patterns/toast.yaml"
     tags: [feedback, stack]
+  - id: custom_fx_glow
+    summary: "暫定/要レビュー: custom:* を含む演出テンプレ"
+    path: "ui-templates/patterns/custom_fx_glow.yaml"
+    tags: [decoration, stack]

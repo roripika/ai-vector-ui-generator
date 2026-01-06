@@ -17,6 +17,7 @@ MODAL_PATH = Path(__file__).resolve().parents[1] / "examples" / "modal_overlay.j
 TAB_BAR_PATH = Path(__file__).resolve().parents[1] / "examples" / "tab_bar.json"
 INFO_PANEL_PATH = Path(__file__).resolve().parents[1] / "examples" / "info_panel.json"
 TOAST_PATH = Path(__file__).resolve().parents[1] / "examples" / "toast_feedback.json"
+CUSTOM_FX_PATH = Path(__file__).resolve().parents[1] / "examples" / "custom_fx_glow.json"
 
 
 def load_asset() -> dict:
@@ -69,6 +70,11 @@ def load_toast_asset() -> dict:
         return json.load(handle)
 
 
+def load_custom_fx_asset() -> dict:
+    with CUSTOM_FX_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def test_screen_example_validates():
     asset = load_asset()
     validate_asset(asset)
@@ -90,6 +96,7 @@ def test_screen_example_validates():
     validate_asset(load_tab_bar_asset())
     validate_asset(load_info_panel_asset())
     validate_asset(load_toast_asset())
+    validate_asset(load_custom_fx_asset())
 
 
 def test_screen_compiles_with_canvas_viewbox():
@@ -133,3 +140,7 @@ def test_screen_compiles_with_canvas_viewbox():
     toast_svg = compile_svg(load_toast_asset())
     toast_root = ET.fromstring(toast_svg)
     assert toast_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    custom_svg = compile_svg(load_custom_fx_asset())
+    custom_root = ET.fromstring(custom_svg)
+    assert custom_root.attrib.get("viewBox") == "0 0 1280 720"

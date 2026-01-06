@@ -1,0 +1,88 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Custom FX Glow",
+    "description": "Custom constraint example with unknown importance",
+    "tags": ["screen", "custom", "decorative"]
+  },
+  "patternId": "fx_glow",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "fx-card",
+      "name": "FX Card",
+      "role": "decoration",
+      "importance": "secondary",
+      "state": "default",
+      "constraints": ["padding"],
+      "viewBox": [0, 0, 520, 240],
+      "layers": [
+        {
+          "id": "fx-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 520, "height": 240, "radius": 24 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "container",
+          "importance": "secondary",
+          "constraints": ["nine_slice"]
+        },
+        {
+          "id": "fx-glow",
+          "shape": "roundedRect",
+          "rect": { "x": 20, "y": 20, "width": 480, "height": 200, "radius": 18 },
+          "style": {
+            "fill": "ui.primaryGradient",
+            "glow": "ui.softGlow"
+          },
+          "role": "decoration",
+          "importance": "secondary",
+          "constraints": ["custom:fx_glow"],
+          "layout_ref": "stack:fx_layers"
+        },
+        {
+          "id": "fx-title",
+          "shape": "text",
+          "rect": { "x": 40, "y": 32, "width": 440, "height": 28 },
+          "style": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "Glow Effect",
+            "font": "ui.font.title",
+            "size": 22,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "left"
+          },
+          "role": "text",
+          "importance": "info",
+          "constraints": ["baseline"]
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "fx-card-main",
+      "componentId": "fx-card",
+      "anchorTo": "canvas",
+      "anchor": "center",
+      "offset": { "x": 0, "y": 0 },
+      "size": { "width": 520, "height": 240 },
+      "role": "decoration",
+      "importance": "unknown",
+      "state": "default",
+      "constraints": ["safe_area"],
+      "layout_ref": "stack:fx_layers",
+      "zIndex": 1
+    }
+  ]
+}
