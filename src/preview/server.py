@@ -62,6 +62,12 @@ class PreviewHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         path = parsed.path or "/"
+        if path == "/api/list_generated":
+            self._handle_list_generated()
+            return
+        if path == "/api/tags":
+            self._handle_tags()
+            return
         if path == "/":
             path = "/index.html"
 
@@ -85,13 +91,19 @@ class PreviewHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
-        if parsed.path != "/api/compile":
-            if parsed.path == "/api/generate":
-                self._handle_generate()
-                return
-            self._send_error(404, "Not found")
+        if parsed.path == "/api/compile":
+            self._handle_compile()
             return
+        if parsed.path == "/api/generate":
+            self._handle_generate()
+            return
+        if parsed.path == "/api/save":
+            self._handle_save()
+            return
+        self._send_error(404, "Not found")
+        return
 
+    def _handle_compile(self) -> None:
         length = int(self.headers.get("Content-Length", "0"))
         raw = self.rfile.read(length)
         try:
@@ -166,6 +178,84 @@ class PreviewHandler(BaseHTTPRequestHandler):
             },
         )
 
+    def _handle_save(self) -> None:
+        length = int(self.headers.get("Content-Length", "0"))
+        raw = self.rfile.read(length)
+        try:
+            payload = json.loads(raw.decode("utf-8"))
+        except json.JSONDecodeError:
+            self._send_error(400, "Invalid JSON")
+            return
+
+        asset = payload.get("asset")
+        filename = payload.get("filename")
+        tags = payload.get("tags")
+
+        if not isinstance(asset, dict):
+            self._send_error(400, "Asset must be an object")
+            return
+
+        tag_list = _coerce_tags(tags)
+        warnings = _warn_unknown_tags(tag_list)
+
+        metadata = dict(asset.get("metadata") or {})
+        existing_tags = metadata.get("tags")
+        if not isinstance(existing_tags, list):
+            existing_tags = []
+        merged = _merge_tags(existing_tags, tag_list)
+        if merged:
+            metadata["tags"] = merged
+        asset["metadata"] = metadata
+
+        try:
+            validate_asset(asset)
+        except ValidationError as exc:
+            self._send_json(400, {"error": str(exc)})
+            return
+
+        safe_name = _sanitize_filename(filename)
+        if not safe_name:
+            self._send_error(400, "Filename is required")
+            return
+
+        generated_dir = ROOT_DIR / "generated"
+        generated_dir.mkdir(parents=True, exist_ok=True)
+        final_name = _ensure_unique_filename(generated_dir, safe_name)
+        file_path = generated_dir / final_name
+        file_path.write_text(json.dumps(asset, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        self._send_json(
+            200,
+            {
+                "ok": True,
+                "path": str(Path("generated") / final_name),
+                "name": final_name,
+                "warnings": warnings,
+            },
+        )
+
+    def _handle_list_generated(self) -> None:
+        generated_dir = ROOT_DIR / "generated"
+        if not generated_dir.exists():
+            self._send_json(200, {"files": []})
+            return
+
+        files = []
+        for path in sorted(generated_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+            files.append(
+                {
+                    "name": path.name,
+                    "path": str(Path("generated") / path.name),
+                    "modified": path.stat().st_mtime,
+                }
+            )
+        self._send_json(200, {"files": files})
+
+    def _handle_tags(self) -> None:
+        vocab = _load_tags_vocab()
+        allowed = sorted(_allowed_tags(vocab))
+        self._send_json(200, {"tags": allowed, "vocab": vocab})
+
     def _send_json(self, status: int, payload: Dict[str, Any]) -> None:
         data = json.dumps(payload).encode("utf-8")
         self.send_response(status)
@@ -187,6 +277,84 @@ def _load_json_from_path(path_text: str) -> Dict[str, Any]:
         raise FileNotFoundError(path)
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _load_tags_vocab() -> Dict[str, list[str]]:
+    tags_path = ROOT_DIR / "ui-templates" / "_catalog" / "tags.yaml"
+    if not tags_path.exists():
+        return {}
+    vocab: Dict[str, list[str]] = {}
+    current_key: str | None = None
+    for line in tags_path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if not line.startswith(" "):
+            current_key = stripped.rstrip(":")
+            vocab.setdefault(current_key, [])
+            continue
+        if current_key and stripped.startswith("- "):
+            value = stripped[2:].strip()
+            if value:
+                vocab[current_key].append(value)
+    return vocab
+
+
+def _allowed_tags(vocab: Dict[str, list[str]]) -> set[str]:
+    allowed: set[str] = set()
+    for key in ("roles", "importance", "states", "constraints", "fx_tags"):
+        allowed.update(vocab.get(key, []))
+    return allowed
+
+
+def _coerce_tags(tags: Any) -> list[str]:
+    if tags is None:
+        return []
+    if isinstance(tags, list):
+        return [str(tag).strip() for tag in tags if str(tag).strip()]
+    if isinstance(tags, str):
+        return [value.strip() for value in tags.split(",") if value.strip()]
+    return []
+
+
+def _warn_unknown_tags(tags: list[str]) -> list[str]:
+    vocab = _load_tags_vocab()
+    allowed = _allowed_tags(vocab)
+    return [tag for tag in tags if tag not in allowed]
+
+
+def _merge_tags(existing: list[str], extra: list[str]) -> list[str]:
+    merged: list[str] = []
+    seen = set()
+    for tag in existing + extra:
+        if tag in seen:
+            continue
+        seen.add(tag)
+        merged.append(tag)
+    return merged
+
+
+def _sanitize_filename(filename: Any) -> str:
+    if not isinstance(filename, str):
+        return ""
+    trimmed = filename.strip()
+    if not trimmed:
+        return ""
+    safe = "".join(ch if ch.isalnum() or ch in ("-", "_", ".",) else "_" for ch in trimmed)
+    if not safe.endswith(".json"):
+        safe = f"{safe}.json"
+    return safe
+
+
+def _ensure_unique_filename(base_dir: Path, filename: str) -> str:
+    candidate = filename
+    stem = Path(filename).stem
+    suffix = Path(filename).suffix
+    counter = 1
+    while (base_dir / candidate).exists():
+        candidate = f"{stem}_{counter}{suffix}"
+        counter += 1
+    return candidate
 
 
 def _select_template(prompt: str) -> Dict[str, Any]:

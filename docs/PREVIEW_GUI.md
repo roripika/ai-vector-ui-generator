@@ -28,6 +28,12 @@ python -m src.preview
 ## Studio（Phase 1）
 - `http://127.0.0.1:8000/studio.html`
 - プロンプト入力 → テンプレ選択 → JSON/SVG 出力
+- 生成JSONを `generated/` に保存し、再読み込み可能
+
+### Studioの保存機能
+- 保存名: `{assetType}_{templateId}_{yyyyMMdd_HHmmss}.json`
+- tags入力: `ui-templates/_catalog/tags.yaml` の語彙に準拠
+- 未登録タグは警告表示（保存は可能）
 
 ## 画面の使い方
 - Panel A/BでJSONファイルを読み込む
