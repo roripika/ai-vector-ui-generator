@@ -5,6 +5,9 @@ const statusLabel = document.getElementById("status");
 const preview = document.getElementById("preview");
 const jsonOutput = document.getElementById("json-output");
 const templateId = document.getElementById("template-id");
+const assetType = document.getElementById("asset-type");
+const selectionSummary = document.getElementById("selection-summary");
+const selectionList = document.getElementById("selection-list");
 const copyButton = document.getElementById("copy-json");
 const downloadButton = document.getElementById("download-json");
 
@@ -22,6 +25,29 @@ function setJson(asset, id) {
   currentJson = JSON.stringify(asset, null, 2);
   jsonOutput.textContent = currentJson;
   templateId.textContent = `template: ${id || "-"}`;
+  assetType.textContent = asset && asset.assetType ? `type: ${asset.assetType}` : "type: -";
+}
+
+function setSelection(selection) {
+  if (!selection) {
+    selectionSummary.textContent = "template: -";
+    selectionList.innerHTML = "";
+    return;
+  }
+  const selected = selection.selected || "-";
+  const reason = selection.reason ? ` (${selection.reason})` : "";
+  selectionSummary.textContent = `selected: ${selected}${reason}`;
+
+  const candidates = Array.isArray(selection.candidates) ? selection.candidates : [];
+  selectionList.innerHTML = "";
+  for (const candidate of candidates) {
+    const item = document.createElement("li");
+    const matches = Array.isArray(candidate.matches) ? candidate.matches.join(", ") : "";
+    item.textContent = matches
+      ? `${candidate.id} | match: ${matches}`
+      : `${candidate.id}`;
+    selectionList.appendChild(item);
+  }
 }
 
 async function generateAsset() {
@@ -60,6 +86,7 @@ async function generateAsset() {
   setStatus("生成完了");
   setPreview(data.svg);
   setJson(data.asset, data.templateId);
+  setSelection(data.selection);
 }
 
 function clearAll() {
@@ -67,6 +94,7 @@ function clearAll() {
   setStatus("待機中");
   setPreview("");
   setJson({}, "-");
+  setSelection(null);
 }
 
 copyButton.addEventListener("click", async () => {
@@ -109,3 +137,4 @@ for (const chip of document.querySelectorAll(".chip")) {
 }
 
 setJson({}, "-");
+setSelection(null);

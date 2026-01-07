@@ -13,6 +13,7 @@ from src.validator import ValidationError, validate_asset
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 STATIC_DIR = ROOT_DIR / "preview"
+STUDIO_VERSION = "0.1.0"
 GENERATOR_LIBRARY = [
     {
         "id": "button_sf",
@@ -139,10 +140,14 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self._send_error(400, "Prompt is required")
             return
 
-        template_id, asset = _select_template(prompt)
+        selection = _select_template(prompt)
+        template_id = selection["selected"]
+        asset = selection["asset"]
         if asset is None:
             self._send_error(500, "Template selection failed")
             return
+
+        _apply_generation_metadata(asset, prompt, template_id)
 
         try:
             validate_asset(asset)
@@ -151,7 +156,15 @@ class PreviewHandler(BaseHTTPRequestHandler):
             return
 
         svg = compile_svg(asset)
-        self._send_json(200, {"templateId": template_id, "svg": svg, "asset": asset})
+        self._send_json(
+            200,
+            {
+                "templateId": template_id,
+                "svg": svg,
+                "asset": asset,
+                "selection": selection,
+            },
+        )
 
     def _send_json(self, status: int, payload: Dict[str, Any]) -> None:
         data = json.dumps(payload).encode("utf-8")
@@ -176,14 +189,46 @@ def _load_json_from_path(path_text: str) -> Dict[str, Any]:
         return json.load(handle)
 
 
-def _select_template(prompt: str) -> tuple[str, Dict[str, Any] | None]:
+def _select_template(prompt: str) -> Dict[str, Any]:
     lowered = prompt.lower()
+    scored: list[dict[str, Any]] = []
     for entry in GENERATOR_LIBRARY:
-        if any(keyword.lower() in lowered for keyword in entry["keywords"]):
-            asset = _load_json_from_path(entry["path"])
-            return entry["id"], asset
-    fallback = GENERATOR_LIBRARY[0]
-    return fallback["id"], _load_json_from_path(fallback["path"])
+        matches = [kw for kw in entry["keywords"] if kw.lower() in lowered]
+        scored.append(
+            {
+                "id": entry["id"],
+                "path": entry["path"],
+                "matches": matches,
+                "score": len(matches),
+            }
+        )
+
+    scored.sort(key=lambda item: item["score"], reverse=True)
+    if scored and scored[0]["score"] > 0:
+        selected = scored[0]
+        reason = "keyword_match"
+    else:
+        selected = {"id": GENERATOR_LIBRARY[0]["id"], "path": GENERATOR_LIBRARY[0]["path"]}
+        reason = "fallback"
+
+    asset = _load_json_from_path(selected["path"])
+    return {
+        "selected": selected["id"],
+        "reason": reason,
+        "candidates": scored,
+        "asset": asset,
+    }
+
+
+def _apply_generation_metadata(asset: Dict[str, Any], prompt: str, template_id: str) -> None:
+    metadata = dict(asset.get("metadata") or {})
+    metadata["generated_from_prompt"] = prompt
+    metadata["selected_templates"] = [template_id]
+    metadata["generator_version"] = {
+        "schema": asset.get("version", "0.0.0"),
+        "studio": STUDIO_VERSION,
+    }
+    asset["metadata"] = metadata
 
 
 def _content_type(path: Path) -> str:

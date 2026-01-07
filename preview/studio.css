@@ -169,6 +169,47 @@ button#clear {
   height: auto;
 }
 
+.selection {
+  background: #0f141d;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.selection-summary {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.selection-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.selection-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.asset-type {
+  color: var(--accent-2);
+}
+
 .empty {
   color: var(--muted);
   font-size: 0.85rem;

@@ -52,6 +52,33 @@
           "items": { "type": "string", "maxLength": 32 },
           "maxItems": 16,
           "uniqueItems": true
+        },
+        "generated_from_prompt": { "type": "string", "maxLength": 2000 },
+        "selected_templates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "maxItems": 8,
+          "uniqueItems": true
+        },
+        "generator_version": { "$ref": "#/definitions/generatorVersion" }
+      }
+    },
+    "generatorVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "studio": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
         }
       }
     },
