@@ -25,6 +25,20 @@ python -m src.preview
 - デフォルトURL: `http://127.0.0.1:8000`
 - ポート変更: `python -m src.preview --port 8080`
 
+## ダブルクリック起動（Mac）
+- `Start Studio.command` をダブルクリックで起動
+  - `.venv/bin/python` を優先して起動（なければ `python3`）
+  - ブラウザで `http://127.0.0.1:8000/studio.html` を自動で開く
+  - ログは `studio_server.log` に出力
+- 停止は `Stop Studio.command` をダブルクリック
+
+### 初回のみ必要なこと（権限/隔離）
+- 実行許可が外れている場合:
+  - `chmod +x "Start Studio.command" "Stop Studio.command"`
+- macOSの隔離属性で起動できない場合:
+  - `xattr -dr com.apple.quarantine "Start Studio.command" "Stop Studio.command"`
+  - または Finder で右クリック → 開く
+
 ## Studio（Phase 1）
 - `http://127.0.0.1:8000/studio.html`
 - プロンプト入力 → テンプレ選択 → JSON/SVG 出力
