@@ -61,6 +61,39 @@
           <p class="selection-summary" id="selection-summary">template: -</p>
           <ul class="selection-list" id="selection-list"></ul>
         </div>
+        <div class="gauge-editor" id="gauge-editor" hidden>
+          <div class="selection-header">
+            <span>ゲージ形状</span>
+            <button id="apply-gauge" class="ghost">適用</button>
+          </div>
+          <div class="field">
+            <label for="gauge-target">対象</label>
+            <select id="gauge-target"></select>
+          </div>
+          <div class="field">
+            <label for="shape-profile">shape_profile</label>
+            <select id="shape-profile">
+              <option value="radial">radial</option>
+              <option value="segmented">segmented</option>
+              <option value="polygon">polygon</option>
+              <option value="custom_svg">custom_svg</option>
+              <option value="unknown">unknown</option>
+            </select>
+          </div>
+          <div class="field" id="shape-sides-field">
+            <label for="shape-sides">sides</label>
+            <input id="shape-sides" type="number" min="3" step="1" />
+          </div>
+          <div class="field" id="shape-segments-field">
+            <label for="shape-segments">segment_count</label>
+            <input id="shape-segments" type="number" min="1" step="1" />
+          </div>
+          <div class="field">
+            <label for="shape-thickness">thickness</label>
+            <input id="shape-thickness" type="number" min="0" step="0.5" />
+          </div>
+          <p class="hint">shape_profileとshape_paramsを変更して再レンダできます。</p>
+        </div>
         <div class="save-panel">
           <div class="field">
             <label for="filename-input">保存名</label>

@@ -233,6 +233,8 @@ def _append_layers(
             if components is None:
                 raise ValueError("Layout layers require component definitions.")
             _append_layout_items(group, layer, registry, defs, clip_ids, id_prefix, components, state)
+        elif shape == "gauge":
+            _append_gauge(group, layer, registry, bind, state)
         elif shape == "progressBar":
             _append_progress_bar(group, layer, registry, bind, state)
         elif shape == "cooldownOverlay":
@@ -325,6 +327,310 @@ def _apply_text_binding(
     text = dict(layer.get("text", {}))
     text["value"] = _format_bind_value(bound_value)
     return {**layer, "text": text}
+
+
+def _append_gauge(
+    parent: ET.Element,
+    layer: Dict[str, Any],
+    registry: TokenRegistry,
+    bind: Dict[str, Any],
+    state: Dict[str, Any],
+) -> None:
+    rect = layer["rect"]
+    params = layer.get("shape_params")
+    shape_params = params if isinstance(params, dict) else {}
+    profile = layer.get("shape_profile")
+    if not isinstance(profile, str):
+        profile = "radial"
+
+    ratio = _resolve_gauge_ratio(layer, bind, state)
+    track_fill = _resolve_fill(layer.get("track"), registry)
+    fill = _resolve_fill(layer.get("style", {}).get("fill"), registry)
+
+    if profile == "segmented":
+        _append_gauge_segmented(parent, rect, ratio, shape_params, track_fill, fill)
+        return
+    if profile == "polygon":
+        _append_gauge_polygon(parent, rect, ratio, shape_params, track_fill, fill)
+        return
+    if profile in ("custom_svg", "unknown"):
+        _append_gauge_polygon(parent, rect, ratio, shape_params, track_fill, fill, fallback_sides=4)
+        return
+
+    _append_gauge_radial(parent, rect, ratio, shape_params, track_fill, fill)
+
+
+def _append_gauge_radial(
+    parent: ET.Element,
+    rect: Dict[str, Any],
+    ratio: float,
+    shape_params: Dict[str, Any],
+    track_fill: str,
+    fill: str,
+) -> None:
+    width = float(rect["width"])
+    height = float(rect["height"])
+    cx = float(rect["x"]) + width / 2
+    cy = float(rect["y"]) + height / 2
+    radius = min(width, height) / 2
+
+    thickness = _gauge_param_number(shape_params, "thickness", radius * 0.18)
+    thickness = max(1.0, min(thickness, radius))
+    start_angle = _gauge_param_number(shape_params, "start_angle", -90.0)
+    sweep = _gauge_param_number(shape_params, "sweep", 360.0)
+    sweep = max(0.0, min(360.0, sweep))
+    ring_radius = max(radius - thickness / 2, 0.01)
+
+    if sweep >= 359.99:
+        _append_gauge_circle(parent, cx, cy, ring_radius, track_fill, thickness)
+        if ratio > 0:
+            _append_gauge_circle(
+                parent,
+                cx,
+                cy,
+                ring_radius,
+                fill,
+                thickness,
+                ratio=ratio,
+                rotate=start_angle,
+            )
+        return
+
+    track_path = _arc_path(cx, cy, ring_radius, start_angle, start_angle + sweep)
+    ET.SubElement(
+        parent,
+        "path",
+        {
+            "d": track_path,
+            "fill": "none",
+            "stroke": track_fill,
+            "stroke-width": _fmt(thickness),
+            "stroke-linecap": "round",
+        },
+    )
+
+    if ratio <= 0:
+        return
+
+    progress_sweep = sweep * ratio
+    progress_path = _arc_path(cx, cy, ring_radius, start_angle, start_angle + progress_sweep)
+    ET.SubElement(
+        parent,
+        "path",
+        {
+            "d": progress_path,
+            "fill": "none",
+            "stroke": fill,
+            "stroke-width": _fmt(thickness),
+            "stroke-linecap": "round",
+        },
+    )
+
+
+def _append_gauge_segmented(
+    parent: ET.Element,
+    rect: Dict[str, Any],
+    ratio: float,
+    shape_params: Dict[str, Any],
+    track_fill: str,
+    fill: str,
+) -> None:
+    segment_count = int(_gauge_param_number(shape_params, "segment_count", 8))
+    segment_count = max(segment_count, 1)
+    gap = _gauge_param_number(shape_params, "gap", 4.0)
+    gap = max(gap, 0.0)
+    padding = _gauge_param_number(shape_params, "thickness", 0.0)
+    height = float(rect["height"])
+    padding = max(0.0, min(padding, height / 2))
+
+    width = float(rect["width"])
+    total_gap = gap * (segment_count - 1)
+    if width <= total_gap:
+        total_gap = 0.0
+        gap = 0.0
+
+    segment_width = max((width - total_gap) / segment_count, 1.0)
+    segment_height = max(height - padding * 2, 1.0)
+    origin_x = float(rect["x"])
+    origin_y = float(rect["y"]) + padding
+
+    filled = int(max(0.0, min(1.0, ratio)) * segment_count)
+    for index in range(segment_count):
+        x = origin_x + index * (segment_width + gap)
+        attrs = {
+            "x": _fmt(x),
+            "y": _fmt(origin_y),
+            "width": _fmt(segment_width),
+            "height": _fmt(segment_height),
+            "rx": _fmt(0),
+            "ry": _fmt(0),
+            "fill": fill if index < filled else track_fill,
+        }
+        ET.SubElement(parent, "rect", attrs)
+
+
+def _append_gauge_polygon(
+    parent: ET.Element,
+    rect: Dict[str, Any],
+    ratio: float,
+    shape_params: Dict[str, Any],
+    track_fill: str,
+    fill: str,
+    fallback_sides: int = 6,
+) -> None:
+    width = float(rect["width"])
+    height = float(rect["height"])
+    cx = float(rect["x"]) + width / 2
+    cy = float(rect["y"]) + height / 2
+    radius = min(width, height) / 2
+
+    sides = int(_gauge_param_number(shape_params, "sides", fallback_sides))
+    sides = max(sides, 3)
+    rotation = _gauge_param_number(shape_params, "rotation", -90.0)
+
+    track_points = _polygon_points(cx, cy, radius, sides, rotation)
+    ET.SubElement(
+        parent,
+        "polygon",
+        {
+            "points": _points_attr(track_points),
+            "fill": track_fill,
+        },
+    )
+
+    if ratio <= 0:
+        return
+
+    fill_radius = radius * max(0.0, min(1.0, ratio))
+    if fill_radius <= 0.01:
+        return
+
+    fill_points = _polygon_points(cx, cy, fill_radius, sides, rotation)
+    ET.SubElement(
+        parent,
+        "polygon",
+        {
+            "points": _points_attr(fill_points),
+            "fill": fill,
+        },
+    )
+
+
+def _append_gauge_circle(
+    parent: ET.Element,
+    cx: float,
+    cy: float,
+    radius: float,
+    stroke: str,
+    thickness: float,
+    ratio: float | None = None,
+    rotate: float | None = None,
+) -> None:
+    attrs = {
+        "cx": _fmt(cx),
+        "cy": _fmt(cy),
+        "r": _fmt(radius),
+        "fill": "none",
+        "stroke": stroke,
+        "stroke-width": _fmt(thickness),
+        "stroke-linecap": "round",
+    }
+    if ratio is not None:
+        circumference = 2 * math.pi * radius
+        dash = circumference * max(0.0, min(1.0, ratio))
+        attrs["stroke-dasharray"] = f"{dash:.2f} {circumference:.2f}"
+        if rotate is not None:
+            attrs["transform"] = f"rotate({rotate:.2f} {_fmt(cx)} {_fmt(cy)})"
+    ET.SubElement(parent, "circle", attrs)
+
+
+def _resolve_gauge_ratio(layer: Dict[str, Any], bind: Dict[str, Any], state: Dict[str, Any]) -> float:
+    bound = _resolve_bind_value(bind, state)
+    value_model = layer.get("value_model")
+    model = value_model if isinstance(value_model, dict) else {}
+    ratio_override = _coerce_number(model.get("ratio"))
+    if ratio_override is not None:
+        return _clamp_unit(ratio_override)
+
+    raw_value = _first_number(bound, model.get("value"), layer.get("value"))
+    raw_value = 0.0 if raw_value is None else raw_value
+
+    max_value = _coerce_number(model.get("max"))
+    min_value = _coerce_number(model.get("min"))
+    if min_value is None:
+        min_value = 0.0
+
+    if max_value is not None and max_value != min_value:
+        return _clamp_unit((raw_value - min_value) / (max_value - min_value))
+
+    return _clamp_unit(raw_value)
+
+
+def _first_number(*values: Any) -> Optional[float]:
+    for value in values:
+        number = _coerce_number(value)
+        if number is not None:
+            return number
+    return None
+
+
+def _gauge_param_number(params: Dict[str, Any], key: str, default: float) -> float:
+    if isinstance(params, dict):
+        value = _coerce_number(params.get(key))
+        if value is not None:
+            return float(value)
+    return float(default)
+
+
+def _polygon_points(
+    cx: float,
+    cy: float,
+    radius: float,
+    sides: int,
+    rotation: float,
+) -> List[Tuple[float, float]]:
+    points = []
+    for index in range(sides):
+        angle = math.radians(rotation + index * (360.0 / sides))
+        x = cx + math.cos(angle) * radius
+        y = cy + math.sin(angle) * radius
+        points.append((x, y))
+    return points
+
+
+def _points_attr(points: List[Tuple[float, float]]) -> str:
+    return " ".join(f"{_fmt(x)},{_fmt(y)}" for x, y in points)
+
+
+def _arc_path(
+    cx: float,
+    cy: float,
+    radius: float,
+    start_angle: float,
+    end_angle: float,
+) -> str:
+    start = _polar_point(cx, cy, radius, start_angle)
+    end = _polar_point(cx, cy, radius, end_angle)
+    sweep = end_angle - start_angle
+    large_arc = 1 if abs(sweep) > 180 else 0
+    sweep_flag = 1 if sweep >= 0 else 0
+    return (
+        f"M {_fmt(start[0])} {_fmt(start[1])} "
+        f"A {_fmt(radius)} {_fmt(radius)} 0 {large_arc} {sweep_flag} {_fmt(end[0])} {_fmt(end[1])}"
+    )
+
+
+def _polar_point(
+    cx: float,
+    cy: float,
+    radius: float,
+    angle: float,
+) -> Tuple[float, float]:
+    radians = math.radians(angle)
+    return (
+        cx + math.cos(radians) * radius,
+        cy + math.sin(radians) * radius,
+    )
 
 
 def _append_progress_bar(

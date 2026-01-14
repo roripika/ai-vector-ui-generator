@@ -26,3 +26,23 @@ templates:
     summary: "暫定/要レビュー: custom:* を含む演出テンプレ"
     path: "ui-templates/patterns/custom_fx_glow.yaml"
     tags: [decoration, stack]
+  - id: gauge_base
+    summary: "ゲージ基底（意味と形状を分離）"
+    path: "ui-templates/patterns/gauge_base.yaml"
+    tags: [data_display, progress, gauge, slot]
+  - id: gauge_radial
+    summary: "円形ゲージ（radial）"
+    path: "ui-templates/patterns/gauge_radial.yaml"
+    tags: [data_display, progress, gauge, slot]
+  - id: gauge_segmented
+    summary: "段階ゲージ（segmented）"
+    path: "ui-templates/patterns/gauge_segmented.yaml"
+    tags: [data_display, progress, gauge, flow]
+  - id: gauge_polygon_triangle
+    summary: "三角ゲージ（polygon/sides=3）"
+    path: "ui-templates/patterns/gauge_polygon_triangle.yaml"
+    tags: [data_display, progress, gauge, slot]
+  - id: gauge_polygon_hex
+    summary: "六角ゲージ（polygon/sides=6）"
+    path: "ui-templates/patterns/gauge_polygon_hex.yaml"
+    tags: [data_display, progress, gauge, slot]

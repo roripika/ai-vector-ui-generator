@@ -1,0 +1,32 @@
+id: gauge_base
+category: pattern
+role: data_display
+importance: info
+intent: "進捗/残量/クールダウンを明確に表示する"
+when:
+  - "進捗や残量を視覚的に伝えたい"
+  - "数値の補助としてゲージが必要"
+avoid:
+  - "装飾のみが目的の要素"
+constraints:
+  - safe_area
+states:
+  - default
+layout_ref:
+  type: slot
+  example: "slot:gauge_main"
+value_model:
+  meaning: progress
+  value: 0.7
+  max: 1
+  unit: ratio
+shape_profile: radial
+shape_params:
+  thickness: 18
+export_hint:
+  default_size:
+    width: 240
+    height: 240
+notes:
+  - "意味(value_model)と形状(shape_profile)を分離する"
+  - "座標は必須。shape_profileは差し替え可能"

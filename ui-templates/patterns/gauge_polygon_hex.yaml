@@ -1,0 +1,32 @@
+id: gauge_polygon_hex
+category: pattern
+role: data_display
+importance: info
+intent: "六角形ゲージで進捗を表現する"
+when:
+  - "テック/メカ系のUIで形状を統一したい"
+  - "円形とは違う印象を出したい"
+avoid:
+  - "極端に小さいサイズ"
+constraints:
+  - safe_area
+states:
+  - default
+layout_ref:
+  type: slot
+  example: "slot:gauge_hex"
+shape_profile: polygon
+shape_params:
+  sides: 6
+  thickness: 16
+value_model:
+  meaning: progress
+  value: 0.7
+  max: 1
+  unit: ratio
+export_hint:
+  default_size:
+    width: 220
+    height: 220
+notes:
+  - "sides=6で六角形のゲージ"

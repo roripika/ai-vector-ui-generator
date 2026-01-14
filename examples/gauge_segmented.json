@@ -1,0 +1,45 @@
+{
+  "version": "0.3.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Gauge Segmented",
+    "description": "Segmented gauge example",
+    "tags": ["screen", "gauge", "progress"]
+  },
+  "patternId": "gauge_segmented",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "gauge-segmented",
+      "viewBox": [0, 0, 360, 48],
+      "layers": [
+        {
+          "id": "gauge-steps",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 360, "height": 48, "radius": 0 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "shape_profile": "segmented",
+          "shape_params": { "segment_count": 10, "gap": 6, "thickness": 6 },
+          "value_model": { "meaning": "cooldown", "value": 7, "max": 10, "unit": "step" },
+          "role": "progress"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "gauge-segmented-instance",
+      "componentId": "gauge-segmented",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 260, "y": 320 },
+      "size": { "width": 360, "height": 48 },
+      "zIndex": 1
+    }
+  ]
+}

@@ -8,6 +8,15 @@ const templateId = document.getElementById("template-id");
 const assetType = document.getElementById("asset-type");
 const selectionSummary = document.getElementById("selection-summary");
 const selectionList = document.getElementById("selection-list");
+const gaugeEditor = document.getElementById("gauge-editor");
+const gaugeTarget = document.getElementById("gauge-target");
+const shapeProfile = document.getElementById("shape-profile");
+const shapeSides = document.getElementById("shape-sides");
+const shapeSegments = document.getElementById("shape-segments");
+const shapeThickness = document.getElementById("shape-thickness");
+const applyGauge = document.getElementById("apply-gauge");
+const shapeSidesField = document.getElementById("shape-sides-field");
+const shapeSegmentsField = document.getElementById("shape-segments-field");
 const filenameInput = document.getElementById("filename-input");
 const tagsInput = document.getElementById("tags-input");
 const tagsHint = document.getElementById("tags-hint");
@@ -22,6 +31,8 @@ const downloadButton = document.getElementById("download-json");
 let currentJson = "{}";
 let currentAsset = null;
 let allowedTags = [];
+let currentTemplateId = "-";
+let gaugeLayers = [];
 
 function setStatus(message) {
   statusLabel.textContent = message;
@@ -33,14 +44,16 @@ function setPreview(svg) {
 
 function setJson(asset, id) {
   currentAsset = asset;
+  currentTemplateId = id || "-";
   currentJson = JSON.stringify(asset, null, 2);
   jsonOutput.textContent = currentJson;
-  templateId.textContent = `template: ${id || "-"}`;
+  templateId.textContent = `template: ${currentTemplateId}`;
   assetType.textContent = asset && asset.assetType ? `type: ${asset.assetType}` : "type: -";
 
   if (asset && asset.metadata && Array.isArray(asset.metadata.tags)) {
     tagsInput.value = asset.metadata.tags.join(", ");
   }
+  updateGaugeEditor(asset);
 }
 
 function setSelection(selection) {
@@ -128,6 +141,116 @@ function updateTagHints(asset) {
   tagsHint.textContent = parts.length ? `候補: ${parts.join(" | ")}` : "候補: -";
 }
 
+function findGaugeLayers(asset) {
+  const layers = [];
+  if (!asset || typeof asset !== "object") {
+    return layers;
+  }
+
+  function record(layer, label) {
+    if (!layer || typeof layer !== "object") return;
+    if (layer.shape === "gauge") {
+      layers.push({ label, layer });
+    }
+  }
+
+  if (Array.isArray(asset.layers)) {
+    for (const layer of asset.layers) {
+      record(layer, layer.id || "gauge");
+    }
+  }
+
+  if (Array.isArray(asset.components)) {
+    for (const component of asset.components) {
+      const prefix = component.id ? `${component.id} / ` : "";
+      for (const layer of component.layers || []) {
+        record(layer, `${prefix}${layer.id || "gauge"}`);
+      }
+    }
+  }
+
+  return layers;
+}
+
+function updateGaugeEditor(asset) {
+  gaugeLayers = findGaugeLayers(asset);
+  if (!gaugeLayers.length) {
+    gaugeEditor.hidden = true;
+    gaugeTarget.innerHTML = "";
+    return;
+  }
+
+  gaugeEditor.hidden = false;
+  const previous = gaugeTarget.value;
+  gaugeTarget.innerHTML = "";
+  gaugeLayers.forEach((entry, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = entry.label;
+    gaugeTarget.appendChild(option);
+  });
+
+  const nextIndex = previous && gaugeLayers[Number(previous)] ? Number(previous) : 0;
+  gaugeTarget.value = String(nextIndex);
+  setGaugeInputs(gaugeLayers[nextIndex].layer);
+}
+
+function setGaugeInputs(layer) {
+  const allowedProfiles = new Set([
+    "radial",
+    "segmented",
+    "polygon",
+    "custom_svg",
+    "unknown",
+  ]);
+  const rawProfile = typeof layer.shape_profile === "string" ? layer.shape_profile : "radial";
+  const profile = allowedProfiles.has(rawProfile) ? rawProfile : "unknown";
+  shapeProfile.value = profile;
+
+  const params = layer.shape_params && typeof layer.shape_params === "object" ? layer.shape_params : {};
+  shapeSides.value = Number.isFinite(Number(params.sides)) ? params.sides : "";
+  shapeSegments.value = Number.isFinite(Number(params.segment_count)) ? params.segment_count : "";
+  shapeThickness.value = Number.isFinite(Number(params.thickness)) ? params.thickness : "";
+  updateGaugeParamVisibility(profile);
+}
+
+function updateGaugeParamVisibility(profile) {
+  shapeSidesField.hidden = profile !== "polygon";
+  shapeSegmentsField.hidden = profile !== "segmented";
+}
+
+async function compileAsset(asset) {
+  setStatus("再レンダ中...");
+  let response;
+  try {
+    response = await fetch("/api/compile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ asset }),
+    });
+  } catch (error) {
+    setStatus("再レンダに失敗しました");
+    return;
+  }
+
+  const data = await response.json();
+  if (!response.ok) {
+    setStatus(`エラー: ${data.error || "failed"}`);
+    return;
+  }
+
+  setPreview(data.svg);
+  const selectedTemplate =
+    data.asset && data.asset.metadata && data.asset.metadata.selected_templates
+      ? data.asset.metadata.selected_templates[0]
+      : currentTemplateId;
+  setJson(data.asset, selectedTemplate);
+  updateTagHints(data.asset);
+  warnUnknownTags(parseTagsInput());
+  setSaveStatus("未保存");
+  setStatus("更新完了");
+}
+
 function parseTagsInput() {
   return tagsInput.value
     .split(",")
@@ -200,6 +323,65 @@ function clearAll() {
   setSaveStatus("未保存");
 }
 
+function applyGaugeChanges() {
+  if (!currentAsset || !gaugeLayers.length) {
+    setStatus("ゲージが見つかりません");
+    return;
+  }
+
+  const index = Number(gaugeTarget.value || 0);
+  const entry = gaugeLayers[index];
+  if (!entry) {
+    setStatus("ゲージが選択されていません");
+    return;
+  }
+
+  const profile = shapeProfile.value;
+  entry.layer.shape_profile = profile;
+
+  const params =
+    entry.layer.shape_params && typeof entry.layer.shape_params === "object"
+      ? { ...entry.layer.shape_params }
+      : {};
+
+  const thickness = Number.parseFloat(shapeThickness.value);
+  if (Number.isFinite(thickness) && thickness >= 0) {
+    params.thickness = thickness;
+  } else {
+    delete params.thickness;
+  }
+
+  if (profile === "polygon") {
+    const sides = Number.parseInt(shapeSides.value, 10);
+    if (Number.isFinite(sides) && sides >= 3) {
+      params.sides = sides;
+    } else {
+      delete params.sides;
+    }
+  } else {
+    delete params.sides;
+  }
+
+  if (profile === "segmented") {
+    const segments = Number.parseInt(shapeSegments.value, 10);
+    if (Number.isFinite(segments) && segments >= 1) {
+      params.segment_count = segments;
+    } else {
+      delete params.segment_count;
+    }
+  } else {
+    delete params.segment_count;
+  }
+
+  if (Object.keys(params).length) {
+    entry.layer.shape_params = params;
+  } else {
+    delete entry.layer.shape_params;
+  }
+
+  compileAsset(currentAsset);
+}
+
 copyButton.addEventListener("click", async () => {
   if (!currentJson || currentJson === "{}") {
     setStatus("JSONがありません");
@@ -233,6 +415,16 @@ clearButton.addEventListener("click", clearAll);
 generateButton.addEventListener("click", generateAsset);
 downloadButton.addEventListener("click", downloadJson);
 saveButton.addEventListener("click", saveToRepo);
+applyGauge.addEventListener("click", applyGaugeChanges);
+gaugeTarget.addEventListener("change", () => {
+  const index = Number(gaugeTarget.value || 0);
+  if (gaugeLayers[index]) {
+    setGaugeInputs(gaugeLayers[index].layer);
+  }
+});
+shapeProfile.addEventListener("change", () => {
+  updateGaugeParamVisibility(shapeProfile.value);
+});
 tagsInput.addEventListener("input", () => {
   warnUnknownTags(parseTagsInput());
 });

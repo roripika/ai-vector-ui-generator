@@ -1,0 +1,33 @@
+id: gauge_segmented
+category: pattern
+role: data_display
+importance: info
+intent: "区切り型ゲージで段階進捗を示す"
+when:
+  - "ステージ/段階の達成度を見せたい"
+  - "細かな残量を段階表示したい"
+avoid:
+  - "連続的な滑らかさが必要な場面"
+constraints:
+  - safe_area
+states:
+  - default
+layout_ref:
+  type: flow
+  example: "flow:gauge_segmented"
+shape_profile: segmented
+shape_params:
+  segment_count: 8
+  gap: 4
+  thickness: 6
+value_model:
+  meaning: progress
+  value: 6
+  max: 8
+  unit: step
+export_hint:
+  default_size:
+    width: 320
+    height: 36
+notes:
+  - "segment_countとvalue/maxで段階表現"

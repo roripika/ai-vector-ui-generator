@@ -1,0 +1,71 @@
+{
+  "version": "0.3.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Gauge Radial/Polygon",
+    "description": "Same value_model with radial and polygon shapes",
+    "tags": ["screen", "gauge", "progress"]
+  },
+  "patternId": "gauge_radial_polygon",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "gauge-radial",
+      "viewBox": [0, 0, 240, 240],
+      "layers": [
+        {
+          "id": "gauge-ring",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 240, "height": 240, "radius": 0 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "shape_profile": "radial",
+          "shape_params": { "start_angle": -90, "sweep": 300, "thickness": 20 },
+          "value_model": { "meaning": "progress", "value": 65, "max": 100, "unit": "percent" },
+          "role": "progress"
+        }
+      ]
+    },
+    {
+      "id": "gauge-hex",
+      "viewBox": [0, 0, 240, 240],
+      "layers": [
+        {
+          "id": "gauge-hex-core",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 240, "height": 240, "radius": 0 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "shape_profile": "polygon",
+          "shape_params": { "sides": 6, "thickness": 18 },
+          "value_model": { "meaning": "progress", "value": 65, "max": 100, "unit": "percent" },
+          "role": "progress"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "gauge-radial-instance",
+      "componentId": "gauge-radial",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 280, "y": 200 },
+      "size": { "width": 240, "height": 240 },
+      "zIndex": 1
+    },
+    {
+      "id": "gauge-hex-instance",
+      "componentId": "gauge-hex",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 760, "y": 200 },
+      "size": { "width": 240, "height": 240 },
+      "zIndex": 1
+    }
+  ]
+}

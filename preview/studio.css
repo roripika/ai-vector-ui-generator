@@ -165,6 +165,15 @@ button#clear {
   font-size: 0.85rem;
 }
 
+.field select {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--ink);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+
 .warning {
   color: #f07b73;
 }
@@ -242,6 +251,15 @@ button#clear {
   border-radius: 12px;
   border: 1px solid var(--border);
   padding: 12px;
+}
+
+.gauge-editor {
+  background: #10151f;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .selection-header {

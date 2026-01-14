@@ -18,6 +18,8 @@ TAB_BAR_PATH = Path(__file__).resolve().parents[1] / "examples" / "tab_bar.json"
 INFO_PANEL_PATH = Path(__file__).resolve().parents[1] / "examples" / "info_panel.json"
 TOAST_PATH = Path(__file__).resolve().parents[1] / "examples" / "toast_feedback.json"
 CUSTOM_FX_PATH = Path(__file__).resolve().parents[1] / "examples" / "custom_fx_glow.json"
+GAUGE_RADIAL_PATH = Path(__file__).resolve().parents[1] / "examples" / "gauge_radial_polygon.json"
+GAUGE_SEGMENTED_PATH = Path(__file__).resolve().parents[1] / "examples" / "gauge_segmented.json"
 
 
 def load_asset() -> dict:
@@ -75,6 +77,16 @@ def load_custom_fx_asset() -> dict:
         return json.load(handle)
 
 
+def load_gauge_radial_asset() -> dict:
+    with GAUGE_RADIAL_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_gauge_segmented_asset() -> dict:
+    with GAUGE_SEGMENTED_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def test_screen_example_validates():
     asset = load_asset()
     validate_asset(asset)
@@ -97,6 +109,8 @@ def test_screen_example_validates():
     validate_asset(load_info_panel_asset())
     validate_asset(load_toast_asset())
     validate_asset(load_custom_fx_asset())
+    validate_asset(load_gauge_radial_asset())
+    validate_asset(load_gauge_segmented_asset())
 
 
 def test_screen_compiles_with_canvas_viewbox():
@@ -144,3 +158,11 @@ def test_screen_compiles_with_canvas_viewbox():
     custom_svg = compile_svg(load_custom_fx_asset())
     custom_root = ET.fromstring(custom_svg)
     assert custom_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    radial_svg = compile_svg(load_gauge_radial_asset())
+    radial_root = ET.fromstring(radial_svg)
+    assert radial_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    segmented_svg = compile_svg(load_gauge_segmented_asset())
+    segmented_root = ET.fromstring(segmented_svg)
+    assert segmented_root.attrib.get("viewBox") == "0 0 1280 720"

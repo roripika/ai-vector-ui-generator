@@ -6,6 +6,7 @@ roles:
   - data_display
   - feedback
   - decoration
+  - gauge
   - modal
   - overlay
   - tab

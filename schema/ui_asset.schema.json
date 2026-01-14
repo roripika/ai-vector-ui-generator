@@ -206,6 +206,23 @@
         { "type": "object", "additionalProperties": true }
       ]
     },
+    "shapeProfile": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["radial", "segmented", "polygon", "custom_svg", "unknown"]
+        },
+        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" }
+      ]
+    },
+    "shapeParams": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "valueModel": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "rectBase": {
       "type": "object",
       "additionalProperties": false,
@@ -604,6 +621,35 @@
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     },
+    "gaugeLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "shape", "rect", "style", "track"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": { "type": "string", "maxLength": 80 },
+        "shape": { "const": "gauge" },
+        "rect": { "$ref": "#/definitions/rectBase" },
+        "style": { "$ref": "#/definitions/style" },
+        "track": { "$ref": "#/definitions/token" },
+        "value": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
+        "shape_profile": { "$ref": "#/definitions/shapeProfile" },
+        "shape_params": { "$ref": "#/definitions/shapeParams" },
+        "value_model": { "$ref": "#/definitions/valueModel" },
+        "role": { "$ref": "#/definitions/roleTag" },
+        "importance": { "$ref": "#/definitions/importanceTag" },
+        "state": { "$ref": "#/definitions/stateTag" },
+        "constraints": { "$ref": "#/definitions/constraints" },
+        "layout_ref": { "$ref": "#/definitions/layoutRef" },
+        "bind": { "$ref": "#/definitions/bind" },
+        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
+    },
     "progressBarLayer": {
       "type": "object",
       "additionalProperties": false,
@@ -715,6 +761,7 @@
         { "$ref": "#/definitions/layoutRowLayer" },
         { "$ref": "#/definitions/layoutColumnLayer" },
         { "$ref": "#/definitions/layoutGridLayer" },
+        { "$ref": "#/definitions/gaugeLayer" },
         { "$ref": "#/definitions/progressBarLayer" },
         { "$ref": "#/definitions/cooldownLayer" },
         { "$ref": "#/definitions/toggleLayer" },
@@ -759,6 +806,9 @@
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
+        "shape_profile": { "$ref": "#/definitions/shapeProfile" },
+        "shape_params": { "$ref": "#/definitions/shapeParams" },
+        "value_model": { "$ref": "#/definitions/valueModel" },
         "viewBox": { "$ref": "#/definitions/viewBox" },
         "layers": {
           "type": "array",

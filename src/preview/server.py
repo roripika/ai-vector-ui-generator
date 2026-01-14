@@ -55,6 +55,16 @@ GENERATOR_LIBRARY = [
         "path": "examples/custom_fx_glow.json",
         "keywords": ["fx", "glow", "エフェクト", "発光"],
     },
+    {
+        "id": "gauge_radial_polygon",
+        "path": "examples/gauge_radial_polygon.json",
+        "keywords": ["gauge", "meter", "progress", "radial", "polygon", "ゲージ", "進捗", "円形"],
+    },
+    {
+        "id": "gauge_segmented",
+        "path": "examples/gauge_segmented.json",
+        "keywords": ["gauge", "segmented", "step", "cooldown", "ゲージ", "段階", "クールダウン"],
+    },
 ]
 
 
