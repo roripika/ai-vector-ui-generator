@@ -1,0 +1,65 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Radial Slider",
+    "description": "Radial slider control for continuous adjustment",
+    "tags": ["screen", "dial", "radial"]
+  },
+  "patternId": "radial_slider",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "radial-slider",
+      "name": "Radial Slider",
+      "role": "control",
+      "importance": "secondary",
+      "viewBox": [0, 0, 200, 200],
+      "layers": [
+        {
+          "id": "slider-track",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 200, "height": 200, "radius": 0 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "shape_profile": "radial",
+          "shape_params": { "start_angle": -120, "sweep": 240, "thickness": 12 },
+          "value_model": { "meaning": "adjust_value", "value": 0.35, "max": 1, "unit": "ratio" },
+          "role": "control"
+        },
+        {
+          "id": "slider-handle",
+          "shape": "roundedRect",
+          "rect": { "x": 92, "y": 10, "width": 16, "height": 16, "radius": 8 },
+          "style": { "fill": "ui.accent", "stroke": "ui.strokeLight", "strokeWidth": 2 },
+          "role": "decoration",
+          "importance": "secondary"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "radial-slider-instance",
+      "componentId": "radial-slider",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 520, "y": 220 },
+      "size": { "width": 200, "height": 200 },
+      "role": "control",
+      "importance": "secondary",
+      "state": "default",
+      "constraints": {
+        "min_tap": { "width": 48, "height": 48 },
+        "snap_steps": 24,
+        "drag_angle_range": { "min": -150, "max": 150 }
+      },
+      "layout_ref": "slot:radial_slider",
+      "zIndex": 1
+    }
+  ]
+}

@@ -103,6 +103,8 @@
 - `hit_area`: 当たり判定拡張
 - `baseline`: ベースライン整列
 - `snap`: スナップ整列
+- `snap_steps`: スナップ段数（ダイヤル/スライダー）
+- `drag_angle_range`: ドラッグ角度範囲
 - `max_lines`: 行数制限
 
 **例**
