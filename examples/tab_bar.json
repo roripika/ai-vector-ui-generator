@@ -39,7 +39,7 @@
           "style": { "fill": "ui.accent" },
           "role": "icon",
           "importance": "secondary",
-          "constraints": ["aspect_ratio"]
+          "constraint_flags": ["aspect_ratio"]
         },
         {
           "id": "tab-label",
@@ -57,7 +57,7 @@
           },
           "role": "text",
           "importance": "secondary",
-          "constraints": ["baseline"]
+          "constraint_flags": ["baseline"]
         },
         {
           "id": "tab-badge",
@@ -76,7 +76,7 @@
           },
           "role": "badge",
           "importance": "info",
-          "constraints": ["snap"]
+          "constraint_flags": ["snap"]
         }
       ]
     },
@@ -85,7 +85,7 @@
       "name": "Tab Bar",
       "role": "navigation",
       "importance": "secondary",
-      "constraints": ["spacing"],
+      "constraint_flags": ["spacing"],
       "viewBox": [0, 0, 640, 72],
       "layers": [
         {
@@ -129,7 +129,7 @@
           ],
           "role": "navigation",
           "importance": "secondary",
-          "constraints": ["spacing"],
+          "constraint_flags": ["spacing"],
           "layout_ref": "flow:tab_row"
         }
       ]
@@ -146,7 +146,7 @@
       "role": "navigation",
       "importance": "secondary",
       "state": "default",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "flow:tab_row",
       "zIndex": 1
     }

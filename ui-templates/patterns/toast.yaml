@@ -8,7 +8,7 @@ when:
   - "画面遷移なしで通知したい"
 avoid:
   - "重大なエラーや確認が必要な場面"
-constraints:
+constraint_flags:
   - overlap
   - safe_area
 states:

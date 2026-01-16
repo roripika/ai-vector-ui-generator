@@ -46,7 +46,7 @@
       "role": "data_display",
       "importance": "info",
       "state": "default",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "slot:radial_gauge",
       "zIndex": 1
     }

@@ -60,6 +60,7 @@
           </div>
           <p class="selection-summary" id="selection-summary">template: -</p>
           <ul class="selection-list" id="selection-list"></ul>
+          <div class="selection-rationale" id="selection-rationale"></div>
         </div>
         <div class="gauge-editor" id="gauge-editor" hidden>
           <div class="selection-header">
@@ -93,6 +94,25 @@
             <input id="shape-thickness" type="number" min="0" step="0.5" />
           </div>
           <p class="hint">shape_profileとshape_paramsを変更して再レンダできます。</p>
+        </div>
+        <div class="constraints-editor" id="constraints-editor" hidden>
+          <div class="selection-header">
+            <span>constraints</span>
+            <button id="apply-constraints" class="ghost">適用</button>
+          </div>
+          <div class="field">
+            <label for="constraints-target">対象</label>
+            <select id="constraints-target"></select>
+          </div>
+          <div class="field">
+            <label>constraint_flags</label>
+            <div class="checkbox-grid" id="constraint-flags"></div>
+          </div>
+          <div class="field">
+            <label for="constraint-params">constraint_params (JSON)</label>
+            <textarea id="constraint-params" rows="4" placeholder='{\"min_tap\": {\"width\": 44, \"height\": 44}}'></textarea>
+          </div>
+          <p class="hint">flagsはチェック、paramsはJSONで編集して再レンダできます。</p>
         </div>
         <div class="save-panel">
           <div class="field">

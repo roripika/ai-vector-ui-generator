@@ -19,7 +19,7 @@
       "role": "feedback",
       "importance": "info",
       "state": "success",
-      "constraints": ["overlap"],
+      "constraint_flags": ["overlap"],
       "viewBox": [0, 0, 520, 64],
       "layers": [
         {
@@ -50,7 +50,7 @@
           },
           "role": "feedback",
           "importance": "info",
-          "constraints": ["max_lines"]
+          "constraint_flags": ["max_lines"]
         }
       ]
     }
@@ -66,7 +66,7 @@
       "role": "feedback",
       "importance": "info",
       "state": "success",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "stack:toast_queue",
       "zIndex": 2
     }

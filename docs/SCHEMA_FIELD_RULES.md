@@ -89,9 +89,9 @@
 ---
 
 ## constraints（制約）
-`constraints` は **配列** または **オブジェクト** を許容。
+`constraint_flags`（配列）と `constraint_params`（オブジェクト）を基本とする。
 
-### 配列（タグ式）
+### constraint_flags（タグ式）
 **標準キー例**
 - `min_tap`: 最小タップ領域
 - `safe_area`: セーフエリア内に収める
@@ -108,11 +108,16 @@
 - `max_lines`: 行数制限
 
 **例**
-- `constraints: ["min_tap", "safe_area"]`
+- `constraint_flags: ["min_tap", "safe_area"]`
 
-### オブジェクト（詳細指定）
+### constraint_params（詳細指定）
 - 例: `{ "min_tap": { "width": 44, "height": 44 }, "safe_area": "inside" }`
 - 詳細設計は次フェーズで拡張
+
+### 旧 constraints（互換運用）
+- `constraints` は **配列/オブジェクト** として引き続き受理するが **非推奨**。
+- 旧形式は読み込み時に `constraint_flags` / `constraint_params` に正規化して扱う。
+- 新規作成では `constraint_flags` / `constraint_params` のみを使用する。
 
 ---
 

@@ -8,7 +8,7 @@ when:
   - "HUDで時間経過を伝えたい"
 avoid:
   - "時間表現が不要"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default

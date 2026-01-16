@@ -8,7 +8,7 @@ when:
   - "確認や詳細表示が必要"
 avoid:
   - "頻繁に表示される非重要通知"
-constraints:
+constraint_flags:
   - overlay
   - safe_area
   - padding

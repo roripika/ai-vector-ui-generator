@@ -53,7 +53,8 @@
       "role": "control",
       "importance": "secondary",
       "state": "default",
-      "constraints": {
+      "constraint_flags": ["min_tap"],
+      "constraint_params": {
         "min_tap": { "width": 48, "height": 48 },
         "snap_steps": 24,
         "drag_angle_range": { "min": -150, "max": 150 }

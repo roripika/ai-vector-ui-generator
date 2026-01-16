@@ -254,7 +254,8 @@ function extractMeta(item) {
     role: item.role,
     importance: item.importance,
     state: item.state,
-    constraints: item.constraints,
+    constraint_flags: item.constraint_flags,
+    constraint_params: item.constraint_params,
     layout_ref: item.layout_ref,
   };
 }
@@ -264,7 +265,15 @@ function applyMeta(pane, meta) {
   if (!container) {
     return;
   }
-  const fields = ["id", "role", "importance", "state", "constraints", "layout_ref"];
+  const fields = [
+    "id",
+    "role",
+    "importance",
+    "state",
+    "constraint_flags",
+    "constraint_params",
+    "layout_ref",
+  ];
   for (const field of fields) {
     const target = container.querySelector(`[data-field=\"${field}\"]`);
     if (!target) {

@@ -8,7 +8,7 @@ when:
   - "HUDやダッシュボードで視認性を高めたい"
 avoid:
   - "横長のエリアしか確保できない"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default

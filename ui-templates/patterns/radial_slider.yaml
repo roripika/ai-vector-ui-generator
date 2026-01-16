@@ -8,7 +8,9 @@ when:
   - "ドラッグで範囲を連続調整したい"
 avoid:
   - "直線スライダーで十分"
-constraints:
+constraint_flags:
+  - min_tap
+constraint_params:
   min_tap:
     width: 48
     height: 48

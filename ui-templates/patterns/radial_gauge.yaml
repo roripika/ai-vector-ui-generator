@@ -8,7 +8,7 @@ when:
   - "HUDの視線誘導が必要"
 avoid:
   - "横長のスペースしかない"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default

@@ -52,7 +52,7 @@
       "role": "badge",
       "importance": "info",
       "state": "selected",
-      "constraints": ["overlap", "min_tap"],
+      "constraint_flags": ["overlap", "min_tap"],
       "layout_ref": "slot:badge_count",
       "zIndex": 2
     }

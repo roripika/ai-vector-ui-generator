@@ -9,6 +9,7 @@ from typing import Any, Dict
 from urllib.parse import urlparse
 
 from src.compiler import compile_svg
+from src.constraints import normalize_asset_constraints
 from src.validator import ValidationError, validate_asset
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -19,81 +20,129 @@ GENERATOR_LIBRARY = [
         "id": "button_sf",
         "path": "examples/button_sf.json",
         "keywords": ["button", "cta", "ボタン", "アクション"],
+        "tags": ["action", "primary"],
+        "intent": "主要アクションを強調するボタン",
+        "when": ["CTAを目立たせたい", "最重要の操作を配置したい"],
     },
     {
         "id": "primary_action_states",
         "path": "examples/primary_action_states.json",
         "keywords": ["pressed", "disabled", "状態", "primary"],
+        "tags": ["action", "primary", "state"],
+        "intent": "主要ボタンの状態差分を示す",
+        "when": ["押下/無効状態を確認したい"],
     },
     {
         "id": "modal_overlay",
         "path": "examples/modal_overlay.json",
         "keywords": ["modal", "dialog", "モーダル", "ダイアログ", "overlay"],
+        "tags": ["modal", "overlay"],
+        "intent": "モーダルで確認や入力を促す",
+        "when": ["画面をブロックして注意喚起したい"],
     },
     {
         "id": "tab_bar",
         "path": "examples/tab_bar.json",
         "keywords": ["tab", "tabs", "タブ", "navigation", "ナビ"],
+        "tags": ["navigation", "tab", "badge"],
+        "intent": "主要画面の切り替えを提供する",
+        "when": ["複数セクションの移動が必要"],
     },
     {
         "id": "info_panel",
         "path": "examples/info_panel.json",
         "keywords": ["info", "panel", "stats", "データ", "パネル"],
+        "tags": ["data_display", "info"],
+        "intent": "情報をパネルで読みやすくまとめる",
+        "when": ["複数の数値や説明を並べたい"],
     },
     {
         "id": "toast",
         "path": "examples/toast_feedback.json",
         "keywords": ["toast", "トースト", "feedback", "通知"],
+        "tags": ["feedback"],
+        "intent": "非ブロッキング通知を表示する",
+        "when": ["操作の結果を軽く伝えたい"],
     },
     {
         "id": "hud_basic",
         "path": "examples/hud_basic.mock.json",
         "keywords": ["hud", "ゲージ", "progress", "toggle", "cooldown"],
+        "tags": ["progress", "cooldown", "toggle"],
+        "intent": "HUD上の状態と操作をまとめて表示する",
+        "when": ["戦闘中に複数情報を出したい"],
     },
     {
         "id": "custom_fx_glow",
         "path": "examples/custom_fx_glow.json",
         "keywords": ["fx", "glow", "エフェクト", "発光"],
+        "tags": ["decoration", "fx_glow"],
+        "intent": "発光演出で注目を集める",
+        "when": ["演出効果を追加したい"],
     },
     {
         "id": "gauge_radial_polygon",
         "path": "examples/gauge_radial_polygon.json",
         "keywords": ["gauge", "meter", "progress", "radial", "polygon", "ゲージ", "進捗", "円形"],
+        "tags": ["data_display", "progress", "gauge", "radial"],
+        "intent": "円形ゲージで進捗を示す",
+        "when": ["HUDで進捗を目立たせたい"],
     },
     {
         "id": "gauge_segmented",
         "path": "examples/gauge_segmented.json",
         "keywords": ["gauge", "segmented", "step", "cooldown", "ゲージ", "段階", "クールダウン"],
+        "tags": ["data_display", "progress", "cooldown"],
+        "intent": "段階的な進捗を表示する",
+        "when": ["ステップ数が決まっている"],
     },
     {
         "id": "dial_knob",
         "path": "examples/dial_knob.json",
         "keywords": ["dial", "knob", "adjust", "回転", "ダイヤル", "ノブ"],
+        "tags": ["control", "dial", "knob", "radial"],
+        "intent": "回転ダイヤルで値を微調整する",
+        "when": ["細かな値調整が必要"],
     },
     {
         "id": "radial_slider",
         "path": "examples/radial_slider.json",
         "keywords": ["radial", "slider", "dial", "円形", "スライダー"],
+        "tags": ["control", "dial", "radial"],
+        "intent": "円形スライダーで範囲を調整する",
+        "when": ["連続値の調整が必要"],
     },
     {
         "id": "radial_gauge",
         "path": "examples/radial_gauge.json",
         "keywords": ["radial", "gauge", "progress", "円形", "ゲージ"],
+        "tags": ["data_display", "progress", "gauge", "radial"],
+        "intent": "円形ゲージで進捗を可視化する",
+        "when": ["進捗を直感的に見せたい"],
     },
     {
         "id": "cooldown_wheel",
         "path": "examples/cooldown_wheel.json",
         "keywords": ["cooldown", "wheel", "radial", "クールダウン", "円形"],
+        "tags": ["data_display", "cooldown", "radial"],
+        "intent": "クールダウン残量を円形で示す",
+        "when": ["再使用待ち時間を見せたい"],
     },
     {
         "id": "badge_count",
         "path": "examples/badge_count.json",
         "keywords": ["badge", "count", "notification", "バッジ", "通知"],
+        "tags": ["badge", "feedback"],
+        "intent": "未読数などのカウントを通知する",
+        "when": ["通知数を小さく表示したい"],
     },
     {
         "id": "card_frame_rarity",
         "path": "examples/card_frame_rarity.json",
         "keywords": ["card", "frame", "rarity", "カード", "枠", "レア"],
+        "tags": ["container", "card", "rarity", "decoration"],
+        "intent": "カード枠でレアリティを強調する",
+        "when": ["カードの希少度を枠で表現する"],
     },
 ]
 
@@ -169,6 +218,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self._send_error(400, "Asset must be an object")
             return
 
+        normalize_asset_constraints(asset)
+
         try:
             validate_asset(asset)
         except ValidationError as exc:
@@ -200,6 +251,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             return
 
         _apply_generation_metadata(asset, prompt, template_id)
+        normalize_asset_constraints(asset)
 
         try:
             validate_asset(asset)
@@ -234,6 +286,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
         if not isinstance(asset, dict):
             self._send_error(400, "Asset must be an object")
             return
+
+        normalize_asset_constraints(asset)
 
         tag_list = _coerce_tags(tags)
         warnings = _warn_unknown_tags(tag_list)
@@ -402,11 +456,17 @@ def _select_template(prompt: str) -> Dict[str, Any]:
     scored: list[dict[str, Any]] = []
     for entry in GENERATOR_LIBRARY:
         matches = [kw for kw in entry["keywords"] if kw.lower() in lowered]
+        tags = entry.get("tags", [])
+        tag_matches = [tag for tag in tags if isinstance(tag, str) and tag.lower() in lowered]
         scored.append(
             {
                 "id": entry["id"],
                 "path": entry["path"],
                 "matches": matches,
+                "tag_matches": tag_matches,
+                "tags": tags,
+                "intent": entry.get("intent"),
+                "when": entry.get("when"),
                 "score": len(matches),
             }
         )
@@ -416,7 +476,7 @@ def _select_template(prompt: str) -> Dict[str, Any]:
         selected = scored[0]
         reason = "keyword_match"
     else:
-        selected = {"id": GENERATOR_LIBRARY[0]["id"], "path": GENERATOR_LIBRARY[0]["path"]}
+        selected = scored[0] if scored else {"id": "", "path": ""}
         reason = "fallback"
 
     asset = _load_json_from_path(selected["path"])
@@ -424,6 +484,11 @@ def _select_template(prompt: str) -> Dict[str, Any]:
         "selected": selected["id"],
         "reason": reason,
         "candidates": scored,
+        "rationale": {
+            "matched_tags": selected.get("tag_matches", []),
+            "intent": selected.get("intent"),
+            "when": selected.get("when", []),
+        },
         "asset": asset,
     }
 

@@ -8,7 +8,7 @@ when:
   - "細かな残量を段階表示したい"
 avoid:
   - "連続的な滑らかさが必要な場面"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default
