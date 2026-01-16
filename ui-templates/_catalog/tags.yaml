@@ -6,12 +6,19 @@ roles:
   - data_display
   - feedback
   - decoration
+  - control
+  - dial
+  - knob
+  - radial
   - gauge
   - modal
   - overlay
   - tab
   - badge
   - progress
+  - cooldown
+  - card
+  - rarity
   - toggle
   - text
   - icon
@@ -35,6 +42,7 @@ states:
   - loading
   - success
   - error
+  - cooldown
 
 constraints:
   - min_tap
@@ -47,6 +55,8 @@ constraints:
   - hit_area
   - baseline
   - snap
+  - snap_steps
+  - drag_angle_range
   - max_lines
 
 layout_ref_types:

@@ -65,6 +65,36 @@ GENERATOR_LIBRARY = [
         "path": "examples/gauge_segmented.json",
         "keywords": ["gauge", "segmented", "step", "cooldown", "ゲージ", "段階", "クールダウン"],
     },
+    {
+        "id": "dial_knob",
+        "path": "examples/dial_knob.json",
+        "keywords": ["dial", "knob", "adjust", "回転", "ダイヤル", "ノブ"],
+    },
+    {
+        "id": "radial_slider",
+        "path": "examples/radial_slider.json",
+        "keywords": ["radial", "slider", "dial", "円形", "スライダー"],
+    },
+    {
+        "id": "radial_gauge",
+        "path": "examples/radial_gauge.json",
+        "keywords": ["radial", "gauge", "progress", "円形", "ゲージ"],
+    },
+    {
+        "id": "cooldown_wheel",
+        "path": "examples/cooldown_wheel.json",
+        "keywords": ["cooldown", "wheel", "radial", "クールダウン", "円形"],
+    },
+    {
+        "id": "badge_count",
+        "path": "examples/badge_count.json",
+        "keywords": ["badge", "count", "notification", "バッジ", "通知"],
+    },
+    {
+        "id": "card_frame_rarity",
+        "path": "examples/card_frame_rarity.json",
+        "keywords": ["card", "frame", "rarity", "カード", "枠", "レア"],
+    },
 ]
 
 

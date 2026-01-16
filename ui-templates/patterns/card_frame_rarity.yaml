@@ -1,0 +1,25 @@
+id: card_frame_rarity
+category: pattern
+role: container
+importance: decorative
+intent: "カード枠でレアリティを強調する"
+when:
+  - "カードの希少度を枠で見せたい"
+  - "装飾付きのコンテナが必要"
+avoid:
+  - "情報表示が主目的"
+constraints:
+  - nine_slice
+  - safe_area
+states:
+  - default
+  - selected
+layout_ref:
+  type: slot
+  example: "slot:card_frame"
+export_hint:
+  default_size:
+    width: 320
+    height: 420
+notes:
+  - "素材差し替えでレア度を表現する"

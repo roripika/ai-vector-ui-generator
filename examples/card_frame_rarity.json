@@ -1,0 +1,54 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Card Frame Rarity",
+    "description": "Rarity frame for collectible cards",
+    "tags": ["screen", "card", "rarity"]
+  },
+  "patternId": "card_frame_rarity",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "card-frame",
+      "name": "Card Frame",
+      "role": "container",
+      "importance": "decorative",
+      "viewBox": [0, 0, 320, 420],
+      "layers": [
+        {
+          "id": "frame-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 320, "height": 420, "radius": 28 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.primaryGradient",
+            "strokeWidth": 4
+          },
+          "role": "container",
+          "importance": "decorative"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "card-frame-instance",
+      "componentId": "card-frame",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 420, "y": 140 },
+      "size": { "width": 320, "height": 420 },
+      "role": "container",
+      "importance": "decorative",
+      "state": "default",
+      "constraints": ["nine_slice", "safe_area"],
+      "layout_ref": "slot:card_frame",
+      "zIndex": 1
+    }
+  ]
+}

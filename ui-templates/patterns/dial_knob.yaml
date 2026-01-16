@@ -1,0 +1,40 @@
+id: dial_knob
+category: pattern
+role: control
+importance: secondary
+intent: "ダイヤルで値を微調整する"
+when:
+  - "音量や角度など連続値を調整したい"
+  - "指で回転させるUIが有効"
+avoid:
+  - "一方向の増減のみで十分"
+constraints:
+  min_tap:
+    width: 56
+    height: 56
+  snap_steps: 12
+  drag_angle_range:
+    min: -135
+    max: 135
+states:
+  - default
+  - active
+layout_ref:
+  type: slot
+  example: "slot:dial_knob"
+shape_profile: radial
+shape_params:
+  start_angle: -135
+  sweep: 270
+  thickness: 14
+value_model:
+  meaning: adjust_value
+  value: 0.5
+  max: 1
+  unit: ratio
+export_hint:
+  default_size:
+    width: 160
+    height: 160
+notes:
+  - "ノブの中心とインジケータを分けて描画する"

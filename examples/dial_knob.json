@@ -1,0 +1,78 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Dial Knob",
+    "description": "Rotary knob for value adjustment",
+    "tags": ["screen", "dial", "control"]
+  },
+  "patternId": "dial_knob",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "dial-knob",
+      "name": "Dial Knob",
+      "role": "control",
+      "importance": "secondary",
+      "viewBox": [0, 0, 160, 160],
+      "layers": [
+        {
+          "id": "knob-base",
+          "shape": "roundedRect",
+          "rect": { "x": 0, "y": 0, "width": 160, "height": 160, "radius": 80 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 3
+          },
+          "role": "container",
+          "importance": "secondary"
+        },
+        {
+          "id": "knob-indicator",
+          "shape": "roundedRect",
+          "rect": { "x": 76, "y": 12, "width": 8, "height": 36, "radius": 4 },
+          "style": { "fill": "ui.accent" },
+          "role": "decoration",
+          "importance": "secondary"
+        },
+        {
+          "id": "knob-core",
+          "shape": "roundedRect",
+          "rect": { "x": 52, "y": 52, "width": 56, "height": 56, "radius": 28 },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          },
+          "role": "container",
+          "importance": "secondary"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "dial-knob-instance",
+      "componentId": "dial-knob",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 280, "y": 220 },
+      "size": { "width": 160, "height": 160 },
+      "role": "control",
+      "importance": "secondary",
+      "state": "default",
+      "constraints": {
+        "min_tap": { "width": 56, "height": 56 },
+        "snap_steps": 12,
+        "drag_angle_range": { "min": -135, "max": 135 }
+      },
+      "layout_ref": "slot:dial_knob",
+      "zIndex": 1
+    }
+  ]
+}

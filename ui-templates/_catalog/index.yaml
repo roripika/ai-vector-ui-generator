@@ -46,3 +46,27 @@ templates:
     summary: "六角ゲージ（polygon/sides=6）"
     path: "ui-templates/patterns/gauge_polygon_hex.yaml"
     tags: [data_display, progress, gauge, slot]
+  - id: dial_knob
+    summary: "ダイヤルノブ（回転で値調整）"
+    path: "ui-templates/patterns/dial_knob.yaml"
+    tags: [control, dial, knob, radial, slot]
+  - id: radial_slider
+    summary: "円形スライダー（radial）"
+    path: "ui-templates/patterns/radial_slider.yaml"
+    tags: [control, dial, radial, slot]
+  - id: radial_gauge
+    summary: "円形ゲージ（progress）"
+    path: "ui-templates/patterns/radial_gauge.yaml"
+    tags: [data_display, progress, gauge, radial, slot]
+  - id: cooldown_wheel
+    summary: "クールダウンホイール（radial）"
+    path: "ui-templates/patterns/cooldown_wheel.yaml"
+    tags: [data_display, cooldown, radial, slot]
+  - id: badge_count
+    summary: "カウントバッジ（notification）"
+    path: "ui-templates/patterns/badge_count.yaml"
+    tags: [badge, feedback, overlap]
+  - id: card_frame_rarity
+    summary: "カード枠（レアリティ強調）"
+    path: "ui-templates/patterns/card_frame_rarity.yaml"
+    tags: [container, card, rarity, decoration]

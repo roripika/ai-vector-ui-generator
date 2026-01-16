@@ -1,0 +1,54 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Cooldown Wheel",
+    "description": "Circular cooldown indicator",
+    "tags": ["screen", "cooldown", "radial"]
+  },
+  "patternId": "cooldown_wheel",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "cooldown-wheel",
+      "name": "Cooldown Wheel",
+      "role": "data_display",
+      "importance": "info",
+      "viewBox": [0, 0, 180, 180],
+      "layers": [
+        {
+          "id": "cooldown-ring",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 180, "height": 180, "radius": 0 },
+          "style": { "fill": "ui.accent" },
+          "track": "ui.surface",
+          "shape_profile": "radial",
+          "shape_params": { "start_angle": -90, "sweep": 360, "thickness": 14 },
+          "value_model": { "meaning": "cooldown", "value": 0.25, "max": 1, "unit": "ratio" },
+          "role": "progress",
+          "importance": "info"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "cooldown-wheel-instance",
+      "componentId": "cooldown-wheel",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 520, "y": 260 },
+      "size": { "width": 180, "height": 180 },
+      "role": "data_display",
+      "importance": "info",
+      "state": "cooldown",
+      "constraints": ["safe_area"],
+      "layout_ref": "slot:cooldown_wheel",
+      "zIndex": 1
+    }
+  ]
+}
