@@ -8,7 +8,7 @@ when:
   - "常時表示のナビゲーションが必要"
 avoid:
   - "切替対象が1つだけ"
-constraints:
+constraint_flags:
   - spacing
   - safe_area
 states:

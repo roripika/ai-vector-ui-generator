@@ -8,7 +8,7 @@ when:
   - "レビュー前の暫定パラメータとして扱う"
 avoid:
   - "通常の装飾や色変更で十分な場合"
-constraints:
+constraint_flags:
   - custom:fx_glow
 states:
   - default

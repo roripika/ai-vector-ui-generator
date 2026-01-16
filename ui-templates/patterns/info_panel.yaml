@@ -8,7 +8,7 @@ when:
   - "統計や詳細をまとめたい"
 avoid:
   - "単一の数値だけを見せたい"
-constraints:
+constraint_flags:
   - padding
   - nine_slice
   - baseline

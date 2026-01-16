@@ -18,7 +18,7 @@
       "name": "Info Panel",
       "role": "data_display",
       "importance": "info",
-      "constraints": ["padding", "nine_slice"],
+      "constraint_flags": ["padding", "nine_slice"],
       "viewBox": [0, 0, 480, 220],
       "layers": [
         {
@@ -32,7 +32,8 @@
           },
           "role": "container",
           "importance": "secondary",
-          "constraints": { "padding": { "top": 12, "left": 12 } }
+          "constraint_flags": ["padding"],
+          "constraint_params": { "padding": { "top": 12, "left": 12 } }
         },
         {
           "id": "panel-title",
@@ -50,7 +51,7 @@
           },
           "role": "text",
           "importance": "primary",
-          "constraints": ["max_lines"],
+          "constraint_flags": ["max_lines"],
           "layout_ref": "grid:stats_panel"
         },
         {
@@ -69,7 +70,7 @@
           },
           "role": "data_display",
           "importance": "info",
-          "constraints": ["baseline"],
+          "constraint_flags": ["baseline"],
           "layout_ref": "grid:stats_panel"
         },
         {
@@ -88,7 +89,7 @@
           },
           "role": "data_display",
           "importance": "info",
-          "constraints": ["baseline"],
+          "constraint_flags": ["baseline"],
           "layout_ref": "grid:stats_panel"
         },
         {
@@ -107,7 +108,7 @@
           },
           "role": "data_display",
           "importance": "info",
-          "constraints": ["baseline"],
+          "constraint_flags": ["baseline"],
           "layout_ref": "grid:stats_panel"
         },
         {
@@ -136,7 +137,7 @@
       "role": "data_display",
       "importance": "info",
       "state": "default",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "grid:stats_panel",
       "zIndex": 1
     }

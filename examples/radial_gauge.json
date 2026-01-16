@@ -1,0 +1,54 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Radial Gauge",
+    "description": "Radial gauge showing progress",
+    "tags": ["screen", "gauge", "radial"]
+  },
+  "patternId": "radial_gauge",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "radial-gauge",
+      "name": "Radial Gauge",
+      "role": "data_display",
+      "importance": "info",
+      "viewBox": [0, 0, 220, 220],
+      "layers": [
+        {
+          "id": "gauge-ring",
+          "shape": "gauge",
+          "rect": { "x": 0, "y": 0, "width": 220, "height": 220, "radius": 0 },
+          "style": { "fill": "ui.primaryGradient" },
+          "track": "ui.surface",
+          "shape_profile": "radial",
+          "shape_params": { "start_angle": -90, "sweep": 300, "thickness": 18 },
+          "value_model": { "meaning": "progress", "value": 0.7, "max": 1, "unit": "ratio" },
+          "role": "progress",
+          "importance": "info"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "radial-gauge-instance",
+      "componentId": "radial-gauge",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 200, "y": 240 },
+      "size": { "width": 220, "height": 220 },
+      "role": "data_display",
+      "importance": "info",
+      "state": "default",
+      "constraint_flags": ["safe_area"],
+      "layout_ref": "slot:radial_gauge",
+      "zIndex": 1
+    }
+  ]
+}

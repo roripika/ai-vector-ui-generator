@@ -1,0 +1,60 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Badge Count",
+    "description": "Notification count badge",
+    "tags": ["screen", "badge", "notification"]
+  },
+  "patternId": "badge_count",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+  },
+  "components": [
+    {
+      "id": "badge-count",
+      "name": "Badge Count",
+      "role": "badge",
+      "importance": "info",
+      "viewBox": [0, 0, 64, 32],
+      "layers": [
+        {
+          "id": "count-badge",
+          "shape": "badge",
+          "rect": { "x": 0, "y": 0, "width": 64, "height": 32, "radius": 16 },
+          "style": { "fill": "ui.accent" },
+          "textStyle": { "fill": "ui.textPrimary" },
+          "text": {
+            "value": "12",
+            "font": "ui.font.primary",
+            "size": 16,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          },
+          "role": "badge",
+          "importance": "info"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "badge-count-instance",
+      "componentId": "badge-count",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": { "x": 820, "y": 140 },
+      "size": { "width": 64, "height": 32 },
+      "role": "badge",
+      "importance": "info",
+      "state": "selected",
+      "constraint_flags": ["overlap", "min_tap"],
+      "layout_ref": "slot:badge_count",
+      "zIndex": 2
+    }
+  ]
+}

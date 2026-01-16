@@ -1,0 +1,42 @@
+id: radial_slider
+category: pattern
+role: control
+importance: secondary
+intent: "円形スライダーで値を調整する"
+when:
+  - "円形HUDで値調整が必要"
+  - "ドラッグで範囲を連続調整したい"
+avoid:
+  - "直線スライダーで十分"
+constraint_flags:
+  - min_tap
+constraint_params:
+  min_tap:
+    width: 48
+    height: 48
+  snap_steps: 24
+  drag_angle_range:
+    min: -150
+    max: 150
+states:
+  - default
+  - active
+layout_ref:
+  type: slot
+  example: "slot:radial_slider"
+shape_profile: radial
+shape_params:
+  start_angle: -120
+  sweep: 240
+  thickness: 12
+value_model:
+  meaning: adjust_value
+  value: 0.35
+  max: 1
+  unit: ratio
+export_hint:
+  default_size:
+    width: 200
+    height: 200
+notes:
+  - "ハンドル位置はvalue_modelと同期させる"

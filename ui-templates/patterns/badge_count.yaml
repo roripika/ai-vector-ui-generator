@@ -1,0 +1,25 @@
+id: badge_count
+category: pattern
+role: badge
+importance: info
+intent: "未読数などのカウントを通知する"
+when:
+  - "タブやボタンに通知数を添えたい"
+  - "数値で緊急度を伝えたい"
+avoid:
+  - "数値が不要な装飾バッジ"
+constraint_flags:
+  - overlap
+  - min_tap
+states:
+  - default
+  - selected
+layout_ref:
+  type: slot
+  example: "slot:badge_count"
+export_hint:
+  default_size:
+    width: 64
+    height: 32
+notes:
+  - "カウントがゼロの場合は非表示に切り替える"

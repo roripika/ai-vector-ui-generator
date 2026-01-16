@@ -8,7 +8,7 @@ when:
   - "警告/攻撃的な演出をしたい"
 avoid:
   - "丸みが必要なUI"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default

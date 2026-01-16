@@ -43,6 +43,7 @@ python -m src.preview
 - `http://127.0.0.1:8000/studio.html`
 - プロンプト入力 → テンプレ選択 → JSON/SVG 出力
 - 生成JSONを `generated/` に保存し、再読み込み可能
+- constraints は `constraint_flags` / `constraint_params` を編集可能（旧 `constraints` は読み込み時に正規化）
 
 ### Studioの保存機能
 - 保存名: `{assetType}_{templateId}_{yyyyMMdd_HHmmss}.json`
@@ -65,6 +66,7 @@ python -m src.preview
 - [ ] テンプレ候補（選定理由・一致キーワード）が表示される
 - [ ] 生成結果に 素材種別（例：button/modal/tab 等）が表示される
 - [ ] 生成JSONに `generated_from_prompt / selected_templates / generator_version` が含まれる
+- [ ] constraint_flags / constraint_params を編集して再レンダできる
 
 ### 3) 保存フロー確認（資産化）
 - [ ] 保存名が自動提案される（編集できる）

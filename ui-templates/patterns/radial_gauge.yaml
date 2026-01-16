@@ -1,33 +1,33 @@
-id: gauge_radial
+id: radial_gauge
 category: pattern
 role: data_display
 importance: info
 intent: "円形ゲージで進捗を表示する"
 when:
-  - "全体進捗を一目で見せたい"
-  - "HUDやダッシュボードで視認性を高めたい"
+  - "進捗や残量を直感的に見せたい"
+  - "HUDの視線誘導が必要"
 avoid:
-  - "横長のエリアしか確保できない"
+  - "横長のスペースしかない"
 constraint_flags:
   - safe_area
 states:
   - default
 layout_ref:
   type: slot
-  example: "slot:gauge_radial"
+  example: "slot:radial_gauge"
 shape_profile: radial
 shape_params:
   start_angle: -90
   sweep: 300
-  thickness: 20
+  thickness: 18
 value_model:
   meaning: progress
-  value: 0.65
+  value: 0.7
   max: 1
   unit: ratio
 export_hint:
   default_size:
-    width: 240
-    height: 240
+    width: 220
+    height: 220
 notes:
-  - "sweepを短くして欠けたリングにする"
+  - "gauge_radial の軽量版として使用"

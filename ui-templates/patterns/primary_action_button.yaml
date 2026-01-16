@@ -9,7 +9,7 @@ when:
 avoid:
   - "複数のprimaryが並ぶ画面"
   - "誤タップが致命的な場面"
-constraints:
+constraint_flags:
   - min_tap
   - safe_area
 states:

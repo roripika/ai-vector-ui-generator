@@ -8,6 +8,7 @@ const templateId = document.getElementById("template-id");
 const assetType = document.getElementById("asset-type");
 const selectionSummary = document.getElementById("selection-summary");
 const selectionList = document.getElementById("selection-list");
+const selectionRationale = document.getElementById("selection-rationale");
 const gaugeEditor = document.getElementById("gauge-editor");
 const gaugeTarget = document.getElementById("gauge-target");
 const shapeProfile = document.getElementById("shape-profile");
@@ -17,6 +18,11 @@ const shapeThickness = document.getElementById("shape-thickness");
 const applyGauge = document.getElementById("apply-gauge");
 const shapeSidesField = document.getElementById("shape-sides-field");
 const shapeSegmentsField = document.getElementById("shape-segments-field");
+const constraintsEditor = document.getElementById("constraints-editor");
+const constraintsTarget = document.getElementById("constraints-target");
+const constraintFlags = document.getElementById("constraint-flags");
+const constraintParams = document.getElementById("constraint-params");
+const applyConstraints = document.getElementById("apply-constraints");
 const filenameInput = document.getElementById("filename-input");
 const tagsInput = document.getElementById("tags-input");
 const tagsHint = document.getElementById("tags-hint");
@@ -33,6 +39,8 @@ let currentAsset = null;
 let allowedTags = [];
 let currentTemplateId = "-";
 let gaugeLayers = [];
+let constraintTargets = [];
+let allowedConstraintFlags = [];
 
 function setStatus(message) {
   statusLabel.textContent = message;
@@ -43,23 +51,103 @@ function setPreview(svg) {
 }
 
 function setJson(asset, id) {
-  currentAsset = asset;
+  const normalized = normalizeAssetConstraints(asset || {});
+  currentAsset = normalized;
   currentTemplateId = id || "-";
-  currentJson = JSON.stringify(asset, null, 2);
+  currentJson = JSON.stringify(normalized, null, 2);
   jsonOutput.textContent = currentJson;
   templateId.textContent = `template: ${currentTemplateId}`;
-  assetType.textContent = asset && asset.assetType ? `type: ${asset.assetType}` : "type: -";
+  assetType.textContent = normalized && normalized.assetType ? `type: ${normalized.assetType}` : "type: -";
 
-  if (asset && asset.metadata && Array.isArray(asset.metadata.tags)) {
-    tagsInput.value = asset.metadata.tags.join(", ");
+  if (normalized && normalized.metadata && Array.isArray(normalized.metadata.tags)) {
+    tagsInput.value = normalized.metadata.tags.join(", ");
   }
-  updateGaugeEditor(asset);
+  updateGaugeEditor(normalized);
+  updateConstraintEditor(normalized);
+}
+
+function normalizeConstraintItem(item) {
+  if (!item || typeof item !== "object") {
+    return;
+  }
+  const flags = Array.isArray(item.constraint_flags) ? [...item.constraint_flags] : [];
+  const params =
+    item.constraint_params && typeof item.constraint_params === "object"
+      ? { ...item.constraint_params }
+      : {};
+  const legacy = item.constraints;
+
+  if (Array.isArray(legacy)) {
+    for (const entry of legacy) {
+      if (typeof entry === "string" && !flags.includes(entry)) {
+        flags.push(entry);
+      }
+    }
+  } else if (legacy && typeof legacy === "object") {
+    for (const [key, value] of Object.entries(legacy)) {
+      if (value === true || value === null) {
+        if (!flags.includes(key)) {
+          flags.push(key);
+        }
+      } else if (!(key in params)) {
+        params[key] = value;
+      }
+    }
+  }
+
+  if (flags.length) {
+    item.constraint_flags = flags;
+  }
+  if (Object.keys(params).length) {
+    item.constraint_params = params;
+  }
+}
+
+function normalizeAssetConstraints(asset) {
+  if (!asset || typeof asset !== "object") {
+    return asset;
+  }
+
+  normalizeConstraintItem(asset);
+
+  const layers = Array.isArray(asset.layers) ? asset.layers : [];
+  normalizeConstraintLayers(layers);
+
+  const components = Array.isArray(asset.components) ? asset.components : [];
+  for (const component of components) {
+    normalizeConstraintItem(component);
+    normalizeConstraintLayers(Array.isArray(component.layers) ? component.layers : []);
+  }
+
+  const instances = Array.isArray(asset.instances) ? asset.instances : [];
+  for (const instance of instances) {
+    normalizeConstraintItem(instance);
+  }
+
+  return asset;
+}
+
+function normalizeConstraintLayers(layers) {
+  for (const layer of layers) {
+    if (!layer || typeof layer !== "object") continue;
+    normalizeConstraintItem(layer);
+    if (
+      layer.shape === "layoutRow" ||
+      layer.shape === "layoutColumn" ||
+      layer.shape === "layoutGrid"
+    ) {
+      for (const item of layer.items || []) {
+        normalizeConstraintItem(item);
+      }
+    }
+  }
 }
 
 function setSelection(selection) {
   if (!selection) {
     selectionSummary.textContent = "template: -";
     selectionList.innerHTML = "";
+    selectionRationale.textContent = "";
     return;
   }
   const selected = selection.selected || "-";
@@ -71,11 +159,30 @@ function setSelection(selection) {
   for (const candidate of candidates) {
     const item = document.createElement("li");
     const matches = Array.isArray(candidate.matches) ? candidate.matches.join(", ") : "";
-    item.textContent = matches
-      ? `${candidate.id} | match: ${matches}`
-      : `${candidate.id}`;
+    const tags = Array.isArray(candidate.tag_matches) ? candidate.tag_matches.join(", ") : "";
+    const parts = [candidate.id];
+    if (matches) {
+      parts.push(`keyword: ${matches}`);
+    }
+    if (tags) {
+      parts.push(`tag: ${tags}`);
+    }
+    item.textContent = parts.join(" | ");
     selectionList.appendChild(item);
   }
+
+  const rationale = selection.rationale || {};
+  const intent = rationale.intent || "-";
+  const when = Array.isArray(rationale.when) && rationale.when.length ? rationale.when.join(" / ") : "-";
+  const tagMatches =
+    Array.isArray(rationale.matched_tags) && rationale.matched_tags.length
+      ? rationale.matched_tags.join(", ")
+      : "-";
+  selectionRationale.innerHTML = `
+    <div>intent: ${intent}</div>
+    <div>when: ${when}</div>
+    <div>tag match: ${tagMatches}</div>
+  `;
 }
 
 function setSaveStatus(message, isError = false) {
@@ -193,6 +300,73 @@ function updateGaugeEditor(asset) {
   const nextIndex = previous && gaugeLayers[Number(previous)] ? Number(previous) : 0;
   gaugeTarget.value = String(nextIndex);
   setGaugeInputs(gaugeLayers[nextIndex].layer);
+}
+
+function findConstraintTargets(asset) {
+  if (!asset || typeof asset !== "object") {
+    return [];
+  }
+  if (Array.isArray(asset.instances)) {
+    return asset.instances.map((instance) => ({
+      label: `instance: ${instance.id}`,
+      target: instance,
+    }));
+  }
+  return [];
+}
+
+function updateConstraintEditor(asset) {
+  constraintTargets = findConstraintTargets(asset);
+  if (!constraintTargets.length) {
+    constraintsEditor.hidden = true;
+    constraintsTarget.innerHTML = "";
+    return;
+  }
+
+  constraintsEditor.hidden = false;
+  const previous = constraintsTarget.value;
+  constraintsTarget.innerHTML = "";
+  constraintTargets.forEach((entry, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = entry.label;
+    constraintsTarget.appendChild(option);
+  });
+  const nextIndex = previous && constraintTargets[Number(previous)] ? Number(previous) : 0;
+  constraintsTarget.value = String(nextIndex);
+  buildConstraintFlagOptions(constraintTargets[nextIndex].target);
+  setConstraintInputs(constraintTargets[nextIndex].target);
+}
+
+function buildConstraintFlagOptions(target) {
+  const currentFlags = Array.isArray(target.constraint_flags) ? target.constraint_flags : [];
+  const flagSet = new Set(allowedConstraintFlags);
+  currentFlags.forEach((flag) => flagSet.add(flag));
+  const allFlags = Array.from(flagSet);
+
+  constraintFlags.innerHTML = "";
+  allFlags.forEach((flag) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = flag;
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(flag));
+    constraintFlags.appendChild(label);
+  });
+}
+
+function setConstraintInputs(target) {
+  const flags = Array.isArray(target.constraint_flags) ? target.constraint_flags : [];
+  const params =
+    target.constraint_params && typeof target.constraint_params === "object"
+      ? target.constraint_params
+      : {};
+
+  for (const checkbox of constraintFlags.querySelectorAll("input[type=\"checkbox\"]")) {
+    checkbox.checked = flags.includes(checkbox.value);
+  }
+  constraintParams.value = Object.keys(params).length ? JSON.stringify(params, null, 2) : "";
 }
 
 function setGaugeInputs(layer) {
@@ -382,6 +556,51 @@ function applyGaugeChanges() {
   compileAsset(currentAsset);
 }
 
+function applyConstraintChanges() {
+  if (!currentAsset || !constraintTargets.length) {
+    setStatus("constraints対象がありません");
+    return;
+  }
+
+  const index = Number(constraintsTarget.value || 0);
+  const entry = constraintTargets[index];
+  if (!entry) {
+    setStatus("constraints対象が選択されていません");
+    return;
+  }
+
+  const flags = [];
+  for (const checkbox of constraintFlags.querySelectorAll("input[type=\"checkbox\"]")) {
+    if (checkbox.checked) {
+      flags.push(checkbox.value);
+    }
+  }
+
+  let params = {};
+  if (constraintParams.value.trim()) {
+    try {
+      params = JSON.parse(constraintParams.value);
+    } catch (error) {
+      setStatus("constraint_params のJSONが不正です");
+      return;
+    }
+  }
+
+  if (flags.length) {
+    entry.target.constraint_flags = flags;
+  } else {
+    delete entry.target.constraint_flags;
+  }
+
+  if (params && typeof params === "object" && Object.keys(params).length) {
+    entry.target.constraint_params = params;
+  } else {
+    delete entry.target.constraint_params;
+  }
+
+  compileAsset(currentAsset);
+}
+
 copyButton.addEventListener("click", async () => {
   if (!currentJson || currentJson === "{}") {
     setStatus("JSONがありません");
@@ -416,10 +635,18 @@ generateButton.addEventListener("click", generateAsset);
 downloadButton.addEventListener("click", downloadJson);
 saveButton.addEventListener("click", saveToRepo);
 applyGauge.addEventListener("click", applyGaugeChanges);
+applyConstraints.addEventListener("click", applyConstraintChanges);
 gaugeTarget.addEventListener("change", () => {
   const index = Number(gaugeTarget.value || 0);
   if (gaugeLayers[index]) {
     setGaugeInputs(gaugeLayers[index].layer);
+  }
+});
+constraintsTarget.addEventListener("change", () => {
+  const index = Number(constraintsTarget.value || 0);
+  if (constraintTargets[index]) {
+    buildConstraintFlagOptions(constraintTargets[index].target);
+    setConstraintInputs(constraintTargets[index].target);
   }
 });
 shapeProfile.addEventListener("change", () => {
@@ -550,6 +777,9 @@ async function fetchTags() {
   const data = await response.json();
   if (Array.isArray(data.tags)) {
     allowedTags = data.tags;
+  }
+  if (data.vocab && Array.isArray(data.vocab.constraints)) {
+    allowedConstraintFlags = data.vocab.constraints;
   }
 }
 

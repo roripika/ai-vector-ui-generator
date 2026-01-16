@@ -8,7 +8,7 @@ when:
   - "円形とは違う印象を出したい"
 avoid:
   - "極端に小さいサイズ"
-constraints:
+constraint_flags:
   - safe_area
 states:
   - default

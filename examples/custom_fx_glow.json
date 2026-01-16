@@ -19,7 +19,7 @@
       "role": "decoration",
       "importance": "secondary",
       "state": "default",
-      "constraints": ["padding"],
+      "constraint_flags": ["padding"],
       "viewBox": [0, 0, 520, 240],
       "layers": [
         {
@@ -33,7 +33,7 @@
           },
           "role": "container",
           "importance": "secondary",
-          "constraints": ["nine_slice"]
+          "constraint_flags": ["nine_slice"]
         },
         {
           "id": "fx-glow",
@@ -45,7 +45,7 @@
           },
           "role": "decoration",
           "importance": "secondary",
-          "constraints": ["custom:fx_glow"],
+          "constraint_flags": ["custom:fx_glow"],
           "layout_ref": "stack:fx_layers"
         },
         {
@@ -64,7 +64,7 @@
           },
           "role": "text",
           "importance": "info",
-          "constraints": ["baseline"]
+          "constraint_flags": ["baseline"]
         }
       ]
     }
@@ -80,7 +80,7 @@
       "role": "decoration",
       "importance": "unknown",
       "state": "default",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "stack:fx_layers",
       "zIndex": 1
     }

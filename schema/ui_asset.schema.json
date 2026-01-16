@@ -198,6 +198,15 @@
         }
       ]
     },
+    "constraintFlags": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/definitions/constraintKey" }
+    },
+    "constraintParams": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "layoutRef": {
       "anyOf": [
         { "type": "string", "pattern": "^(slot|grid|flow|stack|list):[A-Za-z0-9_-]+$" },
@@ -463,6 +472,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" }
       }
     },
@@ -501,6 +512,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -526,6 +539,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -556,6 +571,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -586,6 +603,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -616,6 +635,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -645,6 +666,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -672,6 +695,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -698,6 +723,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -723,6 +750,8 @@
         "role": { "$ref": "#/definitions/roleTag" },
         "importance": { "$ref": "#/definitions/importanceTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -749,6 +778,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "bind": { "$ref": "#/definitions/bind" },
         "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
@@ -805,6 +836,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "shape_profile": { "$ref": "#/definitions/shapeProfile" },
         "shape_params": { "$ref": "#/definitions/shapeParams" },
@@ -857,6 +890,8 @@
         "importance": { "$ref": "#/definitions/importanceTag" },
         "state": { "$ref": "#/definitions/stateTag" },
         "constraints": { "$ref": "#/definitions/constraints" },
+        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
+        "constraint_params": { "$ref": "#/definitions/constraintParams" },
         "layout_ref": { "$ref": "#/definitions/layoutRef" },
         "anchorTo": {
           "type": "string",

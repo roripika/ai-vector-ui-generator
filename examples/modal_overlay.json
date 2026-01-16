@@ -30,7 +30,7 @@
       "name": "Screen Overlay",
       "role": "overlay",
       "importance": "muted",
-      "constraints": ["overlap"],
+      "constraint_flags": ["overlap"],
       "viewBox": [0, 0, 1280, 720],
       "layers": [
         {
@@ -48,7 +48,7 @@
       "name": "Modal Panel",
       "role": "modal",
       "importance": "primary",
-      "constraints": ["padding", "nine_slice"],
+      "constraint_flags": ["padding", "nine_slice"],
       "viewBox": [0, 0, 720, 420],
       "layers": [
         {
@@ -62,7 +62,7 @@
           },
           "role": "container",
           "importance": "secondary",
-          "constraints": ["nine_slice"]
+          "constraint_flags": ["nine_slice"]
         },
         {
           "id": "panel-title",
@@ -80,7 +80,7 @@
           },
           "role": "text",
           "importance": "primary",
-          "constraints": ["max_lines"],
+          "constraint_flags": ["max_lines"],
           "layout_ref": "slot:modal_title"
         },
         {
@@ -99,7 +99,7 @@
           },
           "role": "data_display",
           "importance": "info",
-          "constraints": ["max_lines"],
+          "constraint_flags": ["max_lines"],
           "layout_ref": "slot:modal_body"
         }
       ]
@@ -109,7 +109,7 @@
       "name": "Close Button",
       "role": "action",
       "importance": "secondary",
-      "constraints": ["min_tap", "hit_area"],
+      "constraint_flags": ["min_tap", "hit_area"],
       "viewBox": [0, 0, 40, 40],
       "layers": [
         {
@@ -147,7 +147,7 @@
       "role": "modal",
       "importance": "primary",
       "state": "default",
-      "constraints": ["safe_area"],
+      "constraint_flags": ["safe_area"],
       "layout_ref": "slot:modal_root",
       "zIndex": 1
     },
@@ -161,7 +161,7 @@
       "role": "action",
       "importance": "secondary",
       "state": "default",
-      "constraints": ["min_tap", "hit_area"],
+      "constraint_flags": ["min_tap", "hit_area"],
       "layout_ref": "slot:modal_close",
       "zIndex": 2
     }

@@ -262,6 +262,37 @@ button#clear {
   gap: 10px;
 }
 
+.constraints-editor {
+  background: #10151f;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.checkbox-grid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.checkbox-grid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--ink);
+}
+
+.selection-rationale {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 .selection-header {
   display: flex;
   justify-content: space-between;

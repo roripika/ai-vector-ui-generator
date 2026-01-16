@@ -18,7 +18,7 @@
       "name": "Primary Button",
       "role": "action",
       "importance": "primary",
-      "constraints": ["min_tap"],
+      "constraint_flags": ["min_tap"],
       "viewBox": [0, 0, 240, 64],
       "layers": [
         {
@@ -50,7 +50,7 @@
           },
           "role": "text",
           "importance": "primary",
-          "constraints": ["baseline"]
+          "constraint_flags": ["baseline"]
         }
       ]
     }
@@ -66,7 +66,7 @@
       "role": "action",
       "importance": "primary",
       "state": "pressed",
-      "constraints": ["min_tap", "safe_area"],
+      "constraint_flags": ["min_tap", "safe_area"],
       "layout_ref": "flow:primary_actions",
       "zIndex": 1
     },
@@ -80,7 +80,7 @@
       "role": "action",
       "importance": "primary",
       "state": "disabled",
-      "constraints": ["min_tap", "safe_area"],
+      "constraint_flags": ["min_tap", "safe_area"],
       "layout_ref": "flow:primary_actions",
       "zIndex": 1
     }

@@ -20,6 +20,12 @@ TOAST_PATH = Path(__file__).resolve().parents[1] / "examples" / "toast_feedback.
 CUSTOM_FX_PATH = Path(__file__).resolve().parents[1] / "examples" / "custom_fx_glow.json"
 GAUGE_RADIAL_PATH = Path(__file__).resolve().parents[1] / "examples" / "gauge_radial_polygon.json"
 GAUGE_SEGMENTED_PATH = Path(__file__).resolve().parents[1] / "examples" / "gauge_segmented.json"
+DIAL_KNOB_PATH = Path(__file__).resolve().parents[1] / "examples" / "dial_knob.json"
+RADIAL_SLIDER_PATH = Path(__file__).resolve().parents[1] / "examples" / "radial_slider.json"
+RADIAL_GAUGE_PATH = Path(__file__).resolve().parents[1] / "examples" / "radial_gauge.json"
+COOLDOWN_WHEEL_PATH = Path(__file__).resolve().parents[1] / "examples" / "cooldown_wheel.json"
+BADGE_COUNT_PATH = Path(__file__).resolve().parents[1] / "examples" / "badge_count.json"
+CARD_FRAME_RARITY_PATH = Path(__file__).resolve().parents[1] / "examples" / "card_frame_rarity.json"
 
 
 def load_asset() -> dict:
@@ -87,6 +93,36 @@ def load_gauge_segmented_asset() -> dict:
         return json.load(handle)
 
 
+def load_dial_knob_asset() -> dict:
+    with DIAL_KNOB_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_radial_slider_asset() -> dict:
+    with RADIAL_SLIDER_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_radial_gauge_asset() -> dict:
+    with RADIAL_GAUGE_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_cooldown_wheel_asset() -> dict:
+    with COOLDOWN_WHEEL_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_badge_count_asset() -> dict:
+    with BADGE_COUNT_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_card_frame_rarity_asset() -> dict:
+    with CARD_FRAME_RARITY_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def test_screen_example_validates():
     asset = load_asset()
     validate_asset(asset)
@@ -111,6 +147,12 @@ def test_screen_example_validates():
     validate_asset(load_custom_fx_asset())
     validate_asset(load_gauge_radial_asset())
     validate_asset(load_gauge_segmented_asset())
+    validate_asset(load_dial_knob_asset())
+    validate_asset(load_radial_slider_asset())
+    validate_asset(load_radial_gauge_asset())
+    validate_asset(load_cooldown_wheel_asset())
+    validate_asset(load_badge_count_asset())
+    validate_asset(load_card_frame_rarity_asset())
 
 
 def test_screen_compiles_with_canvas_viewbox():
@@ -166,3 +208,27 @@ def test_screen_compiles_with_canvas_viewbox():
     segmented_svg = compile_svg(load_gauge_segmented_asset())
     segmented_root = ET.fromstring(segmented_svg)
     assert segmented_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    dial_svg = compile_svg(load_dial_knob_asset())
+    dial_root = ET.fromstring(dial_svg)
+    assert dial_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    slider_svg = compile_svg(load_radial_slider_asset())
+    slider_root = ET.fromstring(slider_svg)
+    assert slider_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    gauge_svg = compile_svg(load_radial_gauge_asset())
+    gauge_root = ET.fromstring(gauge_svg)
+    assert gauge_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    cooldown_svg = compile_svg(load_cooldown_wheel_asset())
+    cooldown_root = ET.fromstring(cooldown_svg)
+    assert cooldown_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    badge_svg = compile_svg(load_badge_count_asset())
+    badge_root = ET.fromstring(badge_svg)
+    assert badge_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    card_svg = compile_svg(load_card_frame_rarity_asset())
+    card_root = ET.fromstring(card_svg)
+    assert card_root.attrib.get("viewBox") == "0 0 1280 720"

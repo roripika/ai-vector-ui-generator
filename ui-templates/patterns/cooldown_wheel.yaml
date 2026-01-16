@@ -1,0 +1,34 @@
+id: cooldown_wheel
+category: pattern
+role: data_display
+importance: info
+intent: "クールダウン残量を円形で表示する"
+when:
+  - "スキルの再使用待ちを明確に示したい"
+  - "HUDで時間経過を伝えたい"
+avoid:
+  - "時間表現が不要"
+constraint_flags:
+  - safe_area
+states:
+  - default
+  - cooldown
+layout_ref:
+  type: slot
+  example: "slot:cooldown_wheel"
+shape_profile: radial
+shape_params:
+  start_angle: -90
+  sweep: 360
+  thickness: 14
+value_model:
+  meaning: cooldown
+  value: 0.25
+  max: 1
+  unit: ratio
+export_hint:
+  default_size:
+    width: 180
+    height: 180
+notes:
+  - "残量がゼロになったらstateをactiveに切り替える"
