@@ -79,6 +79,7 @@ python -m src.preview
 
 ### 5) ログとトラブルシュート（困ったらここ）
 - [ ] ログは `studio_server.log` に出力される
+- 動作確認で作られた `generated/` のファイルやログはコミットしない
 - よくある原因：
   - ポート8000が他で使用中 → 先に `Stop Studio.command` を実行
   - Python環境がない/壊れている → `.venv` を作り直す、または `python3` を導入
