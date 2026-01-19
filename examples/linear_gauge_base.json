@@ -1,0 +1,83 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "Linear Gauge Base",
+    "description": "Base linear gauge showing progress",
+    "tags": [
+      "screen",
+      "gauge",
+      "linear",
+      "progress"
+    ]
+  },
+  "patternId": "linear_gauge_base",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": {
+      "x": 40,
+      "y": 40,
+      "width": 1200,
+      "height": 640
+    }
+  },
+  "components": [
+    {
+      "id": "linear-gauge",
+      "name": "Linear Gauge",
+      "role": "data_display",
+      "importance": "info",
+      "viewBox": [
+        0,
+        0,
+        360,
+        48
+      ],
+      "layers": [
+        {
+          "id": "gauge-bar",
+          "shape": "gauge",
+          "rect": {
+            "x": 0,
+            "y": 12,
+            "width": 360,
+            "height": 24,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.primaryGradient"
+          },
+          "track": "ui.surface",
+          "value": 0.7,
+          "role": "progress",
+          "importance": "info"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "linear-gauge-instance",
+      "componentId": "linear-gauge",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": {
+        "x": 260,
+        "y": 320
+      },
+      "size": {
+        "width": 360,
+        "height": 48
+      },
+      "role": "data_display",
+      "importance": "info",
+      "state": "default",
+      "constraint_flags": [
+        "safe_area"
+      ],
+      "layout_ref": "slot:gauge_linear",
+      "zIndex": 1
+    }
+  ]
+}

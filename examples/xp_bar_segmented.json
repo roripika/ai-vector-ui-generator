@@ -1,0 +1,85 @@
+{
+    "version": "0.4.0",
+    "assetType": "screen",
+    "metadata": {
+        "name": "XP Bar Segmented",
+        "description": "Segmented linear XP bar for level progress",
+        "tags": [
+            "screen",
+            "gauge",
+            "linear",
+            "xp",
+            "segmented"
+        ]
+    },
+    "patternId": "xp_bar_segmented",
+    "canvas": {
+        "width": 1280,
+        "height": 720,
+        "safeArea": {
+            "x": 40,
+            "y": 40,
+            "width": 1200,
+            "height": 640
+        }
+    },
+    "components": [
+        {
+            "id": "xp-bar",
+            "name": "XP Bar Segmented",
+            "role": "data_display",
+            "importance": "info",
+            "viewBox": [
+                0,
+                0,
+                400,
+                32
+            ],
+            "layers": [
+                {
+                    "id": "xp-segments",
+                    "shape": "gauge",
+                    "rect": {
+                        "x": 0,
+                        "y": 8,
+                        "width": 400,
+                        "height": 16,
+                        "radius": 8
+                    },
+                    "style": {
+                        "fill": "ui.primary"
+                    },
+                    "track": "ui.surface",
+                    "value": 0.6,
+                    "role": "progress",
+                    "importance": "info"
+                }
+            ]
+        }
+    ],
+    "instances": [
+        {
+            "id": "xp-bar-instance",
+            "componentId": "xp-bar",
+            "anchorTo": "canvas",
+            "anchor": "topLeft",
+            "offset": {
+                "x": 240,
+                "y": 340
+            },
+            "size": {
+                "width": 400,
+                "height": 32
+            },
+            "role": "data_display",
+            "importance": "info",
+            "state": "default",
+            "constraint_flags": [
+                "safe_area",
+                "spacing"
+            ],
+            "layout_ref": "flow:xp_segments",
+            "zIndex": 1
+        }
+    ]
+}

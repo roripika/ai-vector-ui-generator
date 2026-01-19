@@ -26,6 +26,12 @@ RADIAL_GAUGE_PATH = Path(__file__).resolve().parents[1] / "examples" / "radial_g
 COOLDOWN_WHEEL_PATH = Path(__file__).resolve().parents[1] / "examples" / "cooldown_wheel.json"
 BADGE_COUNT_PATH = Path(__file__).resolve().parents[1] / "examples" / "badge_count.json"
 CARD_FRAME_RARITY_PATH = Path(__file__).resolve().parents[1] / "examples" / "card_frame_rarity.json"
+LINEAR_GAUGE_BASE_PATH = Path(__file__).resolve().parents[1] / "examples" / "linear_gauge_base.json"
+HP_BAR_LINEAR_PATH = Path(__file__).resolve().parents[1] / "examples" / "hp_bar_linear.json"
+XP_BAR_SEGMENTED_PATH = Path(__file__).resolve().parents[1] / "examples" / "xp_bar_segmented.json"
+STAMINA_BAR_LINEAR_PATH = Path(__file__).resolve().parents[1] / "examples" / "stamina_bar_linear.json"
+LIST_CELL_BASE_PATH = Path(__file__).resolve().parents[1] / "examples" / "list_cell_base.json"
+LIST_CELL_SHOP_ITEM_PATH = Path(__file__).resolve().parents[1] / "examples" / "list_cell_shop_item.json"
 
 
 def load_asset() -> dict:
@@ -123,6 +129,36 @@ def load_card_frame_rarity_asset() -> dict:
         return json.load(handle)
 
 
+def load_linear_gauge_base_asset() -> dict:
+    with LINEAR_GAUGE_BASE_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_hp_bar_linear_asset() -> dict:
+    with HP_BAR_LINEAR_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_xp_bar_segmented_asset() -> dict:
+    with XP_BAR_SEGMENTED_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_stamina_bar_linear_asset() -> dict:
+    with STAMINA_BAR_LINEAR_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_list_cell_base_asset() -> dict:
+    with LIST_CELL_BASE_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_list_cell_shop_item_asset() -> dict:
+    with LIST_CELL_SHOP_ITEM_PATH.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def test_screen_example_validates():
     asset = load_asset()
     validate_asset(asset)
@@ -153,6 +189,12 @@ def test_screen_example_validates():
     validate_asset(load_cooldown_wheel_asset())
     validate_asset(load_badge_count_asset())
     validate_asset(load_card_frame_rarity_asset())
+    validate_asset(load_linear_gauge_base_asset())
+    validate_asset(load_hp_bar_linear_asset())
+    validate_asset(load_xp_bar_segmented_asset())
+    validate_asset(load_stamina_bar_linear_asset())
+    validate_asset(load_list_cell_base_asset())
+    validate_asset(load_list_cell_shop_item_asset())
 
 
 def test_screen_compiles_with_canvas_viewbox():
@@ -232,3 +274,27 @@ def test_screen_compiles_with_canvas_viewbox():
     card_svg = compile_svg(load_card_frame_rarity_asset())
     card_root = ET.fromstring(card_svg)
     assert card_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    linear_gauge_svg = compile_svg(load_linear_gauge_base_asset())
+    linear_gauge_root = ET.fromstring(linear_gauge_svg)
+    assert linear_gauge_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    hp_bar_svg = compile_svg(load_hp_bar_linear_asset())
+    hp_bar_root = ET.fromstring(hp_bar_svg)
+    assert hp_bar_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    xp_bar_svg = compile_svg(load_xp_bar_segmented_asset())
+    xp_bar_root = ET.fromstring(xp_bar_svg)
+    assert xp_bar_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    stamina_bar_svg = compile_svg(load_stamina_bar_linear_asset())
+    stamina_bar_root = ET.fromstring(stamina_bar_svg)
+    assert stamina_bar_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    list_cell_svg = compile_svg(load_list_cell_base_asset())
+    list_cell_root = ET.fromstring(list_cell_svg)
+    assert list_cell_root.attrib.get("viewBox") == "0 0 1280 720"
+
+    shop_cell_svg = compile_svg(load_list_cell_shop_item_asset())
+    shop_cell_root = ET.fromstring(shop_cell_svg)
+    assert shop_cell_root.attrib.get("viewBox") == "0 0 1280 720"

@@ -1,0 +1,28 @@
+id: list_cell_base
+category: pattern
+role: container
+importance: secondary
+intent: "リストセルで情報を整理して表示する"
+when:
+  - "一覧表示でアイテムを並べたい"
+  - "アイコン+テキストの組み合わせが必要"
+avoid:
+  - "単独での使用（リスト外）"
+constraint_flags:
+  - min_tap
+  - padding
+states:
+  - default
+  - selected
+  - pressed
+layout_ref:
+  type: row
+  example: "row:list_item"
+export_hint:
+  default_size:
+    width: 640
+    height: 80
+notes:
+  - "再利用を最優先：icon + title + subtitle + right-slot"
+  - "layout_ref: rowで横並び配置を示唆"
+  - "細部はcustom:*で対応"

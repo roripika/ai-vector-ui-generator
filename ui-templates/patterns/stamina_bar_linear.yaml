@@ -1,0 +1,33 @@
+id: stamina_bar_linear
+category: pattern
+role: data_display
+importance: info
+intent: "スタミナバーで行動力を表示する"
+when:
+  - "スタミナ/エネルギーの残量を見せたい"
+  - "行動コストを視覚化したい"
+avoid:
+  - "時間経過で回復しない値の表示"
+constraint_flags:
+  - safe_area
+states:
+  - default
+layout_ref:
+  type: slot
+  example: "slot:stamina_bar"
+value_model:
+  meaning: stamina
+  value: 80
+  max: 100
+  unit: points
+shape_profile: linear
+shape_params:
+  orientation: horizontal
+  thickness: 18
+export_hint:
+  default_size:
+    width: 300
+    height: 36
+notes:
+  - "スタミナ回復演出との組み合わせを想定"
+  - "HPバーと区別するため色やアイコンで差別化"

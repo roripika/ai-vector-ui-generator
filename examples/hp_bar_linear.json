@@ -1,0 +1,84 @@
+{
+    "version": "0.4.0",
+    "assetType": "screen",
+    "metadata": {
+        "name": "HP Bar Linear",
+        "description": "HP bar using linear gauge",
+        "tags": [
+            "screen",
+            "gauge",
+            "linear",
+            "hp",
+            "health"
+        ]
+    },
+    "patternId": "hp_bar_linear",
+    "canvas": {
+        "width": 1280,
+        "height": 720,
+        "safeArea": {
+            "x": 40,
+            "y": 40,
+            "width": 1200,
+            "height": 640
+        }
+    },
+    "components": [
+        {
+            "id": "hp-bar",
+            "name": "HP Bar",
+            "role": "data_display",
+            "importance": "info",
+            "viewBox": [
+                0,
+                0,
+                320,
+                40
+            ],
+            "layers": [
+                {
+                    "id": "hp-gauge",
+                    "shape": "gauge",
+                    "rect": {
+                        "x": 0,
+                        "y": 10,
+                        "width": 320,
+                        "height": 20,
+                        "radius": 10
+                    },
+                    "style": {
+                        "fill": "ui.success"
+                    },
+                    "track": "ui.surface",
+                    "value": 0.75,
+                    "role": "progress",
+                    "importance": "info"
+                }
+            ]
+        }
+    ],
+    "instances": [
+        {
+            "id": "hp-bar-instance",
+            "componentId": "hp-bar",
+            "anchorTo": "canvas",
+            "anchor": "topLeft",
+            "offset": {
+                "x": 280,
+                "y": 300
+            },
+            "size": {
+                "width": 320,
+                "height": 40
+            },
+            "role": "data_display",
+            "importance": "info",
+            "state": "default",
+            "constraint_flags": [
+                "safe_area"
+            ],
+            "layout_ref": "slot:hp_bar",
+            "zIndex": 1
+        }
+    ]
+}

@@ -23,6 +23,14 @@ roles:
   - text
   - icon
   - status
+  - linear
+  - cell
+  - list
+  - shop
+  - hp
+  - xp
+  - stamina
+  - price
 
 importance:
   - primary

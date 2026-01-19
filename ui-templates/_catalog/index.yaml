@@ -70,3 +70,27 @@ templates:
     summary: "カード枠（レアリティ強調）"
     path: "ui-templates/patterns/card_frame_rarity.yaml"
     tags: [container, card, rarity, decoration]
+  - id: linear_gauge_base
+    summary: "直線ゲージ基底（横/縦バー）"
+    path: "ui-templates/patterns/linear_gauge_base.yaml"
+    tags: [data_display, progress, gauge, linear, slot]
+  - id: hp_bar_linear
+    summary: "HPバー（直線ゲージ）"
+    path: "ui-templates/patterns/hp_bar_linear.yaml"
+    tags: [data_display, progress, gauge, linear, hp, slot]
+  - id: xp_bar_segmented
+    summary: "XPバー（段階式直線ゲージ）"
+    path: "ui-templates/patterns/xp_bar_segmented.yaml"
+    tags: [data_display, progress, gauge, linear, xp, segmented, flow]
+  - id: stamina_bar_linear
+    summary: "スタミナバー（直線ゲージ）"
+    path: "ui-templates/patterns/stamina_bar_linear.yaml"
+    tags: [data_display, progress, gauge, linear, stamina, slot]
+  - id: list_cell_base
+    summary: "リストセル基底（アイコン+テキスト）"
+    path: "ui-templates/patterns/list_cell_base.yaml"
+    tags: [container, list, cell, row]
+  - id: list_cell_shop_item
+    summary: "ショップアイテムセル"
+    path: "ui-templates/patterns/list_cell_shop_item.yaml"
+    tags: [container, list, cell, shop, price, badge, row]
