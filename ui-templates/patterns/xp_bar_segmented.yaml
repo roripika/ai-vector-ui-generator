@@ -1,0 +1,36 @@
+id: xp_bar_segmented
+category: pattern
+role: data_display
+importance: info
+intent: "段階式XPバーでレベル進捗を表示する"
+when:
+  - "レベルアップまでの段階を見せたい"
+  - "経験値の蓄積を視覚化したい"
+avoid:
+  - "連続値の進捗表示"
+constraint_flags:
+  - safe_area
+  - spacing
+states:
+  - default
+layout_ref:
+  type: flow
+  example: "flow:xp_segments"
+value_model:
+  meaning: experience
+  value: 3
+  max: 5
+  unit: level
+shape_profile: linear
+shape_params:
+  orientation: horizontal
+  segment_count: 5
+  gap: 6
+  thickness: 16
+export_hint:
+  default_size:
+    width: 400
+    height: 32
+notes:
+  - "segment_countで段階数を指定"
+  - "gapでセグメント間の隙間を調整"

@@ -1,0 +1,205 @@
+{
+  "version": "0.4.0",
+  "assetType": "screen",
+  "metadata": {
+    "name": "List Cell Shop Item",
+    "description": "Shop item list cell with price and badge",
+    "tags": [
+      "screen",
+      "list",
+      "cell",
+      "shop",
+      "price"
+    ]
+  },
+  "patternId": "list_cell_shop_item",
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "safeArea": {
+      "x": 40,
+      "y": 40,
+      "width": 1200,
+      "height": 640
+    }
+  },
+  "components": [
+    {
+      "id": "shop-cell",
+      "name": "Shop Item Cell",
+      "role": "container",
+      "importance": "secondary",
+      "viewBox": [
+        0,
+        0,
+        680,
+        96
+      ],
+      "layers": [
+        {
+          "id": "cell-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 680,
+            "height": 96,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.border",
+            "strokeWidth": 2
+          },
+          "role": "container"
+        },
+        {
+          "id": "item-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 16,
+            "y": 16,
+            "width": 64,
+            "height": 64,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.primary"
+          },
+          "role": "icon"
+        },
+        {
+          "id": "item-name",
+          "shape": "text",
+          "rect": {
+            "x": 96,
+            "y": 28,
+            "width": 360,
+            "height": 24
+          },
+          "text": {
+            "value": "Magic Sword",
+            "font": "ui.font.primary",
+            "size": 18,
+            "align": "left",
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink"
+          },
+          "style": {
+            "fill": "ui.text"
+          },
+          "role": "text"
+        },
+        {
+          "id": "item-desc",
+          "shape": "text",
+          "rect": {
+            "x": 96,
+            "y": 56,
+            "width": 360,
+            "height": 16
+          },
+          "text": {
+            "value": "Legendary weapon",
+            "font": "ui.font.primary",
+            "size": 12,
+            "align": "left",
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink"
+          },
+          "style": {
+            "fill": "ui.textMuted"
+          },
+          "role": "text"
+        },
+        {
+          "id": "price-label",
+          "shape": "text",
+          "rect": {
+            "x": 520,
+            "y": 36,
+            "width": 120,
+            "height": 24
+          },
+          "text": {
+            "value": "1000 G",
+            "font": "ui.font.primary",
+            "size": 20,
+            "align": "right",
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink"
+          },
+          "style": {
+            "fill": "ui.warning"
+          },
+          "role": "text"
+        },
+        {
+          "id": "sale-badge",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 600,
+            "y": 8,
+            "width": 64,
+            "height": 24,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.error"
+          },
+          "role": "badge"
+        },
+        {
+          "id": "sale-text",
+          "shape": "text",
+          "rect": {
+            "x": 608,
+            "y": 12,
+            "width": 48,
+            "height": 16
+          },
+          "text": {
+            "value": "SALE",
+            "font": "ui.font.primary",
+            "size": 10,
+            "align": "center",
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink"
+          },
+          "style": {
+            "fill": "ui.textInverse"
+          },
+          "role": "text"
+        }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "shop-cell-instance",
+      "componentId": "shop-cell",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": {
+        "x": 100,
+        "y": 240
+      },
+      "size": {
+        "width": 680,
+        "height": 96
+      },
+      "role": "container",
+      "importance": "secondary",
+      "state": "default",
+      "constraint_flags": [
+        "min_tap",
+        "padding"
+      ],
+      "zIndex": 1
+    }
+  ]
+}

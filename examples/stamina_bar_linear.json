@@ -1,0 +1,84 @@
+{
+    "version": "0.4.0",
+    "assetType": "screen",
+    "metadata": {
+        "name": "Stamina Bar Linear",
+        "description": "Stamina bar using linear gauge",
+        "tags": [
+            "screen",
+            "gauge",
+            "linear",
+            "stamina",
+            "energy"
+        ]
+    },
+    "patternId": "stamina_bar_linear",
+    "canvas": {
+        "width": 1280,
+        "height": 720,
+        "safeArea": {
+            "x": 40,
+            "y": 40,
+            "width": 1200,
+            "height": 640
+        }
+    },
+    "components": [
+        {
+            "id": "stamina-bar",
+            "name": "Stamina Bar",
+            "role": "data_display",
+            "importance": "info",
+            "viewBox": [
+                0,
+                0,
+                300,
+                36
+            ],
+            "layers": [
+                {
+                    "id": "stamina-gauge",
+                    "shape": "gauge",
+                    "rect": {
+                        "x": 0,
+                        "y": 9,
+                        "width": 300,
+                        "height": 18,
+                        "radius": 9
+                    },
+                    "style": {
+                        "fill": "ui.warning"
+                    },
+                    "track": "ui.surface",
+                    "value": 0.8,
+                    "role": "progress",
+                    "importance": "info"
+                }
+            ]
+        }
+    ],
+    "instances": [
+        {
+            "id": "stamina-bar-instance",
+            "componentId": "stamina-bar",
+            "anchorTo": "canvas",
+            "anchor": "topLeft",
+            "offset": {
+                "x": 290,
+                "y": 380
+            },
+            "size": {
+                "width": 300,
+                "height": 36
+            },
+            "role": "data_display",
+            "importance": "info",
+            "state": "default",
+            "constraint_flags": [
+                "safe_area"
+            ],
+            "layout_ref": "slot:stamina_bar",
+            "zIndex": 1
+        }
+    ]
+}

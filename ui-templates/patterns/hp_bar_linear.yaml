@@ -1,0 +1,33 @@
+id: hp_bar_linear
+category: pattern
+role: data_display
+importance: info
+intent: "HPバーで体力を表示する"
+when:
+  - "キャラクターの体力を見せたい"
+  - "敵の残りHPを表示したい"
+avoid:
+  - "非戦闘画面での使用"
+constraint_flags:
+  - safe_area
+states:
+  - default
+layout_ref:
+  type: slot
+  example: "slot:hp_bar"
+value_model:
+  meaning: health
+  value: 750
+  max: 1000
+  unit: hp
+shape_profile: linear
+shape_params:
+  orientation: horizontal
+  thickness: 20
+export_hint:
+  default_size:
+    width: 320
+    height: 40
+notes:
+  - "低HP時の色変化はcustom:threshold_colorで対応可能"
+  - "ゲーム内で最頻出のゲージパターン"

@@ -1,0 +1,29 @@
+id: list_cell_shop_item
+category: pattern
+role: container
+importance: secondary
+intent: "ショップアイテムセルで商品情報を表示する"
+when:
+  - "ショップで商品を一覧表示したい"
+  - "価格とアイコンを並べて見せたい"
+avoid:
+  - "非商用リスト"
+constraint_flags:
+  - min_tap
+  - padding
+states:
+  - default
+  - selected
+  - pressed
+  - disabled
+layout_ref:
+  type: row
+  example: "row:shop_item"
+export_hint:
+  default_size:
+    width: 680
+    height: 96
+notes:
+  - "icon + name + price + badge(optional)の構成"
+  - "custom:shop_itemタグで用途を明示"
+  - "購入不可時はdisabled状態を使用"
