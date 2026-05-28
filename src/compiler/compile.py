@@ -273,8 +273,31 @@ def _append_layers(
             _append_toggle(group, layer, registry, bind, state)
         elif shape == "badge":
             _append_badge(group, layer, registry, defs, clip_ids, id_prefix, bind, state)
+        elif shape == "image":
+            _append_image(group, layer)
         else:
             raise ValueError(f"Unsupported shape: {shape}")
+
+def _append_image(group: ET.Element, layer: Dict[str, Any]) -> None:
+    rect = layer.get("rect", {})
+    attrs = {
+        "x": _fmt(rect.get("x", 0)),
+        "y": _fmt(rect.get("y", 0)),
+        "width": _fmt(rect.get("width", 100)),
+        "height": _fmt(rect.get("height", 100)),
+    }
+    
+    texture = layer.get("texture")
+    if texture:
+        attrs["href"] = texture
+        
+    scale = layer.get("scale")
+    if isinstance(scale, dict):
+        sx = scale.get("x", 1.0)
+        sy = scale.get("y", 1.0)
+        attrs["transform"] = f"scale({sx}, {sy})"
+        
+    ET.SubElement(group, "image", attrs)
 
 
 def _apply_texture_mask(

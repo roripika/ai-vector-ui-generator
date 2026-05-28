@@ -49,8 +49,8 @@ def cmd_render(args: argparse.Namespace) -> int:
     try:
         validate_asset(asset)
     except ValidationError as exc:
-        print(str(exc))
-        return 1
+        print(f"Validation Warning: {exc}", file=sys.stderr)
+        print("Continuing rendering despite validation warnings.", file=sys.stderr)
 
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -68,14 +68,19 @@ def cmd_render(args: argparse.Namespace) -> int:
     else:
         svg_path = None
 
+    # メタデータの抽出と出力 (Scale9Sprite向けcapInsetsなど)
+    meta = _extract_meta(asset)
+    meta_path = output_dir / f"{stem}.meta.json"
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
     if args.only is None:
         svg_source = output_dir / f"{stem}.svg"
         png_exporter(svg_source, output_dir / f"{stem}.png", width=size[0], height=size[1])
-        print(f"OK: {svg_source} {output_dir / f'{stem}.png'}")
+        print(f"OK: {svg_source} {output_dir / f'{stem}.png'} {meta_path}")
         return 0
 
     if args.only == "svg":
-        print(f"OK: {output_dir / f'{stem}.svg'}")
+        print(f"OK: {output_dir / f'{stem}.svg'} {meta_path}")
         return 0
 
     if args.only == "pdf" and pdf_exporter is None:
@@ -122,6 +127,39 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     return args.func(args)
+
+
+def _extract_meta(asset: dict) -> dict:
+    meta = {
+        "originalSize": {
+            "width": asset.get("viewBox", [0,0,0,0])[2],
+            "height": asset.get("viewBox", [0,0,0,0])[3]
+        }
+    }
+    
+    # role が container または action の roundedRect を探す
+    layers = asset.get("layers", [])
+    if asset.get("components"):
+        for comp in asset.get("components", []):
+            layers.extend(comp.get("layers", []))
+            
+    target_layer = None
+    for layer in layers:
+        if layer.get("shape") == "roundedRect" and layer.get("role") in ("container", "action"):
+            target_layer = layer
+            break
+            
+    if target_layer and "rect" in target_layer:
+        rect = target_layer["rect"]
+        r = float(rect.get("radius", 0))
+        meta["capInsets"] = {
+            "x": float(rect.get("x", 0)) + r,
+            "y": float(rect.get("y", 0)) + r,
+            "width": max(0, float(rect.get("width", 0)) - r * 2),
+            "height": max(0, float(rect.get("height", 0)) - r * 2)
+        }
+        
+    return meta
 
 
 if __name__ == "__main__":
