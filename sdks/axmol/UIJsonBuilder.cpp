@@ -64,11 +64,8 @@ std::string UIJsonBuilder::resolveBindValue(const rapidjson::Value& layerData, c
 }
 
 ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rapidjson::Value& theme, const rapidjson::Value& state) {
-    if (!layerData.HasMember("shape") || !layerData["shape"].IsString()) {
-        return nullptr;
-    }
-    
-    std::string shape = layerData["shape"].GetString();
+    std::string typeStr = layerData.HasMember("type") && layerData["type"].IsString() ? layerData["type"].GetString() : "";
+    std::string shape = layerData.HasMember("shape") && layerData["shape"].IsString() ? layerData["shape"].GetString() : "";
     
     ax::Color3B fillColor = ax::Color3B::WHITE;
     if (layerData.HasMember("style") && layerData["style"].HasMember("fill") && layerData["style"]["fill"].IsString()) {
@@ -77,20 +74,53 @@ ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rap
     
     ax::Node* node = nullptr;
     
-    if (shape == "roundedRect") {
+    if (typeStr == "image") {
+        if (layerData.HasMember("texture") && layerData["texture"].IsString()) {
+            std::string texPath = layerData["texture"].GetString();
+            auto sprite = ax::Sprite::create(texPath);
+            if (sprite) {
+                sprite->setAnchorPoint(ax::Vec2(0, 1)); // Top-left anchor
+                node = sprite;
+            } else {
+                AXLOG("Failed to load texture: %s", texPath.c_str());
+            }
+        }
+    } else if (shape == "roundedRect") {
         float w = layerData["rect"]["width"].GetFloat();
         float h = layerData["rect"]["height"].GetFloat();
-        auto layerColor = ax::LayerColor::create(ax::Color4B(fillColor.r, fillColor.g, fillColor.b, 255), w, h);
+        
+        GLubyte opacity = 255;
+        if (layerData.HasMember("fillOpacity") && layerData["fillOpacity"].IsInt()) {
+            opacity = static_cast<GLubyte>(layerData["fillOpacity"].GetInt());
+        }
+        
+        auto layerColor = ax::LayerColor::create(ax::Color4B(fillColor.r, fillColor.g, fillColor.b, opacity), w, h);
         layerColor->setIgnoreAnchorPointForPosition(false);
         layerColor->setAnchorPoint(ax::Vec2(0, 1)); // Top-left anchor for rects by default
         node = layerColor;
-    } else if (shape == "text") {
-        std::string textValue = layerData["text"]["value"].GetString();
+    } else if (shape == "text" || typeStr == "text") {
+        std::string textValue = "";
+        if (layerData.HasMember("text") && layerData["text"].IsObject() && layerData["text"].HasMember("value")) {
+            textValue = layerData["text"]["value"].GetString();
+        } else if (layerData.HasMember("text") && layerData["text"].IsString()) {
+            textValue = layerData["text"].GetString();
+        }
+        
         std::string boundValue = resolveBindValue(layerData, state);
         if (!boundValue.empty()) {
             textValue = boundValue;
         }
-        float fontSize = layerData["text"]["size"].GetFloat();
+        
+        float fontSize = 24.0f;
+        if (layerData.HasMember("text") && layerData["text"].IsObject() && layerData["text"].HasMember("size")) {
+            fontSize = layerData["text"]["size"].GetFloat();
+        } else if (layerData.HasMember("fontSize") && layerData["fontSize"].IsNumber()) {
+            fontSize = layerData["fontSize"].GetFloat();
+        }
+        
+        if (layerData.HasMember("color") && layerData["color"].IsString()) {
+            fillColor = parseColor(layerData["color"].GetString(), theme["colors"]);
+        }
         
         // For now, use system font
         auto label = ax::Label::createWithSystemFont(textValue, "Arial", fontSize);
@@ -99,12 +129,47 @@ ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rap
         node = label;
     }
     
-    if (node && layerData.HasMember("rect")) {
-        float x = layerData["rect"]["x"].GetFloat();
-        float y = layerData["rect"]["y"].GetFloat();
+    if (node) {
+        if (layerData.HasMember("name") && layerData["name"].IsString()) {
+            node->setName(layerData["name"].GetString());
+        }
+        
+        float x = 0;
+        float y = 0;
+        if (layerData.HasMember("rect")) {
+            x = layerData["rect"]["x"].GetFloat();
+            y = layerData["rect"]["y"].GetFloat();
+        } else if (layerData.HasMember("position")) {
+            x = layerData["position"]["x"].GetFloat();
+            y = layerData["position"]["y"].GetFloat();
+        }
         // Offset from component's top-left origin. Since Cocos Y is up, and SVG Y is down,
         // we use a negative Y offset from the top.
         node->setPosition(ax::Vec2(x, -y));
+        
+        // --- Animation / Presentation Effects parsing ---
+        if (layerData.HasMember("animation") && layerData["animation"].IsObject()) {
+            const auto& animData = layerData["animation"];
+            if (animData.HasMember("loop") && animData["loop"].IsString()) {
+                std::string loopType = animData["loop"].GetString();
+                if (loopType == "bounce") {
+                    auto moveUp = ax::MoveBy::create(0.5f, ax::Vec2(0, 10));
+                    auto moveDown = moveUp->reverse();
+                    auto seq = ax::Sequence::create(moveUp, moveDown, nullptr);
+                    node->runAction(ax::RepeatForever::create(seq));
+                }
+            }
+            if (animData.HasMember("enter") && animData["enter"].IsString()) {
+                std::string enterType = animData["enter"].GetString();
+                if (enterType == "fade_slide_up") {
+                    node->setOpacity(0);
+                    node->setPositionY(node->getPositionY() - 20); // start 20px lower
+                    auto fadeIn = ax::FadeIn::create(0.4f);
+                    auto slideUp = ax::MoveBy::create(0.4f, ax::Vec2(0, 20));
+                    node->runAction(ax::Spawn::createWithTwoActions(fadeIn, slideUp));
+                }
+            }
+        }
     }
     
     return node;
