@@ -1,4 +1,8 @@
-"""Design token registry powering the SVG compiler."""
+"""Design style constants (スタイル定数) registry powering the SVG compiler.
+Note: ここでいう「token」はAIのトークンとは無関係です。
+      色・フォント・グラデーションなどの定数に名前を付けて管理する仕組みを指します。
+      JSON spec からは ui.primaryGradient のような定数名で参照します。
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -50,6 +54,7 @@ DEFAULT_COLORS: Dict[str, str] = {
     "ui.surface": "#1B1D2F",
     "ui.textPrimary": "#F5F7FF",
     "ui.textSecondary": "#B8C3E0",
+    "ui.textDark": "#1A1A2E",
 }
 
 DEFAULT_GLOWS: Dict[str, GlowDef] = {
@@ -81,22 +86,26 @@ class TokenRegistry:
     def get_linear_gradient(self, token: Optional[str]) -> Optional[LinearGradientDef]:
         if not token:
             return None
-        return self._gradients.get(token)
+        token_key = token.replace("theme.gradients.", "")
+        return self._gradients.get(token_key) or self._gradients.get(token)
 
     def get_color(self, token: Optional[str]) -> Optional[str]:
         if not token:
             return None
-        return self._colors.get(token)
+        token_key = token.replace("theme.colors.", "")
+        return self._colors.get(token_key) or self._colors.get(token)
 
     def get_glow(self, token: Optional[str]) -> Optional[GlowDef]:
         if not token:
             return None
-        return self._glows.get(token)
+        token_key = token.replace("theme.glows.", "")
+        return self._glows.get(token_key) or self._glows.get(token)
 
     def get_font(self, token: Optional[str]) -> Optional[str]:
         if not token:
             return None
-        return self._fonts.get(token)
+        token_key = token.replace("theme.fonts.", "")
+        return self._fonts.get(token_key) or self._fonts.get(token)
 
 
 __all__ = [

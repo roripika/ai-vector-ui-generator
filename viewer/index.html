@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI JsonViewer (Electron)</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- d3.js for zooming and panning -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <button id="btn-open">Open JSON</button>
+        <span id="file-info">No file loaded.</span>
+        <span id="status-indicator"></span>
+    </div>
+    <div id="workspace">
+        <div id="canvas-container">
+            <!-- SVG will be injected here -->
+        </div>
+    </div>
+    <pre id="error-console" style="display: none;"></pre>
+    
+    <script src="renderer.js"></script>
+</body>
+</html>
