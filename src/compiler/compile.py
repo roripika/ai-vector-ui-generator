@@ -27,11 +27,12 @@ def _compile_button(asset: Dict[str, Any]) -> str:
     glow_ids: set[str] = set()
     _collect_defs(asset["layers"], registry, defs, gradient_ids, glow_ids, view_box)
 
+    clip_ids: set[str] = set()
+    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="", components=None, state=state)
+
     if len(defs) == 0:
         svg.remove(defs)
 
-    clip_ids: set[str] = set()
-    _append_layers(svg, asset["layers"], registry, defs, clip_ids, id_prefix="", components=None, state=state)
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -50,9 +51,6 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
     glow_ids: set[str] = set()
     for component in asset["components"]:
         _collect_defs(component["layers"], registry, defs, gradient_ids, glow_ids, view_box)
-
-    if len(defs) == 0:
-        svg.remove(defs)
 
     instance_order = sorted(instances, key=lambda item: (item.get("zIndex", 0), item["id"]))
     resolved = _resolve_instances(instance_order, components, view_box)
@@ -75,6 +73,11 @@ def _compile_screen(asset: Dict[str, Any]) -> str:
             state=state,
         )
 
+    if len(defs) == 0:
+        svg.remove(defs)
+
+
+
     return ET.tostring(svg, encoding="unicode")
 
 
@@ -82,7 +85,7 @@ def _build_registry(asset: Dict[str, Any]) -> TokenRegistry:
     theme = asset.get("theme") or {}
     colors = _parse_theme_map(theme.get("colors"))
     fonts = _parse_theme_map(theme.get("fonts"))
-    gradients = _parse_gradients(theme.get("gradients"))
+    gradients = _parse_gradients(theme.get("gradients"), colors)
     glows = _parse_glows(theme.get("glows"))
     return TokenRegistry(gradients=gradients, colors=colors, glows=glows, fonts=fonts)
 
@@ -93,7 +96,7 @@ def _parse_theme_map(raw: Any) -> Dict[str, str]:
     return {str(key): value for key, value in raw.items() if isinstance(value, str)}
 
 
-def _parse_gradients(raw: Any) -> Dict[str, LinearGradientDef]:
+def _parse_gradients(raw: Any, colors: Dict[str, str]) -> Dict[str, LinearGradientDef]:
     gradients: Dict[str, LinearGradientDef] = {}
     if not isinstance(raw, dict):
         return gradients
@@ -110,6 +113,15 @@ def _parse_gradients(raw: Any) -> Dict[str, LinearGradientDef]:
                 continue
             offset = stop.get("offset")
             color = stop.get("color")
+            
+            # トークン解決
+            if isinstance(color, str):
+                color_key = color.replace("theme.colors.", "")
+                if color_key in colors:
+                    color = colors[color_key]
+                elif color in colors:
+                    color = colors[color]
+
             opacity = stop.get("opacity", 1.0)
             if not _is_number(offset) or not isinstance(color, str):
                 continue
@@ -214,7 +226,20 @@ def _append_layers(
     state: Dict[str, Any],
 ) -> None:
     for layer in layers:
-        group = ET.SubElement(parent, "g", {"id": f"{id_prefix}{layer['id']}"})
+        layer_id = layer.get('id', layer.get('name', 'unnamed'))
+        group = ET.SubElement(parent, "g", {"id": f"{id_prefix}{layer_id}"})
+        
+        # Add animation classes
+        animation = layer.get("animation")
+        if isinstance(animation, dict):
+            classes = []
+            if "enter" in animation:
+                classes.append(f"anim-enter-{animation['enter']}")
+            if "loop" in animation:
+                classes.append(f"anim-loop-{animation['loop']}")
+            if classes:
+                group.set("class", " ".join(classes))
+                
         bind = layer.get("bind") or {}
         if not _bind_visible(bind, state):
             group.set("display", "none")
@@ -222,9 +247,14 @@ def _append_layers(
             group.set("data-enabled", "false")
 
         shape = layer.get("shape")
+        texture = layer.get("texture")
+
         if shape == "roundedRect":
             rect_attrs = _build_rect_attrs(layer, registry)
-            ET.SubElement(group, "rect", rect_attrs)
+            if texture:
+                _apply_texture_mask(group, layer, texture, defs, clip_ids, id_prefix, "rect", rect_attrs)
+            else:
+                ET.SubElement(group, "rect", rect_attrs)
         elif shape == "text":
             text_layer = _apply_text_binding(layer, bind, state)
             text_element = _build_text_element(text_layer, registry, defs, clip_ids, id_prefix)
@@ -245,6 +275,54 @@ def _append_layers(
             _append_badge(group, layer, registry, defs, clip_ids, id_prefix, bind, state)
         else:
             raise ValueError(f"Unsupported shape: {shape}")
+
+
+def _apply_texture_mask(
+    group: ET.Element,
+    layer: Dict[str, Any],
+    texture: Dict[str, Any],
+    defs: ET.Element,
+    clip_ids: set[str],
+    id_prefix: str,
+    tag: str,
+    attrs: Dict[str, str],
+) -> None:
+    clip_id = f"clip-tex-{id_prefix}{layer['id']}"
+    if clip_id not in clip_ids:
+        clip_ids.add(clip_id)
+        clip_path = ET.SubElement(defs, "clipPath", {"id": clip_id})
+        clip_attrs = dict(attrs)
+        clip_attrs.pop("stroke", None)
+        clip_attrs.pop("stroke-width", None)
+        clip_attrs.pop("filter", None)
+        clip_attrs["fill"] = "#ffffff"
+        ET.SubElement(clip_path, tag, clip_attrs)
+
+    # 1. Draw base fill (underneath the texture)
+    bg_attrs = dict(attrs)
+    bg_attrs.pop("stroke", None)
+    bg_attrs.pop("stroke-width", None)
+    if bg_attrs.get("fill") != "none":
+        ET.SubElement(group, tag, bg_attrs)
+
+    # 2. Draw the image (masked by the shape)
+    rect = layer["rect"]
+    image_attrs = {
+        "href": texture.get("path", ""),
+        "x": _fmt(rect["x"]),
+        "y": _fmt(rect["y"]),
+        "width": _fmt(rect["width"]),
+        "height": _fmt(rect["height"]),
+        "clip-path": f"url(#{clip_id})",
+        "preserveAspectRatio": "none",
+    }
+    ET.SubElement(group, "image", image_attrs)
+
+    # 3. Draw the stroke (overlay on top of the image)
+    if "stroke" in attrs and attrs["stroke"] != "none":
+        stroke_attrs = dict(attrs)
+        stroke_attrs["fill"] = "none"
+        ET.SubElement(group, tag, stroke_attrs)
 
 
 def _build_text_element(
@@ -279,14 +357,17 @@ def _build_text_element(
         if clip_id not in clip_ids:
             clip_ids.add(clip_id)
             clip_path = ET.SubElement(defs, "clipPath", {"id": clip_id})
+            # 上端を clipPadding 分広げてフォントのアセンダーがクリップされるのを防ぐ
+            clip_padding = float(text_config.get("clipPadding", 2))
+            clip_top = rect["y"] - clip_padding
             ET.SubElement(
                 clip_path,
                 "rect",
                 {
                     "x": _fmt(rect["x"]),
-                    "y": _fmt(rect["y"]),
+                    "y": _fmt(clip_top),
                     "width": _fmt(rect["width"]),
-                    "height": _fmt(rect["height"]),
+                    "height": _fmt(rect["height"] + clip_padding),
                 },
             )
         attrs["clip-path"] = f"url(#{clip_id})"

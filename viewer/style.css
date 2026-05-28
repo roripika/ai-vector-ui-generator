@@ -110,3 +110,35 @@ button:hover {
     font-family: monospace;
     z-index: 100;
 }
+
+/* Animations mapped from standard UI JSON schema */
+
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(10px);
+    }
+}
+
+/* Base class assignments */
+.anim-enter-fade_slide_up {
+    animation: fadeSlideUp 0.4s ease-out forwards;
+}
+
+.anim-loop-bounce {
+    animation: bounce 1s infinite ease-in-out;
+}
+
