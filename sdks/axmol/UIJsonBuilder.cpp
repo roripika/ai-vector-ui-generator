@@ -161,7 +161,31 @@ ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rap
             node->setOpacity(static_cast<GLubyte>(layerData["opacity"].GetInt()));
         }
         
-        // --- Invoke Callback for Custom Logic ---
+        // --- Standard UI Animations parsing (Handled by SDK) ---
+        if (layerData.HasMember("animation") && layerData["animation"].IsObject()) {
+            const auto& animData = layerData["animation"];
+            if (animData.HasMember("loop") && animData["loop"].IsString()) {
+                std::string loopType = animData["loop"].GetString();
+                if (loopType == "bounce") {
+                    auto moveUp = ax::MoveBy::create(0.5f, ax::Vec2(0, 10));
+                    auto moveDown = moveUp->reverse();
+                    auto seq = ax::Sequence::create(moveUp, moveDown, nullptr);
+                    node->runAction(ax::RepeatForever::create(seq));
+                }
+            }
+            if (animData.HasMember("enter") && animData["enter"].IsString()) {
+                std::string enterType = animData["enter"].GetString();
+                if (enterType == "fade_slide_up") {
+                    node->setOpacity(0);
+                    node->setPositionY(node->getPositionY() - 20); // start 20px lower
+                    auto fadeIn = ax::FadeIn::create(0.4f);
+                    auto slideUp = ax::MoveBy::create(0.4f, ax::Vec2(0, 20));
+                    node->runAction(ax::Spawn::createWithTwoActions(fadeIn, slideUp));
+                }
+            }
+        }
+        
+        // --- Invoke Callback for Custom Game Logic ---
         if (callback) {
             callback(node, layerData);
         }
