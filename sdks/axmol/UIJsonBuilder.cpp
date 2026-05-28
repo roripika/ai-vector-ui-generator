@@ -63,7 +63,7 @@ std::string UIJsonBuilder::resolveBindValue(const rapidjson::Value& layerData, c
     return "";
 }
 
-ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rapidjson::Value& theme, const rapidjson::Value& state) {
+ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rapidjson::Value& theme, const rapidjson::Value& state, NodeCreatedCallback callback) {
     std::string typeStr = layerData.HasMember("type") && layerData["type"].IsString() ? layerData["type"].GetString() : "";
     std::string shape = layerData.HasMember("shape") && layerData["shape"].IsString() ? layerData["shape"].GetString() : "";
     
@@ -147,41 +147,36 @@ ax::Node* UIJsonBuilder::buildLayer(const rapidjson::Value& layerData, const rap
         // we use a negative Y offset from the top.
         node->setPosition(ax::Vec2(x, -y));
         
-        // --- Animation / Presentation Effects parsing ---
-        if (layerData.HasMember("animation") && layerData["animation"].IsObject()) {
-            const auto& animData = layerData["animation"];
-            if (animData.HasMember("loop") && animData["loop"].IsString()) {
-                std::string loopType = animData["loop"].GetString();
-                if (loopType == "bounce") {
-                    auto moveUp = ax::MoveBy::create(0.5f, ax::Vec2(0, 10));
-                    auto moveDown = moveUp->reverse();
-                    auto seq = ax::Sequence::create(moveUp, moveDown, nullptr);
-                    node->runAction(ax::RepeatForever::create(seq));
-                }
+        if (layerData.HasMember("scale")) {
+            if (layerData["scale"].IsNumber()) {
+                node->setScale(layerData["scale"].GetFloat());
+            } else if (layerData["scale"].IsObject()) {
+                float sx = layerData["scale"].HasMember("x") ? layerData["scale"]["x"].GetFloat() : 1.0f;
+                float sy = layerData["scale"].HasMember("y") ? layerData["scale"]["y"].GetFloat() : 1.0f;
+                node->setScaleX(sx);
+                node->setScaleY(sy);
             }
-            if (animData.HasMember("enter") && animData["enter"].IsString()) {
-                std::string enterType = animData["enter"].GetString();
-                if (enterType == "fade_slide_up") {
-                    node->setOpacity(0);
-                    node->setPositionY(node->getPositionY() - 20); // start 20px lower
-                    auto fadeIn = ax::FadeIn::create(0.4f);
-                    auto slideUp = ax::MoveBy::create(0.4f, ax::Vec2(0, 20));
-                    node->runAction(ax::Spawn::createWithTwoActions(fadeIn, slideUp));
-                }
-            }
+        }
+        if (layerData.HasMember("opacity") && layerData["opacity"].IsInt()) {
+            node->setOpacity(static_cast<GLubyte>(layerData["opacity"].GetInt()));
+        }
+        
+        // --- Invoke Callback for Custom Logic ---
+        if (callback) {
+            callback(node, layerData);
         }
     }
     
     return node;
 }
 
-ax::Node* UIJsonBuilder::buildComponent(const rapidjson::Value& componentData, const rapidjson::Value& theme, const rapidjson::Value& state) {
+ax::Node* UIJsonBuilder::buildComponent(const rapidjson::Value& componentData, const rapidjson::Value& theme, const rapidjson::Value& state, NodeCreatedCallback callback) {
     auto compNode = ax::Node::create();
     
     if (componentData.HasMember("layers") && componentData["layers"].IsArray()) {
         const auto& layers = componentData["layers"];
         for (rapidjson::SizeType i = 0; i < layers.Size(); i++) {
-            auto layerNode = buildLayer(layers[i], theme, state);
+            auto layerNode = buildLayer(layers[i], theme, state, callback);
             if (layerNode) {
                 compNode->addChild(layerNode);
             }
@@ -190,7 +185,7 @@ ax::Node* UIJsonBuilder::buildComponent(const rapidjson::Value& componentData, c
     return compNode;
 }
 
-ax::Node* UIJsonBuilder::buildFromFile(const std::string& filepath) {
+ax::Node* UIJsonBuilder::buildFromFile(const std::string& filepath, NodeCreatedCallback callback) {
     std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filepath);
     std::string content = FileUtils::getInstance()->getStringFromFile(fullPath);
     
@@ -243,7 +238,7 @@ ax::Node* UIJsonBuilder::buildFromFile(const std::string& filepath) {
         std::string compId = inst["componentId"].GetString();
         
         if (componentMap.find(compId) != componentMap.end()) {
-            auto compNode = buildComponent(*componentMap[compId], theme, state);
+            auto compNode = buildComponent(*componentMap[compId], theme, state, callback);
             if (compNode) {
                 float w = inst["size"]["width"].GetFloat();
                 float h = inst["size"]["height"].GetFloat();
