@@ -460,8 +460,23 @@ window.Editor = (function () {
     
     // アニメーションクラスのリセットと適用
     div.className = div.className.split(' ').filter(c => !c.startsWith('anim-')).join(' ');
+    div.style.animationDelay = '';
+    
     if (el.props.animation && el.props.animation !== 'none') {
       div.classList.add(`anim-${el.props.animation}`);
+    }
+
+    // スタッガー（時間差表示）の処理
+    if (el.parentId) {
+      const parentEl = state.elements.find(e => e.id === el.parentId);
+      if (parentEl && parentEl.props && parentEl.props.staggerChildren) {
+        const siblings = state.elements.filter(e => e.parentId === el.parentId).sort((a,b) => a.zIndex - b.zIndex);
+        const idx = siblings.findIndex(e => e.id === el.id);
+        if (idx >= 0) {
+          // 0.1秒ずつ遅延させる
+          div.style.animationDelay = `${idx * 0.1}s`;
+        }
+      }
     }
 
     const visualLayer = div.querySelector('.visual-layer');

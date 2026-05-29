@@ -299,17 +299,21 @@ function _renderPropertiesPanel(el) {
       <option value="pop-in" ${p.animation==='pop-in'?'selected':''}>ポップイン (Pop-in)</option>
       <option value="slide-up" ${p.animation==='slide-up'?'selected':''}>スライドUP (Slide-Up)</option>
       <option value="slide-down" ${p.animation==='slide-down'?'selected':''}>スライドDOWN (Slide-Down)</option>
+      <option value="slide-in-left" ${p.animation==='slide-in-left'?'selected':''}>左からスライド (Slide-In-Left)</option>
+      <option value="slide-in-right" ${p.animation==='slide-in-right'?'selected':''}>右からスライド (Slide-In-Right)</option>
       <option value="fade-in" ${p.animation==='fade-in'?'selected':''}>フェードイン (Fade-in)</option>
+      <option value="typewriter" ${p.animation==='typewriter'?'selected':''}>タイプライター (Typewriter)</option>
     </optgroup>
     <optgroup label="Feedback (反応)">
       <option value="shake" ${p.animation==='shake'?'selected':''}>シェイク (Shake)</option>
       <option value="squash" ${p.animation==='squash'?'selected':''}>弾力 (Squash)</option>
+      <option value="shiny" ${p.animation==='shiny'?'selected':''}>光沢 (Shiny)</option>
     </optgroup>
   </select>`);
   html += `</div><div class="prop-sep"></div>`;
 
   // --- Layout ---
-  if (p.columns !== undefined || p.spacingX !== undefined || p.scrollDirection !== undefined || p.alignment !== undefined || p.tabNames !== undefined || p.refPath !== undefined) {
+  if (p.columns !== undefined || p.spacingX !== undefined || p.scrollDirection !== undefined || p.alignment !== undefined || p.tabNames !== undefined || p.refPath !== undefined || p.staggerChildren !== undefined) {
     html += `<div class="prop-section">`;
     html += `<div class="prop-section-title">レイアウト / 特殊設定</div>`;
     if (p.refPath !== undefined) html += _row('Prefab参照', `<input class="prop-input" value="${_esc(p.refPath)}" data-prop="refPath" placeholder="ex: ui_common_header.json">`);
@@ -318,6 +322,7 @@ function _renderPropertiesPanel(el) {
     if (p.columns !== undefined) html += _row('列数 (固定)', `<input class="prop-input-num" type="number" value="${p.columns}" data-prop="columns" min="1">`);
     if (p.spacingX !== undefined) html += _row('横余白', `<input class="prop-input-num" type="number" value="${p.spacingX}" data-prop="spacingX" min="0">`);
     if (p.spacingY !== undefined) html += _row('縦余白', `<input class="prop-input-num" type="number" value="${p.spacingY}" data-prop="spacingY" min="0">`);
+    if (p.staggerChildren !== undefined) html += _row('子を時間差表示', `<input type="checkbox" id="prop-staggerChildren" data-prop="staggerChildren" ${p.staggerChildren?'checked':''}>`);
     if (p.cellHeight !== undefined) html += _row('セル高さ', `<input class="prop-input-num" type="number" value="${p.cellHeight}" data-prop="cellHeight" min="1">`);
     
     if (p.alignment !== undefined) html += _row('揃え位置', `<select class="prop-select" data-prop="alignment">

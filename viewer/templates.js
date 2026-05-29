@@ -385,10 +385,10 @@ window.TEMPLATES = [
     defaultSize: { width: 320, height: 320 },
     defaultProps: {
       fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
-      columns: 3, spacingX: 8, spacingY: 8, cellHeight: 80
+      columns: 3, spacingX: 8, spacingY: 8, cellHeight: 80, staggerChildren: false
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'columns', 'spacingX', 'spacingY', 'cellHeight', 'animation'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'columns', 'spacingX', 'spacingY', 'cellHeight', 'staggerChildren', 'animation'],
     visualType: 'grid',
   },
   {
@@ -399,10 +399,10 @@ window.TEMPLATES = [
     defaultSize: { width: 320, height: 320 },
     defaultProps: {
       fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
-      spacingY: 8, alignment: 'start'
+      spacingY: 8, alignment: 'start', staggerChildren: false
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingY', 'alignment', 'animation'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingY', 'alignment', 'staggerChildren', 'animation'],
     visualType: 'vbox',
   },
   {
@@ -413,10 +413,10 @@ window.TEMPLATES = [
     defaultSize: { width: 320, height: 80 },
     defaultProps: {
       fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
-      spacingX: 8, alignment: 'start'
+      spacingX: 8, alignment: 'start', staggerChildren: false
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingX', 'alignment', 'animation'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingX', 'alignment', 'staggerChildren', 'animation'],
     visualType: 'hbox',
   },
   {

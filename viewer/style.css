@@ -393,3 +393,47 @@ button:disabled { opacity: 0.38; cursor: default; pointer-events: none; }
   50% { transform: scale(1.1, 0.9); }
 }
 .anim-squash { animation: squash 0.3s ease-in-out; }
+
+/* --- Additional Game UI Animations --- */
+@keyframes slide-in-left {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.anim-slide-in-left { animation: slide-in-left 0.3s ease-out forwards; }
+
+@keyframes slide-in-right {
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+.anim-slide-in-right { animation: slide-in-right 0.3s ease-out forwards; }
+
+@keyframes shiny {
+  0% { left: -100%; opacity: 0; }
+  20% { opacity: 0.5; }
+  100% { left: 100%; opacity: 0; }
+}
+.anim-shiny {
+  position: relative;
+  overflow: hidden;
+}
+.anim-shiny::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-25deg);
+  animation: shiny 2.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes typewriter {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+.anim-typewriter {
+  animation: typewriter 1s steps(20, end) forwards;
+  white-space: nowrap;
+}
