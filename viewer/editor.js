@@ -265,6 +265,36 @@ window.Editor = (function () {
       state._canvas.style.height = state.canvasHeight + 'px';
     }
 
+    // 動的に既存JSON内の独自コンポーネントをテンポラリ登録
+    if (Array.isArray(data.components)) {
+      for (const comp of data.components) {
+        if (!window.getTemplate(comp.id)) {
+          window.TEMPLATES.push({
+            id: comp.id,
+            name: comp.metadata?.name || comp.id,
+            category: 'コンテナ',
+            icon: '📦',
+            defaultSize: { 
+              width: comp.viewBox ? comp.viewBox[2] : 200, 
+              height: comp.viewBox ? comp.viewBox[3] : 200 
+            },
+            defaultProps: {
+              fillColor: 'rgba(255,255,255,0.05)',
+              strokeColor: '#666',
+              strokeWidth: 2,
+              radius: 4,
+              opacity: 1
+            },
+            role: 'container',
+            importance: 'secondary',
+            state: 'default',
+            propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'opacity'],
+            component: comp // Export時に元のlayer構造を維持するため保持
+          });
+        }
+      }
+    }
+
     if (Array.isArray(data.instances)) {
       for (const inst of data.instances) {
         const tpl = window.getTemplate(inst.componentId);
