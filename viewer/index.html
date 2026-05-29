@@ -3,24 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI JsonViewer (Electron)</title>
+    <title>UI Json Viewer — Workspace</title>
     <link rel="stylesheet" href="style.css">
-    <!-- d3.js for zooming and panning -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <!-- ツールバー -->
     <div id="toolbar">
-        <button id="btn-open">Open JSON</button>
-        <span id="file-info">No file loaded.</span>
+        <button id="btn-open-workspace">📁 ワークスペースを開く</button>
+        <button id="btn-open-file">📄 ファイルを開く</button>
+        <div id="workspace-path-display"></div>
+        <div class="toolbar-spacer"></div>
+        <div id="filter-wrap">
+            <input type="text" id="file-search" placeholder="ファイルを検索..." />
+        </div>
         <span id="status-indicator"></span>
     </div>
-    <div id="workspace">
-        <div id="canvas-container">
-            <!-- SVG will be injected here -->
+
+    <!-- メインコンテンツ -->
+    <div id="main-layout">
+        <!-- 左サイドバー：ファイルリスト -->
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <span id="sidebar-title">ファイル</span>
+                <span id="file-count"></span>
+            </div>
+            <div id="file-list">
+                <div class="empty-state">
+                    <div class="empty-icon">🗂️</div>
+                    <div>ワークスペースフォルダを開いてください</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右エリア：プレビューキャンバス -->
+        <div id="content-area">
+            <div id="file-info-bar">
+                <span id="file-info">ファイル未選択</span>
+            </div>
+            <div id="workspace">
+                <div id="canvas-container">
+                    <div class="preview-placeholder">
+                        <div class="placeholder-icon">🖼️</div>
+                        <div>ファイルを選択してプレビューを表示</div>
+                    </div>
+                </div>
+            </div>
+            <pre id="error-console" style="display: none;"></pre>
         </div>
     </div>
-    <pre id="error-console" style="display: none;"></pre>
-    
+
     <script src="renderer.js"></script>
 </body>
 </html>

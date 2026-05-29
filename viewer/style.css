@@ -7,69 +7,257 @@ body, html {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: #2b2b2b;
-    color: #e0e0e0;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
 }
 
+/* ===== ツールバー ===== */
 #toolbar {
-    padding: 10px 15px;
-    background-color: #3c3f41;
+    padding: 8px 12px;
+    background-color: #2d2d2d;
     display: flex;
     align-items: center;
-    gap: 15px;
-    border-bottom: 1px solid #1e1e1e;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    gap: 10px;
+    border-bottom: 1px solid #111;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.toolbar-spacer {
+    flex-grow: 1;
+}
+
+#workspace-path-display {
+    font-size: 12px;
+    color: #888;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#filter-wrap {
+    display: flex;
+    align-items: center;
+}
+
+#file-search {
+    background: #3c3c3c;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #d4d4d4;
+    padding: 5px 10px;
+    font-size: 13px;
+    width: 200px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#file-search:focus {
+    border-color: #4b9eff;
+}
+#file-search::placeholder {
+    color: #666;
 }
 
 button {
-    background-color: #4b6eaf;
-    color: white;
-    border: none;
+    background-color: #3a3d41;
+    color: #d4d4d4;
+    border: 1px solid #555;
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
+    transition: background-color 0.15s, border-color 0.15s;
+    white-space: nowrap;
 }
-
 button:hover {
-    background-color: #5b7ebf;
+    background-color: #4a5060;
+    border-color: #6a7080;
 }
 
-#file-info {
+#status-indicator {
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: right;
+}
+.status-rendering { color: #f1c40f; }
+.status-success   { color: #2ecc71; }
+.status-error     { color: #e74c3c; }
+
+/* ===== メインレイアウト（2ペイン） ===== */
+#main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ===== サイドバー ===== */
+#sidebar {
+    width: 260px;
+    min-width: 180px;
+    max-width: 400px;
+    background-color: #252526;
+    border-right: 1px solid #111;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+    resize: horizontal;
+}
+
+#sidebar-header {
+    padding: 10px 12px 8px;
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+#sidebar-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    font-weight: 600;
+}
+
+#file-count {
+    font-size: 11px;
+    color: #666;
+    background: #3a3a3a;
+    border-radius: 10px;
+    padding: 1px 7px;
+}
+
+#file-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+#file-list::-webkit-scrollbar { width: 6px; }
+#file-list::-webkit-scrollbar-track { background: transparent; }
+#file-list::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+#file-list::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* ファイルアイテム */
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 13px;
+    color: #c8c8c8;
+    gap: 8px;
+    transition: background-color 0.1s;
+    border-left: 3px solid transparent;
+    user-select: none;
+}
+.file-item:hover {
+    background-color: #2a2d2e;
+}
+.file-item.active {
+    background-color: #094771;
+    border-left-color: #4b9eff;
+    color: #fff;
+}
+
+.file-item-icon {
+    flex-shrink: 0;
     font-size: 14px;
-    color: #a9b7c6;
-    flex-grow: 1;
+}
+
+.file-item-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.file-item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+}
+
+.file-item-path {
+    font-size: 10px;
+    color: #666;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-#status-indicator {
-    font-size: 14px;
-    font-weight: bold;
+/* フォルダグループ */
+.folder-group-label {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #777;
+    font-weight: 600;
+    gap: 5px;
 }
 
-.status-rendering {
-    color: #f1c40f;
+/* 空の状態 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 10px;
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
 }
-.status-success {
-    color: #2ecc71;
-}
-.status-error {
-    color: #e74c3c;
+.empty-icon {
+    font-size: 36px;
+    opacity: 0.5;
 }
 
+/* ===== コンテンツエリア（右） ===== */
+#content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+#file-info-bar {
+    background-color: #2d2d2d;
+    padding: 5px 16px;
+    border-bottom: 1px solid #111;
+    flex-shrink: 0;
+}
+
+#file-info {
+    font-size: 12px;
+    color: #888;
+    font-family: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+}
+
+/* ===== ワークスペース＆キャンバス ===== */
 #workspace {
-    flex-grow: 1;
+    flex: 1;
     position: relative;
     overflow: hidden;
-    /* Photoshop like background pattern */
-    background-image: linear-gradient(45deg, #333 25%, transparent 25%), 
-                      linear-gradient(-45deg, #333 25%, transparent 25%), 
-                      linear-gradient(45deg, transparent 75%, #333 75%), 
-                      linear-gradient(-45deg, transparent 75%, #333 75%);
+    background-image: linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+                      linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+                      linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
     background-size: 20px 20px;
     background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #222;
 }
 
 #canvas-container {
@@ -80,65 +268,52 @@ button:hover {
     align-items: center;
     cursor: grab;
 }
-
-#canvas-container:active {
-    cursor: grabbing;
-}
-
-/* Ensure SVG matches container perfectly for d3-zoom */
+#canvas-container:active { cursor: grabbing; }
 #canvas-container > svg {
-    /* SVG itself should not dictate the layout size beyond its content, 
-       but d3-zoom will manipulate a `<g>` inside it or the SVG itself */
     max-width: none;
     max-height: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    background-color: white; /* Default background for SVG */
+    box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    background-color: white;
 }
 
+/* プレビュープレースホルダー */
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #555;
+    font-size: 14px;
+    user-select: none;
+}
+.placeholder-icon { font-size: 48px; opacity: 0.4; }
+
+/* エラーコンソール */
 #error-console {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 150px;
-    background-color: rgba(30, 30, 30, 0.9);
+    max-height: 180px;
+    background-color: rgba(20, 20, 20, 0.95);
     color: #e74c3c;
-    padding: 10px;
+    padding: 10px 14px;
     margin: 0;
     overflow-y: auto;
     border-top: 2px solid #e74c3c;
-    font-family: monospace;
+    font-family: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 12px;
     z-index: 100;
 }
 
-/* Animations mapped from standard UI JSON schema */
-
+/* ===== アニメーション ===== */
 @keyframes fadeSlideUp {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0%   { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(10px);
-    }
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(10px); }
 }
-
-/* Base class assignments */
-.anim-enter-fade_slide_up {
-    animation: fadeSlideUp 0.4s ease-out forwards;
-}
-
-.anim-loop-bounce {
-    animation: bounce 1s infinite ease-in-out;
-}
-
+.anim-enter-fade_slide_up { animation: fadeSlideUp 0.4s ease-out forwards; }
+.anim-loop-bounce          { animation: bounce 1s infinite ease-in-out; }
