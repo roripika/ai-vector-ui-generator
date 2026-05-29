@@ -53,6 +53,7 @@ window.Editor = (function () {
     const id = `${templateId.split('-').map(w => w[0]).join('')}-${++_idCounter}`;
     const el = {
       id,
+      parentId: null,
       templateId,
       name: tpl.name,
       x: _snap(x),
@@ -127,29 +128,68 @@ window.Editor = (function () {
   // レイヤー順変更
   // ========================================================
   function moveLayerUp(id) {
-    const idx = state.elements.findIndex(e => e.id === id);
-    if (idx < state.elements.length - 1) {
+    const el = state.elements.find(e => e.id === id);
+    if (!el) return;
+    const siblings = state.elements.filter(e => e.parentId === el.parentId).sort((a,b)=>a.zIndex-b.zIndex);
+    const idx = siblings.findIndex(e => e.id === id);
+    if (idx < siblings.length - 1) {
       _pushHistory();
-      [state.elements[idx], state.elements[idx + 1]] = [state.elements[idx + 1], state.elements[idx]];
-      state.elements.forEach((e, i) => e.zIndex = i);
+      const next = siblings[idx + 1];
+      const temp = el.zIndex;
+      el.zIndex = next.zIndex;
+      next.zIndex = temp;
       state.isDirty = true;
       renderCanvas();
-      if (state.selectedId === id) _updateSelectionOverlay();
       _notifyChange();
     }
   }
 
   function moveLayerDown(id) {
-    const idx = state.elements.findIndex(e => e.id === id);
+    const el = state.elements.find(e => e.id === id);
+    if (!el) return;
+    const siblings = state.elements.filter(e => e.parentId === el.parentId).sort((a,b)=>a.zIndex-b.zIndex);
+    const idx = siblings.findIndex(e => e.id === id);
     if (idx > 0) {
       _pushHistory();
-      [state.elements[idx], state.elements[idx - 1]] = [state.elements[idx - 1], state.elements[idx]];
-      state.elements.forEach((e, i) => e.zIndex = i);
+      const prev = siblings[idx - 1];
+      const temp = el.zIndex;
+      el.zIndex = prev.zIndex;
+      prev.zIndex = temp;
       state.isDirty = true;
       renderCanvas();
-      if (state.selectedId === id) _updateSelectionOverlay();
       _notifyChange();
     }
+  }
+
+  // ========================================================
+  // 親子関係
+  // ========================================================
+  function setParent(childId, parentId) {
+    const child = state.elements.find(e => e.id === childId);
+    if (!child || childId === parentId) return;
+    
+    // 循環参照チェック
+    let curr = parentId;
+    while(curr) {
+      if (curr === childId) return; // 循環するのでNG
+      const p = state.elements.find(e => e.id === curr);
+      curr = p ? p.parentId : null;
+    }
+
+    _pushHistory();
+    const oldAbs = _getAbsoluteRect(child);
+    child.parentId = parentId;
+    
+    // ローカル座標の再計算
+    const newParentAbs = parentId ? _getAbsoluteRect(state.elements.find(e => e.id === parentId)) : {x:0, y:0};
+    child.x = oldAbs.x - newParentAbs.x;
+    child.y = oldAbs.y - newParentAbs.y;
+    child.zIndex = state.elements.filter(e => e.parentId === parentId).length;
+
+    state.isDirty = true;
+    renderCanvas();
+    _updateSelectionOverlay();
+    _notifyChange();
   }
 
   // ========================================================
@@ -216,12 +256,12 @@ window.Editor = (function () {
       });
     }
 
-    const instances = state.elements.map(el => {
+    const instancesMap = {};
+    const rootInstances = [];
+    state.elements.forEach(el => {
       const instance = {
         id: el.id,
         componentId: el.templateId,
-        anchorTo: 'canvas',
-        anchor: 'topLeft',
         offset: { x: Math.round(el.x), y: Math.round(el.y) },
         size: { width: Math.round(el.width), height: Math.round(el.height) },
         role: el.role,
@@ -229,10 +269,22 @@ window.Editor = (function () {
         state: el.state,
         zIndex: el.zIndex,
       };
-      // テキスト系プロパティ
       if (el.props.text) instance.overrideText = el.props.text;
       if (el.props.fillColor) instance.overrideFill = el.props.fillColor;
-      return instance;
+      if (el.props.imagePath) instance.imagePath = el.props.imagePath;
+      if (el.props.imageNormal) instance.imageNormal = el.props.imageNormal;
+      if (el.props.imagePressed) instance.imagePressed = el.props.imagePressed;
+      
+      instancesMap[el.id] = instance;
+    });
+
+    state.elements.forEach(el => {
+      if (el.parentId && instancesMap[el.parentId]) {
+        if (!instancesMap[el.parentId].children) instancesMap[el.parentId].children = [];
+        instancesMap[el.parentId].children.push(instancesMap[el.id]);
+      } else {
+        rootInstances.push(instancesMap[el.id]);
+      }
     });
 
     return {
@@ -245,7 +297,7 @@ window.Editor = (function () {
       },
       canvas: { width: state.canvasWidth, height: state.canvasHeight },
       components,
-      instances,
+      instances: rootInstances,
     };
   }
 
@@ -295,12 +347,14 @@ window.Editor = (function () {
       }
     }
 
-    if (Array.isArray(data.instances)) {
-      for (const inst of data.instances) {
+    function flatten(nodes, parentId) {
+      if (!Array.isArray(nodes)) return;
+      for (const inst of nodes) {
         const tpl = window.getTemplate(inst.componentId);
         if (!tpl) continue;
         const el = {
           id: inst.id || `el-${++_idCounter}`,
+          parentId: parentId,
           templateId: inst.componentId,
           name: inst.name || tpl.name,
           x: inst.offset ? inst.offset.x : 0,
@@ -315,8 +369,17 @@ window.Editor = (function () {
         };
         if (inst.overrideText) el.props.text = inst.overrideText;
         if (inst.overrideFill) el.props.fillColor = inst.overrideFill;
+        if (inst.imagePath) el.props.imagePath = inst.imagePath;
+        if (inst.imageNormal) el.props.imageNormal = inst.imageNormal;
+        if (inst.imagePressed) el.props.imagePressed = inst.imagePressed;
+        
         state.elements.push(el);
+        if (inst.children) flatten(inst.children, el.id);
       }
+    }
+    
+    if (data.instances) {
+      flatten(data.instances, null);
       state.elements.sort((a, b) => a.zIndex - b.zIndex);
     }
 
@@ -346,27 +409,57 @@ window.Editor = (function () {
 
   function _renderElement(el) {
     const canvas = state._canvas;
-    let div = canvas.querySelector(`[data-id="${el.id}"]`);
+    let div = document.querySelector(`[data-id="${el.id}"]`);
     if (!div) {
       div = document.createElement('div');
       div.setAttribute('data-id', el.id);
       div.className = 'canvas-element';
-      // canvas-innerに追加（selection-overlayより前）
-      const sel = canvas.querySelector('#selection-overlay');
-      if (sel) canvas.insertBefore(div, sel);
-      else canvas.appendChild(div);
+      div.style.position = 'absolute';
+      div.style.boxSizing = 'border-box';
+      
+      const visualLayer = document.createElement('div');
+      visualLayer.className = 'visual-layer';
+      visualLayer.style.width = '100%';
+      visualLayer.style.height = '100%';
+      visualLayer.style.pointerEvents = 'none';
+      div.appendChild(visualLayer);
+
+      const childrenLayer = document.createElement('div');
+      childrenLayer.className = 'children-layer';
+      childrenLayer.style.position = 'absolute';
+      childrenLayer.style.inset = '0';
+      childrenLayer.style.pointerEvents = 'none';
+      div.appendChild(childrenLayer);
+      
       _attachElementEvents(div);
     }
-    // 位置・サイズ
-    div.style.left   = el.x + 'px';
-    div.style.top    = el.y + 'px';
-    div.style.width  = el.width + 'px';
+    
+    // Parent resolving
+    let parentNode = canvas;
+    if (el.parentId) {
+      const pDiv = document.querySelector(`[data-id="${el.parentId}"]`);
+      if (pDiv) parentNode = pDiv.querySelector('.children-layer');
+    }
+    
+    if (div.parentNode !== parentNode) {
+      if (parentNode === canvas) {
+        const sel = canvas.querySelector('#selection-overlay');
+        if (sel) canvas.insertBefore(div, sel);
+        else canvas.appendChild(div);
+      } else {
+        parentNode.appendChild(div);
+      }
+    }
+
+    div.style.left = el.x + 'px';
+    div.style.top = el.y + 'px';
+    div.style.width = el.width + 'px';
     div.style.height = el.height + 'px';
     div.style.zIndex = el.zIndex;
     div.style.opacity = el.props.opacity ?? 1;
 
-    // ビジュアル描画
-    _applyVisual(div, el);
+    const visualLayer = div.querySelector('.visual-layer');
+    _applyVisual(visualLayer, el);
   }
 
   function _applyVisual(div, el) {
@@ -381,13 +474,31 @@ window.Editor = (function () {
     div.style.justifyContent = 'center';
     div.style.boxSizing = 'border-box';
     div.style.overflow = 'hidden';
-    div.style.userSelect = 'none';
-    div.style.cursor = 'pointer';
 
     const p = el.props;
     const vt = tpl.visualType;
 
-    if (vt === 'toggle') {
+    if (vt === 'image' || vt === 'sprite_button') {
+      const src = p.imageNormal || p.imagePath || '';
+      if (src) {
+        div.style.backgroundImage = `url("file://${state.workspaceDir}/${src}")`;
+        div.style.backgroundSize = p.objectFit || 'contain';
+        div.style.backgroundPosition = 'center';
+        div.style.backgroundRepeat = 'no-repeat';
+      } else {
+        div.style.background = 'rgba(0,0,0,0.5)';
+        const ph = document.createElement('div');
+        ph.style.cssText = 'color:#888;font-size:10px;text-align:center;';
+        ph.textContent = 'No Image';
+        div.appendChild(ph);
+      }
+      if (vt === 'sprite_button' && p.text) {
+        const span = document.createElement('div');
+        span.style.cssText = `font-size:${p.fontSize || 16}px;color:${p.textColor || '#fff'};font-weight:bold;z-index:1;text-shadow:0 1px 2px #000;`;
+        span.textContent = p.text;
+        div.appendChild(span);
+      }
+    } else if (vt === 'toggle') {
       // トグルスイッチ
       div.style.background = p.trackColor || '#3a3a3a';
       div.style.borderRadius = (p.radius || 20) + 'px';
@@ -419,10 +530,12 @@ window.Editor = (function () {
       div.appendChild(fill);
     } else if (tpl.category === 'コンテナ') {
       // パネル系
-      const r = p.radius || 12;
+      const r = p.radius || 0;
       div.style.background = p.fillColor || '#252526';
       div.style.borderRadius = r + 'px';
-      div.style.border = `${p.strokeWidth || 2}px solid ${p.strokeColor || '#3c3f41'}`;
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
       // コンテナ名を薄く表示
       const label = document.createElement('div');
       label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${p.strokeColor || '#666'};font-family:sans-serif;pointer-events:none;`;
@@ -453,6 +566,17 @@ window.Editor = (function () {
     }
   }
 
+  function _getAbsoluteRect(el) {
+    let x = el.x, y = el.y;
+    let curr = state.elements.find(e => e.id === el.parentId);
+    while (curr) {
+      x += curr.x;
+      y += curr.y;
+      curr = state.elements.find(e => e.id === curr.parentId);
+    }
+    return { x, y, width: el.width, height: el.height };
+  }
+
   // ========================================================
   // 選択オーバーレイ
   // ========================================================
@@ -464,11 +588,12 @@ window.Editor = (function () {
       sel.style.display = 'none';
       return;
     }
+    const rect = _getAbsoluteRect(el);
     sel.style.display = 'block';
-    sel.style.left   = (el.x - 2) + 'px';
-    sel.style.top    = (el.y - 2) + 'px';
-    sel.style.width  = (el.width + 4) + 'px';
-    sel.style.height = (el.height + 4) + 'px';
+    sel.style.left   = (rect.x - 2) + 'px';
+    sel.style.top    = (rect.y - 2) + 'px';
+    sel.style.width  = (rect.width + 4) + 'px';
+    sel.style.height = (rect.height + 4) + 'px';
   }
 
   // ========================================================
@@ -522,14 +647,16 @@ window.Editor = (function () {
     const el = _selected();
     if (!el) return;
 
+    const oldAbs = _getAbsoluteRect(el);
+
     _pushHistory();
 
     drag = {
       id,
       startMouseX: e.clientX,
       startMouseY: e.clientY,
-      startX: el.x,
-      startY: el.y,
+      startAbsX: oldAbs.x,
+      startAbsY: oldAbs.y,
     };
 
     document.addEventListener('pointermove', _onDragMove);
@@ -546,8 +673,13 @@ window.Editor = (function () {
     const dx = (e.clientX - drag.startMouseX) / zoom;
     const dy = (e.clientY - drag.startMouseY) / zoom;
 
-    el.x = _snap(drag.startX + dx);
-    el.y = _snap(drag.startY + dy);
+    const newAbsX = _snap(drag.startAbsX + dx);
+    const newAbsY = _snap(drag.startAbsY + dy);
+    
+    const parentAbs = el.parentId ? _getAbsoluteRect(state.elements.find(e => e.id === el.parentId)) : {x:0, y:0};
+
+    el.x = newAbsX - parentAbs.x;
+    el.y = newAbsY - parentAbs.y;
 
     _renderElement(el);
     _updateSelectionOverlay();
@@ -688,6 +820,7 @@ window.Editor = (function () {
     onChangeCallback,
     onSelectCallback,
     onLayerCallback,
+    setParent,
     getState: () => state,
     getSelected: () => _selected(),
   };

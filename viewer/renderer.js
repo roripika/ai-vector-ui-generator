@@ -285,7 +285,19 @@ function _renderPropertiesPanel(el) {
   if (p.strokeWidth !== undefined) html += _row('枠幅', `<input class="prop-input-num" type="number" id="prop-sw" value="${p.strokeWidth}" data-prop="strokeWidth" min="0">`);
   if (p.opacity !== undefined) html += _row('透明度', `<input class="prop-input-num" type="number" id="prop-opacity" value="${p.opacity}" data-prop="opacity" min="0" max="1" step="0.05">`);
   if (p.value !== undefined) html += _row('値 (0-1)', `<input class="prop-input-num" type="number" id="prop-value" value="${p.value}" data-prop="value" min="0" max="1" step="0.05">`);
+  if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="fill" ${p.objectFit==='fill'?'selected':''}>fill</option></select>`);
   html += `</div><div class="prop-sep"></div>`;
+
+  // --- Images ---
+  if (p.imagePath !== undefined || p.imageNormal !== undefined) {
+    html += `<div class="prop-section">`;
+    html += `<div class="prop-section-title">画像ソース (Workspace基準)</div>`;
+    if (p.imagePath !== undefined) html += _row('Path', `<input class="prop-input" id="prop-img-path" value="${_esc(p.imagePath)}" data-prop="imagePath" placeholder="ex: assets/bg.png">`);
+    if (p.imageNormal !== undefined) html += _row('Normal', `<input class="prop-input" id="prop-img-n" value="${_esc(p.imageNormal)}" data-prop="imageNormal">`);
+    if (p.imagePressed !== undefined) html += _row('Pressed', `<input class="prop-input" id="prop-img-p" value="${_esc(p.imagePressed)}" data-prop="imagePressed">`);
+    if (p.imageDisabled !== undefined) html += _row('Disabled', `<input class="prop-input" id="prop-img-d" value="${_esc(p.imageDisabled)}" data-prop="imageDisabled">`);
+    html += `</div><div class="prop-sep"></div>`;
+  }
 
   // --- Text ---
   if (p.text !== undefined || p.fontSize !== undefined) {
@@ -366,7 +378,7 @@ function _esc(s) {
 }
 
 // ======================================================
-// レイヤーリスト
+// レイヤーリスト (階層ツリー & D&D)
 // ======================================================
 function _renderLayerList(elements) {
   const list = document.getElementById('layer-list');
@@ -375,21 +387,88 @@ function _renderLayerList(elements) {
     return;
   }
   const selected = Editor.getSelected();
-  const sorted = [...elements].sort((a, b) => b.zIndex - a.zIndex);
-  list.innerHTML = sorted.map(el => {
+
+  // ツリー構築
+  const rootElements = [];
+  const childrenMap = {};
+  elements.forEach(el => {
+    if (el.parentId) {
+      if (!childrenMap[el.parentId]) childrenMap[el.parentId] = [];
+      childrenMap[el.parentId].push(el);
+    } else {
+      rootElements.push(el);
+    }
+  });
+
+  const sortElements = (arr) => arr.sort((a, b) => b.zIndex - a.zIndex);
+
+  let html = '';
+  function renderNode(el, depth) {
     const tpl = window.getTemplate(el.templateId);
     const icon = tpl ? tpl.icon : '▪';
     const active = selected && selected.id === el.id ? ' active' : '';
-    return `<div class="layer-item${active}" data-id="${el.id}">
+    const indent = '<span class="layer-indent"></span>'.repeat(depth);
+    
+    html += `<div class="layer-item${active}" data-id="${el.id}" draggable="true">
+      ${indent}
       <span class="layer-item-icon">${icon}</span>
       <span class="layer-item-name">${el.name}</span>
     </div>`;
-  }).join('');
+
+    if (childrenMap[el.id]) {
+      sortElements(childrenMap[el.id]).forEach(child => renderNode(child, depth + 1));
+    }
+  }
+
+  sortElements(rootElements).forEach(el => renderNode(el, 0));
+  list.innerHTML = html;
+
+  // イベント登録
+  let dragSourceId = null;
 
   list.querySelectorAll('.layer-item').forEach(item => {
     item.addEventListener('click', () => {
       Editor.selectElement(item.getAttribute('data-id'));
     });
+
+    item.addEventListener('dragstart', (e) => {
+      dragSourceId = item.getAttribute('data-id');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', dragSourceId);
+      item.style.opacity = '0.5';
+    });
+
+    item.addEventListener('dragend', () => {
+      item.style.opacity = '1';
+      list.querySelectorAll('.layer-item').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      item.classList.add('drag-over');
+    });
+
+    item.addEventListener('dragleave', () => {
+      item.classList.remove('drag-over');
+    });
+
+    item.addEventListener('drop', (e) => {
+      e.stopPropagation();
+      item.classList.remove('drag-over');
+      const targetId = item.getAttribute('data-id');
+      if (dragSourceId && dragSourceId !== targetId) {
+        Editor.setParent(dragSourceId, targetId);
+      }
+    });
+  });
+  
+  // ルートへのドロップ（リスト背景へのドロップ）
+  list.addEventListener('dragover', e => e.preventDefault());
+  list.addEventListener('drop', e => {
+    if (e.target === list && dragSourceId) {
+      Editor.setParent(dragSourceId, null);
+    }
   });
 }
 

@@ -212,8 +212,51 @@ window.TEMPLATES = [
   },
 
   // =========================================================
+  // 画像・スプライト
+  // =========================================================
+  {
+    id: 'image-view',
+    name: 'Image',
+    category: '画像',
+    icon: '🖼️',
+    defaultSize: { width: 100, height: 100 },
+    defaultProps: {
+      imagePath: '', opacity: 1, objectFit: 'contain'
+    },
+    role: 'decoration', importance: 'decorative', state: 'default',
+    propFields: ['imagePath', 'objectFit', 'opacity'],
+    visualType: 'image',
+  },
+  {
+    id: 'sprite-button',
+    name: 'Sprite Button',
+    category: '画像',
+    icon: '🕹️',
+    defaultSize: { width: 160, height: 60 },
+    defaultProps: {
+      imageNormal: '', imagePressed: '', imageDisabled: '',
+      text: 'Button', textColor: '#ffffff', fontSize: 18, opacity: 1
+    },
+    role: 'action', importance: 'primary', state: 'default',
+    propFields: ['imageNormal', 'imagePressed', 'imageDisabled', 'text', 'textColor', 'fontSize', 'opacity'],
+    visualType: 'sprite_button',
+  },
+
+  // =========================================================
   // コンテナ
   // =========================================================
+  {
+    id: 'empty-panel',
+    name: 'Empty Panel',
+    category: 'コンテナ',
+    icon: '🔲',
+    defaultSize: { width: 400, height: 300 },
+    defaultProps: {
+      fillColor: 'transparent', strokeColor: '#aaaaaa', strokeWidth: 1, radius: 0, opacity: 1
+    },
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
+  },
   {
     id: 'card-panel',
     name: 'Card Panel',
