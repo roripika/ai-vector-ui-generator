@@ -287,10 +287,24 @@ function _renderPropertiesPanel(el) {
   if (p.value !== undefined) html += _row('値 (0-1)', `<input class="prop-input-num" type="number" id="prop-value" value="${p.value}" data-prop="value" min="0" max="1" step="0.05">`);
   if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="fill" ${p.objectFit==='fill'?'selected':''}>fill</option></select>`);
   if (p.animation !== undefined) html += _row('アニメ', `<select class="prop-select" data-prop="animation">
-    <option value="none" ${p.animation==='none'?'selected':''}>なし</option>
-    <option value="blink" ${p.animation==='blink'?'selected':''}>点滅 (Blink)</option>
-    <option value="pulse" ${p.animation==='pulse'?'selected':''}>鼓動 (Pulse)</option>
-    <option value="float" ${p.animation==='float'?'selected':''}>浮遊 (Float)</option>
+    <optgroup label="None">
+      <option value="none" ${p.animation==='none'?'selected':''}>なし</option>
+    </optgroup>
+    <optgroup label="Loop (ループ)">
+      <option value="blink" ${p.animation==='blink'?'selected':''}>点滅 (Blink)</option>
+      <option value="pulse" ${p.animation==='pulse'?'selected':''}>鼓動 (Pulse)</option>
+      <option value="float" ${p.animation==='float'?'selected':''}>浮遊 (Float)</option>
+    </optgroup>
+    <optgroup label="Entrance (登場)">
+      <option value="pop-in" ${p.animation==='pop-in'?'selected':''}>ポップイン (Pop-in)</option>
+      <option value="slide-up" ${p.animation==='slide-up'?'selected':''}>スライドUP (Slide-Up)</option>
+      <option value="slide-down" ${p.animation==='slide-down'?'selected':''}>スライドDOWN (Slide-Down)</option>
+      <option value="fade-in" ${p.animation==='fade-in'?'selected':''}>フェードイン (Fade-in)</option>
+    </optgroup>
+    <optgroup label="Feedback (反応)">
+      <option value="shake" ${p.animation==='shake'?'selected':''}>シェイク (Shake)</option>
+      <option value="squash" ${p.animation==='squash'?'selected':''}>弾力 (Squash)</option>
+    </optgroup>
   </select>`);
   html += `</div><div class="prop-sep"></div>`;
 

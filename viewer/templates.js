@@ -446,6 +446,61 @@ window.TEMPLATES = [
     role: 'container', importance: 'special', state: 'default',
     propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'refPath', 'animation'],
     visualType: 'prefab',
+  },
+  {
+    id: 'resource-counter',
+    name: 'Resource Counter',
+    category: 'コンポーネント',
+    icon: '💎',
+    defaultSize: { width: 140, height: 40 },
+    defaultProps: {
+      fillColor: 'rgba(0,0,0,0.6)', strokeColor: '#555555', strokeWidth: 1, radius: 20, opacity: 1,
+      text: '9,999', textColor: '#ffffff', imagePath: 'assets/icon_gem.png'
+    },
+    role: 'component', importance: 'primary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'text', 'textColor', 'imagePath', 'animation'],
+    visualType: 'resource-counter',
+  },
+  {
+    id: 'badge',
+    name: 'Notification Badge',
+    category: 'テキスト',
+    icon: '🔴',
+    defaultSize: { width: 24, height: 24 },
+    defaultProps: {
+      fillColor: '#ff3b30', strokeColor: '#ffffff', strokeWidth: 2, radius: 12, opacity: 1,
+      text: '1', textColor: '#ffffff', fontSize: 12
+    },
+    role: 'indicator', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'text', 'textColor', 'fontSize', 'animation'],
+    visualType: 'badge',
+  },
+  {
+    id: 'page-indicator',
+    name: 'Page Indicator',
+    category: 'コンポーネント',
+    icon: '⚪',
+    defaultSize: { width: 100, height: 20 },
+    defaultProps: {
+      fillColor: '#ffffff', strokeColor: 'transparent', strokeWidth: 0, radius: 0, opacity: 1,
+      value: 0.3 // e.g. 3 out of 5 dots (3/10 => ~0.3)
+    },
+    role: 'indicator', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'opacity', 'value', 'animation'],
+    visualType: 'page-indicator',
+  },
+  {
+    id: 'virtual-joystick',
+    name: 'Virtual Joystick',
+    category: 'インタラクティブ',
+    icon: '🕹️',
+    defaultSize: { width: 160, height: 160 },
+    defaultProps: {
+      fillColor: 'rgba(255,255,255,0.2)', strokeColor: 'rgba(255,255,255,0.5)', strokeWidth: 2, radius: 80, opacity: 1
+    },
+    role: 'input', importance: 'primary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'animation'],
+    visualType: 'virtual-joystick',
   }
 ];
 

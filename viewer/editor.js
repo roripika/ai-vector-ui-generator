@@ -459,7 +459,7 @@ window.Editor = (function () {
     div.style.opacity = el.props.opacity ?? 1;
     
     // アニメーションクラスのリセットと適用
-    div.classList.remove('anim-blink', 'anim-pulse', 'anim-float');
+    div.className = div.className.split(' ').filter(c => !c.startsWith('anim-')).join(' ');
     if (el.props.animation && el.props.animation !== 'none') {
       div.classList.add(`anim-${el.props.animation}`);
     }
@@ -686,6 +686,69 @@ window.Editor = (function () {
       div.style.textAlign = 'center';
       div.style.padding = '8px';
       div.innerHTML = `[Prefab]<br><span style="font-size:10px;font-weight:normal;word-break:break-all;">${p.refPath || 'none'}</span>`;
+    } else if (vt === 'resource-counter') {
+      div.style.background = p.fillColor || 'rgba(0,0,0,0.6)';
+      div.style.borderRadius = (p.radius || 20) + 'px';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      div.style.display = 'flex';
+      div.style.flexDirection = 'row';
+      div.style.alignItems = 'center';
+      div.style.justifyContent = 'space-between';
+      div.style.padding = '0 12px 0 4px';
+      
+      const icon = document.createElement('div');
+      icon.style.cssText = `width:${el.height - 8}px;height:${el.height - 8}px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;`;
+      icon.textContent = '💎';
+      
+      const text = document.createElement('div');
+      text.style.cssText = `flex:1;text-align:right;color:${p.textColor || '#fff'};font-family:sans-serif;font-weight:bold;font-size:14px;margin-left:8px;`;
+      text.textContent = p.text || '0';
+      
+      div.appendChild(icon);
+      div.appendChild(text);
+    } else if (vt === 'badge') {
+      div.style.background = p.fillColor || '#ff3b30';
+      div.style.borderRadius = (p.radius || 12) + 'px';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      div.style.display = 'flex';
+      div.style.alignItems = 'center';
+      div.style.justifyContent = 'center';
+      div.style.color = p.textColor || '#fff';
+      div.style.fontSize = (p.fontSize || 12) + 'px';
+      div.style.fontWeight = 'bold';
+      div.style.fontFamily = 'sans-serif';
+      div.textContent = p.text || '1';
+    } else if (vt === 'page-indicator') {
+      const v = Math.max(0, Math.min(1, p.value || 0.3));
+      div.style.display = 'flex';
+      div.style.alignItems = 'center';
+      div.style.justifyContent = 'center';
+      div.style.gap = '8px';
+      
+      const dotCount = 5;
+      const activeIdx = Math.round(v * (dotCount - 1));
+      
+      for(let i=0; i<dotCount; i++) {
+        const dot = document.createElement('div');
+        const isActive = (i === activeIdx);
+        dot.style.cssText = `width:8px;height:8px;border-radius:50%;background:${isActive ? (p.fillColor || '#fff') : 'rgba(255,255,255,0.3)'};`;
+        div.appendChild(dot);
+      }
+    } else if (vt === 'virtual-joystick') {
+      div.style.background = p.fillColor || 'rgba(255,255,255,0.1)';
+      div.style.borderRadius = (p.radius || 80) + 'px';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      div.style.position = 'relative';
+      
+      const knob = document.createElement('div');
+      knob.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,0.5);border:2px solid rgba(255,255,255,0.8);`;
+      div.appendChild(knob);
     } else if (tpl.category === 'コンテナ') {
       // パネル系
       const r = p.radius || 0;
