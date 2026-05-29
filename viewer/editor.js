@@ -553,6 +553,24 @@ window.Editor = (function () {
       const fill = document.createElement('div');
       fill.style.cssText = `width:${v * 100}%;height:100%;background:${p.fillColor || '#2ecc71'};border-radius:${r}px;transition:width 0.3s;`;
       div.appendChild(fill);
+    } else if (vt === 'grid') {
+      // グリッドビュー（背景にグリッド線を表示）
+      div.style.background = p.fillColor || 'transparent';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      // CSSハッチングでグリッドを表現
+      const gridSize = 40;
+      const c = p.strokeColor || '#444';
+      div.style.backgroundImage = `linear-gradient(${c} 1px, transparent 1px), linear-gradient(90deg, ${c} 1px, transparent 1px)`;
+      div.style.backgroundSize = `${gridSize}px ${gridSize}px`;
+      div.style.backgroundPosition = '-1px -1px';
+      
+      const label = document.createElement('div');
+      label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:2px;`;
+      label.textContent = tpl.name;
+      div.style.position = 'relative';
+      div.appendChild(label);
     } else if (tpl.category === 'コンテナ') {
       // パネル系
       const r = p.radius || 0;

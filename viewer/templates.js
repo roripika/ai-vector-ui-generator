@@ -375,6 +375,19 @@ window.TEMPLATES = [
     role: 'container', importance: 'tertiary', state: 'default',
     propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
   },
+  {
+    id: 'grid-view',
+    name: 'Grid View',
+    category: 'コンテナ',
+    icon: '🎛️',
+    defaultSize: { width: 320, height: 320 },
+    defaultProps: {
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1
+    },
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
+    visualType: 'grid',
+  },
 ];
 
 /**
