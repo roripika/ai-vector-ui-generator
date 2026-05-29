@@ -1,421 +1,421 @@
-// ===== DOM要素 =====
-const btnOpenWorkspace = document.getElementById('btn-open-workspace');
-const btnOpenFile      = document.getElementById('btn-open-file');
-const btnRun           = document.getElementById('btn-run');
-const btnStop          = document.getElementById('btn-stop');
-const btnClearLog      = document.getElementById('btn-clear-log');
-const workspacePathDisplay = document.getElementById('workspace-path-display');
-const statusIndicator  = document.getElementById('status-indicator');
-const canvasContainer  = document.getElementById('canvas-container');
-const errorConsole     = document.getElementById('error-console');
-const fileInfo         = document.getElementById('file-info');
-const fileList         = document.getElementById('file-list');
-const fileCount        = document.getElementById('file-count');
-const fileSearch       = document.getElementById('file-search');
-const eventLogBody     = document.getElementById('event-log-body');
-const interactionBadge = document.getElementById('interaction-badge');
-const actionCountBadge = document.getElementById('action-count-badge');
-const animCountBadge   = document.getElementById('anim-count-badge');
+'use strict';
+/**
+ * renderer.js — エントリーポイント
+ * ツールバー / 部品パネル / ワークスペース / プロパティパネル / レイヤーパネルの制御
+ */
 
-// ===== 状態 =====
-let currentZoom    = d3.zoomIdentity;
-let isFirstLoad    = true;
-let allFiles       = [];
-let activeFilePath = null;
-let currentJsonData = null;   // 現在表示中のJSONデータ
-let isRunning      = false;   // インタラクティブモード中か
-let logEntryCount  = 0;
+// ======================================================
+// 初期化
+// ======================================================
+window.addEventListener('DOMContentLoaded', () => {
+  Editor.init(
+    document.getElementById('canvas-inner'),
+    document.getElementById('selection-overlay')
+  );
 
-// ===== D3 Zoom =====
-const zoom = d3.zoom()
-    .scaleExtent([0.05, 20])
-    .on('zoom', (e) => {
-        currentZoom = e.transform;
-        const svgGroup = d3.select('#canvas-container svg > g.zoom-layer');
-        if (!svgGroup.empty()) svgGroup.attr('transform', e.transform);
+  _buildComponentLibrary();
+  _setupToolbar();
+  _setupWorkspaceIPC();
+  _setupEditorCallbacks();
+  _setupCanvasMouseCoords();
+
+  // 初期キャンバスサイズ適用
+  _applyCanvasSize('1280x720');
+  Editor.fitZoom();
+});
+
+// ======================================================
+// 部品ライブラリの描画
+// ======================================================
+function _buildComponentLibrary() {
+  const container = document.getElementById('component-library');
+  const cats = window.getTemplatesByCategory();
+
+  for (const [cat, items] of Object.entries(cats)) {
+    const catLabel = document.createElement('div');
+    catLabel.className = 'category-label';
+    catLabel.textContent = cat;
+    container.appendChild(catLabel);
+
+    for (const tpl of items) {
+      const item = document.createElement('div');
+      item.className = 'template-item';
+      item.innerHTML = `<span class="template-item-icon">${tpl.icon}</span><span>${tpl.name}</span>`;
+      item.addEventListener('click', () => {
+        // キャンバス中央付近にドロップ
+        const st = Editor.getState();
+        const cx = Math.round(st.canvasWidth / 2 - tpl.defaultSize.width / 2);
+        const cy = Math.round(st.canvasHeight / 2 - tpl.defaultSize.height / 2);
+        Editor.addElement(tpl.id, cx, cy);
+      });
+      container.appendChild(item);
+    }
+  }
+}
+
+// ======================================================
+// ツールバー
+// ======================================================
+function _setupToolbar() {
+  document.getElementById('btn-open-workspace').addEventListener('click', () => {
+    window.api.openWorkspaceDialog();
+  });
+
+  document.getElementById('btn-new-file').addEventListener('click', async () => {
+    const name = prompt('新しいファイル名（.jsonなし）:', 'new_screen');
+    if (!name) return;
+    const st = Editor.getState();
+    if (!st.workspaceDir) return;
+    const result = await window.api.newFile(st.workspaceDir, name + '.json');
+    if (result.success) {
+      st.currentFilePath = result.filePath;
+      Editor.loadJSON({ canvas: { width: st.canvasWidth, height: st.canvasHeight } });
+      _setCurrentFile(result.filePath);
+    }
+  });
+
+  document.getElementById('btn-save').addEventListener('click', _saveCurrentFile);
+
+  document.getElementById('btn-export-json').addEventListener('click', async () => {
+    const json = Editor.exportJSON();
+    const st = Editor.getState();
+    await window.api.exportJSON(st.workspaceDir || null, json);
+  });
+
+  document.getElementById('btn-undo').addEventListener('click', () => Editor.undo());
+  document.getElementById('btn-redo').addEventListener('click', () => Editor.redo());
+  document.getElementById('btn-delete').addEventListener('click', () => Editor.deleteSelected());
+
+  document.getElementById('canvas-size-select').addEventListener('change', (e) => {
+    _applyCanvasSize(e.target.value);
+    Editor.fitZoom();
+  });
+
+  document.getElementById('btn-zoom-in').addEventListener('click', () => { Editor.zoomIn(); _updateZoomDisplay(); });
+  document.getElementById('btn-zoom-out').addEventListener('click', () => { Editor.zoomOut(); _updateZoomDisplay(); });
+  document.getElementById('btn-zoom-fit').addEventListener('click', () => { Editor.fitZoom(); _updateZoomDisplay(); });
+
+  // Ctrl+S保存
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); _saveCurrentFile(); }
+  });
+
+  // タブ切り替え
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = 'tab-' + btn.getAttribute('data-tab');
+      document.getElementById(tabId).classList.add('active');
     });
+  });
 
-d3.select('#canvas-container').call(zoom);
+  // レイヤー操作
+  document.getElementById('btn-layer-up').addEventListener('click', () => {
+    const el = Editor.getSelected();
+    if (el) Editor.moveLayerUp(el.id);
+  });
+  document.getElementById('btn-layer-down').addEventListener('click', () => {
+    const el = Editor.getSelected();
+    if (el) Editor.moveLayerDown(el.id);
+  });
+}
 
-// ===== ボタンイベント =====
-btnOpenWorkspace.addEventListener('click', () => window.api.openWorkspaceDialog());
-btnOpenFile.addEventListener('click',      () => window.api.openFileDialog());
+function _applyCanvasSize(sizeStr) {
+  const [w, h] = sizeStr.split('x').map(Number);
+  document.getElementById('canvas-inner').style.width  = w + 'px';
+  document.getElementById('canvas-inner').style.height = h + 'px';
+  Editor.setCanvasSize(w, h);
+}
 
-btnRun.addEventListener('click', () => {
-    isRunning = true;
-    btnRun.disabled = true;
-    btnStop.disabled = false;
-    btnRun.classList.add('running');
-    canvasContainer.classList.add('interactive-mode');
-    appendLog('run', '▶ インタラクティブモード開始', '');
-    injectInteractivity();
-});
+function _updateZoomDisplay() {
+  const pct = Math.round(Editor.getState().zoom * 100);
+  document.getElementById('zoom-display').textContent = pct + '%';
+}
 
-btnStop.addEventListener('click', () => {
-    stopInteractiveMode();
-    appendLog('stop', '⏹ インタラクティブモード停止', '');
-});
+// ======================================================
+// ワークスペース IPC
+// ======================================================
+function _setupWorkspaceIPC() {
+  window.api.onWorkspaceOpened((data) => {
+    Editor.getState().workspaceDir = data.dir;
+    document.getElementById('btn-new-file').disabled = false;
+    _renderWorkspaceFiles(data.files);
 
-btnClearLog.addEventListener('click', () => {
-    eventLogBody.innerHTML = '<div class="log-empty">「▶ 実行」を押してインタラクティブモードを開始してください</div>';
-    logEntryCount = 0;
-});
-
-// ===== ファイル検索 =====
-fileSearch.addEventListener('input', () => {
-    renderFileList(allFiles, fileSearch.value.trim());
-});
-
-// ===== ワークスペースが開かれたとき =====
-window.api.onWorkspaceOpened((data) => {
-    allFiles = data.files;
-    workspacePathDisplay.textContent = data.dir;
-    fileSearch.value = '';
-    renderFileList(allFiles, '');
-});
-
-window.api.onWorkspaceFilesUpdated((files) => {
-    allFiles = files;
-    renderFileList(allFiles, fileSearch.value.trim());
-});
-
-// ===== ファイルが選択されたとき =====
-window.api.onFileLoaded((filePath) => {
-    activeFilePath = filePath;
-    fileInfo.textContent = filePath;
-    statusIndicator.textContent = 'Loading...';
-    statusIndicator.className = 'status-rendering';
-    errorConsole.style.display = 'none';
-    isFirstLoad = true;
-    currentJsonData = null;
-    stopInteractiveMode();
-
-    // バッジを非表示に
-    interactionBadge.style.display = 'none';
-
-    // JSONも非同期でロード
-    loadJsonData(filePath);
-
-    document.querySelectorAll('.file-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.path === filePath);
+    // ファイルタブに自動切替
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-tab') === 'files');
     });
-});
-
-// ===== JSONデータのロード =====
-async function loadJsonData(filePath) {
-    try {
-        const data = await window.api.readJsonFile(filePath);
-        currentJsonData = data;
-        updateInteractionBadge(data);
-    } catch (e) {
-        currentJsonData = null;
-    }
-}
-
-function updateInteractionBadge(data) {
-    if (!data) { interactionBadge.style.display = 'none'; return; }
-
-    const actionInstances = (data.instances || []).filter(i => i.role === 'action');
-    const components = (data.components || []);
-
-    // アニメーション対象: progress, toggle, gauge, cooldown系
-    const animRoles = ['progress', 'control', 'feedback', 'status'];
-    let animCount = 0;
-    for (const c of components) {
-        for (const l of (c.layers || [])) {
-            if (['progressBar','cooldownOverlay','toggle','gauge'].includes(l.shape)) {
-                animCount++;
-            }
-            if (animRoles.includes(l.role)) animCount++;
-        }
-    }
-    animCount = [...new Set([animCount])][0]; // dedup
-
-    if (actionInstances.length > 0 || animCount > 0) {
-        interactionBadge.style.display = 'flex';
-        actionCountBadge.textContent = `🖱 アクション: ${actionInstances.length}`;
-        animCountBadge.textContent   = `✨ アニメーション: ${animCount}`;
-        actionCountBadge.style.display = actionInstances.length > 0 ? '' : 'none';
-        animCountBadge.style.display   = animCount > 0 ? '' : 'none';
-        btnRun.disabled = false;
-    } else {
-        interactionBadge.style.display = 'none';
-        btnRun.disabled = true;
-    }
-}
-
-// ===== ファイルリストの描画 =====
-function renderFileList(files, searchQuery) {
-    fileCount.textContent = files.length;
-
-    if (files.length === 0) {
-        fileList.innerHTML = `<div class="empty-state"><div class="empty-icon">🗂️</div><div>JSONファイルが見つかりません</div></div>`;
-        return;
-    }
-
-    const lowerQuery = searchQuery.toLowerCase();
-    const filtered = searchQuery ? files.filter(f => f.relativePath.toLowerCase().includes(lowerQuery)) : files;
-
-    if (filtered.length === 0) {
-        fileList.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>「${searchQuery}」に一致するファイルがありません</div></div>`;
-        return;
-    }
-
-    const groups = {};
-    for (const f of filtered) {
-        const parts = f.relativePath.split(/[/\\]/);
-        const folder = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
-        if (!groups[folder]) groups[folder] = [];
-        groups[folder].push(f);
-    }
-
-    let html = '';
-    for (const folder of Object.keys(groups).sort()) {
-        if (folder) html += `<div class="folder-group-label">📁 ${folder}</div>`;
-        for (const f of groups[folder]) {
-            const isActive = f.fullPath === activeFilePath ? ' active' : '';
-            html += `
-                <div class="file-item${isActive}" data-path="${f.fullPath}" title="${f.fullPath}">
-                    <span class="file-item-icon">📄</span>
-                    <div class="file-item-info">
-                        <span class="file-item-name">${f.name}</span>
-                        ${folder ? `<span class="file-item-path">${f.relativePath}</span>` : ''}
-                    </div>
-                </div>`;
-        }
-    }
-
-    fileList.innerHTML = html;
-    fileList.querySelectorAll('.file-item').forEach(el => {
-        el.addEventListener('click', () => window.api.selectFile(el.dataset.path));
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.toggle('active', c.id === 'tab-files');
     });
+  });
+
+  window.api.onWorkspaceFilesUpdated((files) => {
+    _renderWorkspaceFiles(files);
+  });
 }
 
-// ===== レンダリングイベント =====
-window.api.onRenderStart(() => {
-    statusIndicator.textContent = 'Rendering...';
-    statusIndicator.className = 'status-rendering';
-});
+function _renderWorkspaceFiles(files) {
+  const container = document.getElementById('workspace-file-list');
+  if (!files || files.length === 0) {
+    container.innerHTML = '<div class="panel-empty">JSONファイルが見つかりません</div>';
+    return;
+  }
+  container.innerHTML = '';
+  for (const f of files) {
+    const item = document.createElement('div');
+    item.className = 'ws-file-item';
+    item.setAttribute('data-path', f.fullPath);
+    item.innerHTML = `<span>📄</span><span>${f.name}</span>`;
+    item.addEventListener('click', () => _openWorkspaceFile(f.fullPath));
+    container.appendChild(item);
+  }
+}
 
-window.api.onRenderSuccess((svgString) => {
-    statusIndicator.textContent = '✓ Success';
-    statusIndicator.className = 'status-success';
-    errorConsole.style.display = 'none';
+async function _openWorkspaceFile(filePath) {
+  const data = await window.api.readJsonFile(filePath);
+  if (!data) return;
 
-    canvasContainer.innerHTML = svgString;
-    const svgEl = canvasContainer.querySelector('svg');
-    if (svgEl) {
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('class', 'zoom-layer');
-        while (svgEl.firstChild) g.appendChild(svgEl.firstChild);
-        svgEl.appendChild(g);
+  Editor.loadJSON(data);
+  Editor.getState().currentFilePath = filePath;
+  _setCurrentFile(filePath);
 
-        if (isFirstLoad) {
-            const rect    = canvasContainer.getBoundingClientRect();
-            const svgW    = parseFloat(svgEl.getAttribute('width'))  || 720;
-            const svgH    = parseFloat(svgEl.getAttribute('height')) || 1280;
-            const padding = 60;
-            const scale   = Math.max(0.05, (rect.height - padding) / svgH);
-            const tx      = (rect.width - svgW * scale) / 2;
-            const ty      = padding / 2;
-            currentZoom   = d3.zoomIdentity.translate(tx, ty).scale(scale);
-            d3.select('#canvas-container').call(zoom.transform, currentZoom);
-            isFirstLoad = false;
+  // アクティブ表示
+  document.querySelectorAll('.ws-file-item').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-path') === filePath);
+  });
+
+  // canvas-size-selectを同期
+  const st = Editor.getState();
+  const key = `${st.canvasWidth}x${st.canvasHeight}`;
+  const sel = document.getElementById('canvas-size-select');
+  if ([...sel.options].some(o => o.value === key)) sel.value = key;
+  Editor.fitZoom();
+  _updateZoomDisplay();
+}
+
+async function _saveCurrentFile() {
+  const st = Editor.getState();
+  if (!st.currentFilePath) return;
+  const json = Editor.exportJSON();
+  const result = await window.api.saveFile(st.currentFilePath, json);
+  if (result && result.success) {
+    st.isDirty = false;
+    document.getElementById('dirty-dot').style.display = 'none';
+  }
+}
+
+function _setCurrentFile(filePath) {
+  const name = filePath.split('/').pop();
+  document.getElementById('current-file-name').textContent = name;
+  document.getElementById('btn-save').disabled = false;
+  document.getElementById('btn-export-json').disabled = false;
+  document.getElementById('dirty-dot').style.display = 'none';
+}
+
+// ======================================================
+// エディターコールバック
+// ======================================================
+function _setupEditorCallbacks() {
+  Editor.onChangeCallback((state) => {
+    _updateZoomDisplay();
+    document.getElementById('dirty-dot').style.display = state.isDirty ? 'inline' : 'none';
+  });
+
+  Editor.onSelectCallback((el) => {
+    _renderPropertiesPanel(el);
+    _updateDeleteBtn(el);
+    _updateLayerHighlight(el);
+  });
+
+  Editor.onLayerCallback((elements) => {
+    _renderLayerList(elements);
+  });
+}
+
+// ======================================================
+// プロパティパネル
+// ======================================================
+function _renderPropertiesPanel(el) {
+  const panel = document.getElementById('properties-panel');
+  if (!el) {
+    panel.innerHTML = '<div class="panel-empty">要素を選択してください</div>';
+    return;
+  }
+  const tpl = window.getTemplate(el.templateId);
+  if (!tpl) return;
+
+  let html = '';
+
+  // --- ID & 名前 ---
+  html += `<div class="prop-section">`;
+  html += `<div class="prop-section-title">要素</div>`;
+  html += _row('ID', `<input class="prop-input" id="prop-id" value="${_esc(el.id)}" readonly style="color:#777;">`);
+  html += _row('名前', `<input class="prop-input" id="prop-name" value="${_esc(el.name)}" data-prop="name">`);
+  html += `</div><div class="prop-sep"></div>`;
+
+  // --- Transform ---
+  html += `<div class="prop-section">`;
+  html += `<div class="prop-section-title">Transform</div>`;
+  html += `<div class="prop-row">
+    <span class="prop-label">X</span>
+    <input class="prop-input-num" type="number" id="prop-x" value="${Math.round(el.x)}" data-prop="x" style="width:60px;">
+    <span class="prop-label" style="text-align:right;width:20px;">Y</span>
+    <input class="prop-input-num" type="number" id="prop-y" value="${Math.round(el.y)}" data-prop="y" style="width:60px;">
+  </div>`;
+  html += `<div class="prop-row">
+    <span class="prop-label">W</span>
+    <input class="prop-input-num" type="number" id="prop-w" value="${Math.round(el.width)}" data-prop="width" style="width:60px;">
+    <span class="prop-label" style="text-align:right;width:20px;">H</span>
+    <input class="prop-input-num" type="number" id="prop-h" value="${Math.round(el.height)}" data-prop="height" style="width:60px;">
+  </div>`;
+  html += `</div><div class="prop-sep"></div>`;
+
+  // --- Appearance ---
+  const p = el.props;
+  html += `<div class="prop-section">`;
+  html += `<div class="prop-section-title">外観</div>`;
+  if (p.fillColor !== undefined) html += _colorRow('塗り', 'fillColor', p.fillColor);
+  if (p.textColor !== undefined) html += _colorRow('文字色', 'textColor', p.textColor);
+  if (p.strokeColor !== undefined && p.strokeColor !== 'transparent') html += _colorRow('枠線', 'strokeColor', p.strokeColor);
+  if (p.trackColor !== undefined) html += _colorRow('トラック', 'trackColor', p.trackColor);
+  if (p.radius !== undefined) html += _row('角丸', `<input class="prop-input-num" type="number" id="prop-radius" value="${p.radius}" data-prop="radius" min="0">`);
+  if (p.strokeWidth !== undefined) html += _row('枠幅', `<input class="prop-input-num" type="number" id="prop-sw" value="${p.strokeWidth}" data-prop="strokeWidth" min="0">`);
+  if (p.opacity !== undefined) html += _row('透明度', `<input class="prop-input-num" type="number" id="prop-opacity" value="${p.opacity}" data-prop="opacity" min="0" max="1" step="0.05">`);
+  if (p.value !== undefined) html += _row('値 (0-1)', `<input class="prop-input-num" type="number" id="prop-value" value="${p.value}" data-prop="value" min="0" max="1" step="0.05">`);
+  html += `</div><div class="prop-sep"></div>`;
+
+  // --- Text ---
+  if (p.text !== undefined || p.fontSize !== undefined) {
+    html += `<div class="prop-section">`;
+    html += `<div class="prop-section-title">テキスト</div>`;
+    if (p.text !== undefined) html += _row('内容', `<input class="prop-input" id="prop-text" value="${_esc(p.text)}" data-prop="text">`);
+    if (p.fontSize !== undefined) html += _row('サイズ', `<input class="prop-input-num" type="number" id="prop-fs" value="${p.fontSize}" data-prop="fontSize" min="6" max="120">`);
+    if (p.textAlign !== undefined) html += _row('揃え', `<select class="prop-select" id="prop-align" data-prop="textAlign">
+      <option value="left" ${p.textAlign === 'left' ? 'selected' : ''}>左</option>
+      <option value="center" ${p.textAlign === 'center' ? 'selected' : ''}>中央</option>
+      <option value="right" ${p.textAlign === 'right' ? 'selected' : ''}>右</option>
+    </select>`);
+    html += `</div><div class="prop-sep"></div>`;
+  }
+
+  // --- Semantic ---
+  const ROLES = ['action','navigation','container','data_display','feedback','decoration','text','icon','status','modal','overlay','header','progress','toggle','badge','input'];
+  const STATES = ['default','pressed','disabled','selected','active','loading','success','error','cooldown','locked','on','off'];
+  const IMPORTANCE = ['primary','secondary','tertiary','emphasis','muted','info','warning','critical','decorative'];
+
+  html += `<div class="prop-section">`;
+  html += `<div class="prop-section-title">セマンティクス</div>`;
+  html += _row('Role', `<select class="prop-select" id="prop-role" data-prop="role">${ROLES.map(r => `<option value="${r}" ${el.role === r ? 'selected' : ''}>${r}</option>`).join('')}</select>`);
+  html += _row('State', `<select class="prop-select" id="prop-state" data-prop="state">${STATES.map(s => `<option value="${s}" ${el.state === s ? 'selected' : ''}>${s}</option>`).join('')}</select>`);
+  html += _row('Importance', `<select class="prop-select" id="prop-imp" data-prop="importance">${IMPORTANCE.map(i => `<option value="${i}" ${el.importance === i ? 'selected' : ''}>${i}</option>`).join('')}</select>`);
+  html += `</div>`;
+
+  // --- 削除ボタン ---
+  html += `<button class="btn-danger" id="prop-delete">🗑 この要素を削除</button>`;
+
+  panel.innerHTML = html;
+
+  // イベント登録
+  panel.querySelectorAll('[data-prop]').forEach(input => {
+    const ev = (input.tagName === 'SELECT') ? 'change' : 'input';
+    input.addEventListener(ev, (e) => {
+      Editor.updateProp(input.getAttribute('data-prop'), e.target.value);
+    });
+  });
+
+  // カラースウォッチ連動
+  panel.querySelectorAll('.prop-color-swatch').forEach(sw => {
+    const colorInput = document.getElementById('colortext-' + sw.getAttribute('data-colortarget'));
+    sw.addEventListener('input', (e) => {
+      const propName = sw.getAttribute('data-colortarget');
+      Editor.updateProp(propName, e.target.value);
+      if (colorInput) colorInput.value = e.target.value;
+    });
+    if (colorInput) {
+      colorInput.addEventListener('input', (e) => {
+        const propName = sw.getAttribute('data-colortarget');
+        if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+          Editor.updateProp(propName, e.target.value);
+          sw.value = e.target.value;
         }
-        d3.select(g).attr('transform', currentZoom);
+      });
     }
+  });
 
-    // 実行中なら再注入
-    if (isRunning) injectInteractivity();
-});
-
-window.api.onRenderError((errorMsg) => {
-    statusIndicator.textContent = '✗ Error';
-    statusIndicator.className = 'status-error';
-    errorConsole.textContent = errorMsg;
-    errorConsole.style.display = 'block';
-});
-
-// ===== インタラクティブモードの注入 =====
-function injectInteractivity() {
-    if (!currentJsonData) return;
-    const svgEl = canvasContainer.querySelector('svg');
-    if (!svgEl) return;
-
-    const data = currentJsonData;
-    const instances = data.instances || [];
-    const components = data.components || [];
-
-    // コンポーネントをIDでマップ化
-    const compMap = {};
-    for (const c of components) compMap[c.id] = c;
-
-    // --- アクションボタンのホットスポット注入 ---
-    const actionInstances = instances.filter(i => i.role === 'action');
-    for (const inst of actionInstances) {
-        const comp = compMap[inst.componentId];
-        if (!comp) continue;
-
-        // SVGのグループIDでマッチング
-        const gEl = svgEl.querySelector(`#${CSS.escape(inst.id)}`) ||
-                    svgEl.querySelector(`[id*="${inst.id}"]`);
-        if (!gEl) continue;
-
-        // ホットスポットとしてマーク
-        gEl.classList.add('hotspot');
-        gEl.setAttribute('tabindex', '0');
-        gEl.setAttribute('role', 'button');
-        gEl.setAttribute('aria-label', comp.name || inst.id);
-
-        // ダッシュ枠オーバーレイを追加
-        addHotspotOverlay(gEl, inst, comp);
-
-        // クリックイベント
-        gEl.addEventListener('click', (e) => {
-            if (!isRunning) return;
-            e.stopPropagation();
-
-            // リップルエフェクト
-            spawnRipple(svgEl, e);
-
-            // ログ出力
-            const label = comp.name || inst.id;
-            const stateInfo = inst.state ? ` [state: ${inst.state}]` : '';
-            appendLog('click', `🖱 タップ: ${label}`, `id="${inst.id}"${stateInfo}`);
-        });
-    }
-
-    // --- アニメーション対象の識別と再生 ---
-    playAnimations(svgEl, data);
+  panel.querySelector('#prop-delete')?.addEventListener('click', () => Editor.deleteSelected());
 }
 
-function addHotspotOverlay(gEl, inst, comp) {
-    // すでに追加済みならスキップ
-    if (gEl.querySelector('.hotspot-overlay')) return;
-    const layers = (comp.layers || []);
-    if (layers.length === 0) return;
-
-    // 最初のlayerのrectからサイズを取得
-    const firstLayer = layers[0];
-    const r = firstLayer.rect;
-    if (!r) return;
-
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('class', 'hotspot-overlay');
-    rect.setAttribute('x', r.x);
-    rect.setAttribute('y', r.y);
-    rect.setAttribute('width', r.width);
-    rect.setAttribute('height', r.height);
-    if (r.radius) { rect.setAttribute('rx', r.radius); rect.setAttribute('ry', r.radius); }
-    gEl.appendChild(rect);
+function _row(label, inputHtml) {
+  return `<div class="prop-row"><span class="prop-label">${label}</span><div class="prop-value">${inputHtml}</div></div>`;
 }
 
-function spawnRipple(svgEl, mouseEvent) {
-    const svgRect = svgEl.getBoundingClientRect();
-    const x = (mouseEvent.clientX - svgRect.left) / (currentZoom.k || 1) - (currentZoom.x || 0) / (currentZoom.k || 1);
-    const y = (mouseEvent.clientY - svgRect.top)  / (currentZoom.k || 1) - (currentZoom.y || 0) / (currentZoom.k || 1);
-
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('class', 'click-ripple');
-    circle.setAttribute('cx', x);
-    circle.setAttribute('cy', y);
-    circle.setAttribute('r', 0);
-
-    const g = svgEl.querySelector('g.zoom-layer') || svgEl;
-    g.appendChild(circle);
-    setTimeout(() => circle.remove(), 500);
+function _colorRow(label, propName, color) {
+  const safeColor = /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#888888';
+  return `<div class="prop-color-row">
+    <span class="prop-label">${label}</span>
+    <input type="color" class="prop-color-swatch" value="${safeColor}" data-colortarget="${propName}">
+    <input type="text" class="prop-color-input" id="colortext-${propName}" value="${safeColor}" maxlength="7" spellcheck="false">
+  </div>`;
 }
 
-// --- アニメーション再生 ---
-function playAnimations(svgEl, data) {
-    const components = data.components || [];
-    let animsTriggered = 0;
-
-    for (const comp of components) {
-        for (const layer of (comp.layers || [])) {
-            const gEl = svgEl.querySelector(`#${CSS.escape(layer.id)}`);
-            if (!gEl) continue;
-
-            const shape = layer.shape;
-            const role  = layer.role || '';
-
-            // エンターアニメーション（全要素に適用）
-            const enterClass = getEnterAnimClass(role, shape);
-            if (enterClass) {
-                // 一度クラスを外してリセット
-                gEl.classList.remove(...['anim-enter','anim-enter-slide-up','anim-enter-scale']);
-                void gEl.offsetWidth; // reflow
-                gEl.classList.add(enterClass);
-                animsTriggered++;
-            }
-
-            // ループアニメーション
-            const loopClass = getLoopAnimClass(role, shape, layer);
-            if (loopClass) {
-                gEl.classList.remove(...['anim-loop-bounce','anim-loop-pulse','anim-loop-spin','anim-loop-shimmer']);
-                void gEl.offsetWidth;
-                gEl.classList.add(loopClass);
-                animsTriggered++;
-            }
-        }
-    }
-
-    if (animsTriggered > 0) {
-        appendLog('anim', `✨ アニメーション再生: ${animsTriggered} 要素`, '');
-    }
+function _esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
-function getEnterAnimClass(role, shape) {
-    if (role === 'modal' || role === 'overlay') return 'anim-enter-scale';
-    if (role === 'header' || role === 'navigation') return 'anim-enter-slide-up';
-    if (shape === 'text' && role === 'text') return 'anim-enter';
-    if (role === 'container') return 'anim-enter';
-    return null;
+// ======================================================
+// レイヤーリスト
+// ======================================================
+function _renderLayerList(elements) {
+  const list = document.getElementById('layer-list');
+  if (!elements || elements.length === 0) {
+    list.innerHTML = '<div class="panel-empty">要素なし</div>';
+    return;
+  }
+  const selected = Editor.getSelected();
+  const sorted = [...elements].sort((a, b) => b.zIndex - a.zIndex);
+  list.innerHTML = sorted.map(el => {
+    const tpl = window.getTemplate(el.templateId);
+    const icon = tpl ? tpl.icon : '▪';
+    const active = selected && selected.id === el.id ? ' active' : '';
+    return `<div class="layer-item${active}" data-id="${el.id}">
+      <span class="layer-item-icon">${icon}</span>
+      <span class="layer-item-name">${el.name}</span>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.layer-item').forEach(item => {
+    item.addEventListener('click', () => {
+      Editor.selectElement(item.getAttribute('data-id'));
+    });
+  });
 }
 
-function getLoopAnimClass(role, shape, layer) {
-    if (shape === 'progressBar') return 'anim-loop-shimmer';
-    if (shape === 'cooldownOverlay') return 'anim-loop-spin';
-    if (shape === 'gauge') return 'anim-loop-pulse';
-    if (role === 'badge' || shape === 'badge') return 'anim-loop-bounce';
-    if (role === 'status' || role === 'feedback') return 'anim-loop-pulse';
-    return null;
+function _updateLayerHighlight(el) {
+  document.querySelectorAll('.layer-item').forEach(item => {
+    item.classList.toggle('active', el && item.getAttribute('data-id') === el.id);
+  });
 }
 
-// --- インタラクティブモード停止 ---
-function stopInteractiveMode() {
-    isRunning = false;
-    btnRun.disabled = false;
-    btnStop.disabled = true;
-    btnRun.classList.remove('running');
-    canvasContainer.classList.remove('interactive-mode');
-
-    // SVG内アニメーションクラスを除去
-    const svgEl = canvasContainer.querySelector('svg');
-    if (svgEl) {
-        svgEl.querySelectorAll('[class*="anim-"]').forEach(el => {
-            [...el.classList].filter(c => c.startsWith('anim-')).forEach(c => el.classList.remove(c));
-        });
-    }
+function _updateDeleteBtn(el) {
+  document.getElementById('btn-delete').disabled = !el;
 }
 
-// ===== ログ追加 =====
-function appendLog(type, msg, meta) {
-    const now = new Date();
-    const ts  = now.toLocaleTimeString('ja-JP', { hour12: false, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+// ======================================================
+// マウス座標表示
+// ======================================================
+function _setupCanvasMouseCoords() {
+  const viewport = document.getElementById('canvas-viewport');
+  const inner    = document.getElementById('canvas-inner');
+  const coords   = document.getElementById('canvas-coords');
 
-    // empty state を消す
-    const empty = eventLogBody.querySelector('.log-empty');
-    if (empty) empty.remove();
-
-    const entry = document.createElement('div');
-    entry.className = `log-entry type-${type}`;
-    entry.innerHTML = `
-        <span class="log-time">${ts}</span>
-        <span class="log-msg">${msg}</span>
-        ${meta ? `<span class="log-meta">${meta}</span>` : ''}
-    `;
-    eventLogBody.appendChild(entry);
-    eventLogBody.scrollTop = eventLogBody.scrollHeight;
-    logEntryCount++;
+  viewport.addEventListener('mousemove', (e) => {
+    const rect  = inner.getBoundingClientRect();
+    const zoom  = Editor.getState().zoom;
+    const x     = Math.round((e.clientX - rect.left) / zoom);
+    const y     = Math.round((e.clientY - rect.top)  / zoom);
+    coords.textContent = `X: ${x}  Y: ${y}`;
+  });
 }

@@ -1,79 +1,126 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Json Viewer — Workspace</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+  <meta charset="UTF-8">
+  <title>UI Layout Editor</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- ツールバー -->
-    <div id="toolbar">
-        <button id="btn-open-workspace">📁 ワークスペースを開く</button>
-        <button id="btn-open-file">📄 ファイルを開く</button>
-        <div id="workspace-path-display"></div>
-        <div class="toolbar-spacer"></div>
-        <div id="filter-wrap">
-            <input type="text" id="file-search" placeholder="ファイルを検索..." />
-        </div>
-        <!-- 実行ボタン -->
-        <button id="btn-run" class="btn-run" disabled>▶ 実行</button>
-        <button id="btn-stop" class="btn-stop" disabled>⏹ 停止</button>
-        <span id="status-indicator"></span>
+
+<!-- ========== ツールバー ========== -->
+<div id="toolbar">
+  <div class="tb-group">
+    <button id="btn-open-workspace" title="ワークスペースを開く">📁 開く</button>
+    <button id="btn-new-file" title="新規ファイル作成" disabled>📄 新規</button>
+    <button id="btn-save" title="保存 (Ctrl+S)" disabled>💾 保存</button>
+    <button id="btn-export-json" title="JSON エクスポート" disabled>📤 Export</button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button id="btn-undo" title="元に戻す (Ctrl+Z)" disabled>↩ Undo</button>
+    <button id="btn-redo" title="やり直す (Ctrl+Y)" disabled>↪ Redo</button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button id="btn-delete" title="選択削除 (Del)" disabled>🗑 削除</button>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group tb-canvas-size">
+    <label>キャンバス</label>
+    <select id="canvas-size-select">
+      <option value="1280x720">1280 × 720</option>
+      <option value="720x1280">720 × 1280</option>
+      <option value="960x540">960 × 540</option>
+      <option value="1920x1080">1920 × 1080</option>
+    </select>
+  </div>
+  <div class="tb-sep"></div>
+  <div class="tb-group">
+    <button id="btn-zoom-out" title="縮小">－</button>
+    <span id="zoom-display">100%</span>
+    <button id="btn-zoom-in" title="拡大">＋</button>
+    <button id="btn-zoom-fit" title="全体表示">Fit</button>
+  </div>
+  <div class="tb-spacer"></div>
+  <div id="file-status">
+    <span id="current-file-name">Untitled</span>
+    <span id="dirty-dot" title="未保存の変更あり" style="display:none">●</span>
+  </div>
+</div>
+
+<!-- ========== メインレイアウト ========== -->
+<div id="editor-layout">
+
+  <!-- 左パネル -->
+  <div id="left-panel">
+    <div id="left-tabs">
+      <button class="tab-btn active" data-tab="parts">部品</button>
+      <button class="tab-btn" data-tab="files">ファイル</button>
     </div>
 
-    <!-- メインコンテンツ -->
-    <div id="main-layout">
-        <!-- 左サイドバー：ファイルリスト -->
-        <div id="sidebar">
-            <div id="sidebar-header">
-                <span id="sidebar-title">ファイル</span>
-                <span id="file-count"></span>
-            </div>
-            <div id="file-list">
-                <div class="empty-state">
-                    <div class="empty-icon">🗂️</div>
-                    <div>ワークスペースフォルダを開いてください</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右エリア -->
-        <div id="content-area">
-            <div id="file-info-bar">
-                <span id="file-info">ファイル未選択</span>
-                <div id="interaction-badge" style="display:none">
-                    <span id="action-count-badge"></span>
-                    <span id="anim-count-badge"></span>
-                </div>
-            </div>
-
-            <!-- SVGキャンバス -->
-            <div id="workspace">
-                <div id="canvas-container">
-                    <div class="preview-placeholder">
-                        <div class="placeholder-icon">🖼️</div>
-                        <div>ファイルを選択してプレビューを表示</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- イベントログパネル -->
-            <div id="event-log-panel">
-                <div id="event-log-header">
-                    <span>📋 イベントログ</span>
-                    <button id="btn-clear-log">クリア</button>
-                </div>
-                <div id="event-log-body">
-                    <div class="log-empty">「▶ 実行」を押してインタラクティブモードを開始してください</div>
-                </div>
-            </div>
-
-            <pre id="error-console" style="display: none;"></pre>
-        </div>
+    <!-- 部品タブ -->
+    <div id="tab-parts" class="tab-content active">
+      <div id="component-library"></div>
     </div>
 
-    <script src="renderer.js"></script>
+    <!-- ファイルタブ -->
+    <div id="tab-files" class="tab-content">
+      <div id="workspace-file-list">
+        <div class="panel-empty">
+          「📁 開く」でワークスペースフォルダを選択してください
+        </div>
+      </div>
+    </div>
+
+    <!-- レイヤーパネル（常時表示） -->
+    <div id="layer-panel">
+      <div id="layer-panel-header">
+        <span>レイヤー</span>
+        <div class="layer-actions">
+          <button id="btn-layer-up"   title="前面へ">↑</button>
+          <button id="btn-layer-down" title="背面へ">↓</button>
+        </div>
+      </div>
+      <div id="layer-list">
+        <div class="panel-empty">要素なし</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- キャンバスエリア -->
+  <div id="canvas-area">
+    <div id="canvas-viewport">
+      <div id="canvas-outer">
+        <div id="canvas-inner">
+          <!-- 要素はここに挿入される -->
+          <div id="selection-overlay">
+            <div class="handle" data-dir="nw"></div>
+            <div class="handle" data-dir="n"></div>
+            <div class="handle" data-dir="ne"></div>
+            <div class="handle" data-dir="e"></div>
+            <div class="handle" data-dir="se"></div>
+            <div class="handle" data-dir="s"></div>
+            <div class="handle" data-dir="sw"></div>
+            <div class="handle" data-dir="w"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="canvas-coords">X: 0  Y: 0</div>
+  </div>
+
+  <!-- 右パネル（プロパティ） -->
+  <div id="right-panel">
+    <div id="right-panel-header">プロパティ</div>
+    <div id="properties-panel">
+      <div class="panel-empty">要素を選択してください</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="templates.js"></script>
+<script src="editor.js"></script>
+<script src="renderer.js"></script>
 </body>
 </html>
