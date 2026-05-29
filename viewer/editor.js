@@ -507,6 +507,31 @@ window.Editor = (function () {
       const knob = document.createElement('div');
       knob.style.cssText = `width:${el.height - 8}px;height:${el.height - 8}px;border-radius:50%;background:${p.fillColor || '#2ecc71'};flex-shrink:0;`;
       div.appendChild(knob);
+    } else if (vt === 'checkbox') {
+      // チェックボックス
+      div.style.background = (p.value ? (p.fillColor || '#3a86ff') : (p.trackColor || '#222'));
+      div.style.borderRadius = (p.radius || 4) + 'px';
+      div.style.border = `${p.strokeWidth || 2}px solid ${p.strokeColor || '#555'}`;
+      if (p.value) {
+        const check = document.createElement('div');
+        check.style.cssText = `width:40%;height:70%;border:solid ${p.textColor || '#fff'};border-width:0 3px 3px 0;transform:rotate(45deg) translate(-10%, -20%);`;
+        div.appendChild(check);
+      }
+    } else if (vt === 'slider') {
+      // スライダー
+      const v = Math.max(0, Math.min(1, p.value || 0.5));
+      div.style.background = 'transparent';
+      const track = document.createElement('div');
+      track.style.cssText = `position:absolute;top:50%;left:0;width:100%;height:${p.strokeWidth || 4}px;background:${p.trackColor || '#333'};transform:translateY(-50%);border-radius:2px;`;
+      const fill = document.createElement('div');
+      fill.style.cssText = `position:absolute;top:0;left:0;width:${v*100}%;height:100%;background:${p.fillColor || '#3a86ff'};border-radius:2px;`;
+      track.appendChild(fill);
+      div.appendChild(track);
+      
+      const knob = document.createElement('div');
+      const knobSize = p.radius || 20;
+      knob.style.cssText = `position:absolute;top:50%;left:${v*100}%;width:${knobSize}px;height:${knobSize}px;background:${p.textColor || '#fff'};border-radius:50%;transform:translate(-50%, -50%);box-shadow:0 1px 4px rgba(0,0,0,0.5);`;
+      div.appendChild(knob);
     } else if (vt === 'radial') {
       // 円形ゲージ（CSSで近似）
       const v = Math.max(0, Math.min(1, p.value || 0.3));

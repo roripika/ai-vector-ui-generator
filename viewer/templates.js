@@ -119,13 +119,13 @@ window.TEMPLATES = [
   },
 
   // =========================================================
-  // ゲージ
+  // ゲージ (Gauge)
   // =========================================================
   {
-    id: 'hp-bar',
-    name: 'HP Bar',
+    id: 'linear-gauge-large',
+    name: 'Linear Gauge (L)',
     category: 'ゲージ',
-    icon: '❤️',
+    icon: '➖',
     defaultSize: { width: 320, height: 28 },
     defaultProps: {
       fillColor: '#2ecc71', trackColor: '#1a2a1a',
@@ -136,22 +136,22 @@ window.TEMPLATES = [
     propFields: ['fillColor', 'trackColor', 'value', 'radius', 'opacity'],
   },
   {
-    id: 'mp-bar',
-    name: 'MP Bar',
+    id: 'linear-gauge-small',
+    name: 'Linear Gauge (S)',
     category: 'ゲージ',
-    icon: '💧',
-    defaultSize: { width: 280, height: 20 },
+    icon: '▬',
+    defaultSize: { width: 200, height: 16 },
     defaultProps: {
       fillColor: '#3a86ff', trackColor: '#0f1a2a',
-      value: 0.6, strokeColor: 'transparent', strokeWidth: 0,
-      radius: 10, opacity: 1,
+      value: 0.5, strokeColor: 'transparent', strokeWidth: 0,
+      radius: 8, opacity: 1,
     },
     role: 'progress', importance: 'info', state: 'default',
     propFields: ['fillColor', 'trackColor', 'value', 'radius', 'opacity'],
   },
   {
     id: 'cooldown-wheel',
-    name: 'Cooldown Wheel',
+    name: 'Radial Gauge',
     category: 'ゲージ',
     icon: '🔄',
     defaultSize: { width: 72, height: 72 },
@@ -163,6 +163,72 @@ window.TEMPLATES = [
     role: 'progress', importance: 'info', state: 'cooldown',
     propFields: ['fillColor', 'trackColor', 'value', 'opacity'],
     visualType: 'radial',
+  },
+
+  // =========================================================
+  // コントロール (Control)
+  // =========================================================
+  {
+    id: 'slider',
+    name: 'Slider',
+    category: 'コントロール',
+    icon: '🎚️',
+    defaultSize: { width: 240, height: 32 },
+    defaultProps: {
+      fillColor: '#3a86ff', trackColor: '#444444', textColor: '#ffffff',
+      value: 0.5, strokeWidth: 4, radius: 24, opacity: 1,
+    },
+    role: 'input', importance: 'primary', state: 'default',
+    propFields: ['fillColor', 'trackColor', 'textColor', 'value', 'strokeWidth', 'radius', 'opacity'],
+    visualType: 'slider',
+  },
+  {
+    id: 'toggle-switch',
+    name: 'Toggle Switch',
+    category: 'コントロール',
+    icon: '🔘',
+    defaultSize: { width: 80, height: 40 },
+    defaultProps: {
+      fillColor: '#2ecc71', trackColor: '#3a3a3a',
+      value: 1, strokeColor: 'transparent', strokeWidth: 0,
+      radius: 20, opacity: 1,
+    },
+    role: 'toggle', importance: 'secondary', state: 'on',
+    propFields: ['fillColor', 'trackColor', 'opacity', 'value'],
+    visualType: 'toggle',
+  },
+  {
+    id: 'checkbox',
+    name: 'Checkbox',
+    category: 'コントロール',
+    icon: '☑️',
+    defaultSize: { width: 32, height: 32 },
+    defaultProps: {
+      fillColor: '#3a86ff', trackColor: '#222222', textColor: '#ffffff',
+      value: 1, strokeColor: '#555555', strokeWidth: 2,
+      radius: 6, opacity: 1,
+    },
+    role: 'input', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'trackColor', 'textColor', 'strokeColor', 'strokeWidth', 'value', 'radius', 'opacity'],
+    visualType: 'checkbox',
+  },
+
+  // =========================================================
+  // 入力 (Input)
+  // =========================================================
+  {
+    id: 'input-field',
+    name: 'Input Field',
+    category: 'テキスト',
+    icon: '⌨️',
+    defaultSize: { width: 280, height: 48 },
+    defaultProps: {
+      text: 'Input text...', fillColor: '#1e1e1e', textColor: '#aaaaaa',
+      strokeColor: '#555555', strokeWidth: 1,
+      radius: 8, opacity: 1, fontSize: 16, textAlign: 'left',
+    },
+    role: 'input', importance: 'primary', state: 'default',
+    propFields: ['text', 'fillColor', 'textColor', 'strokeColor', 'strokeWidth', 'radius', 'fontSize', 'textAlign', 'opacity'],
   },
 
   // =========================================================
@@ -286,19 +352,28 @@ window.TEMPLATES = [
     propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
   },
   {
-    id: 'toggle-switch',
-    name: 'Toggle Switch',
-    category: 'コントロール',
-    icon: '🔘',
-    defaultSize: { width: 80, height: 40 },
+    id: 'scroll-view',
+    name: 'Scroll View',
+    category: 'コンテナ',
+    icon: '📜',
+    defaultSize: { width: 320, height: 400 },
     defaultProps: {
-      fillColor: '#2ecc71', trackColor: '#3a3a3a',
-      value: 1, strokeColor: 'transparent', strokeWidth: 0,
-      radius: 20, opacity: 1,
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1
     },
-    role: 'toggle', importance: 'secondary', state: 'on',
-    propFields: ['fillColor', 'trackColor', 'opacity'],
-    visualType: 'toggle',
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
+  },
+  {
+    id: 'list-cell',
+    name: 'List Cell',
+    category: 'コンテナ',
+    icon: '📋',
+    defaultSize: { width: 320, height: 64 },
+    defaultProps: {
+      fillColor: '#2a2a2a', strokeColor: '#3a3a3a', strokeWidth: 1, radius: 8, opacity: 1
+    },
+    role: 'container', importance: 'tertiary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
   },
 ];
 
