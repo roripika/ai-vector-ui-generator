@@ -358,10 +358,12 @@ window.TEMPLATES = [
     icon: '📜',
     defaultSize: { width: 320, height: 400 },
     defaultProps: {
-      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
+      scrollDirection: 'vertical', contentWidth: 320, contentHeight: 800
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'scrollDirection', 'contentWidth', 'contentHeight', 'animation'],
+    visualType: 'scroll',
   },
   {
     id: 'list-cell',
@@ -386,9 +388,65 @@ window.TEMPLATES = [
       columns: 3, spacingX: 8, spacingY: 8, cellHeight: 80
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'columns', 'spacingX', 'spacingY', 'cellHeight'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'columns', 'spacingX', 'spacingY', 'cellHeight', 'animation'],
     visualType: 'grid',
   },
+  {
+    id: 'v-box',
+    name: 'Vertical Box',
+    category: 'コンテナ',
+    icon: '⬇️',
+    defaultSize: { width: 320, height: 320 },
+    defaultProps: {
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
+      spacingY: 8, alignment: 'start'
+    },
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingY', 'alignment', 'animation'],
+    visualType: 'vbox',
+  },
+  {
+    id: 'h-box',
+    name: 'Horizontal Box',
+    category: 'コンテナ',
+    icon: '➡️',
+    defaultSize: { width: 320, height: 80 },
+    defaultProps: {
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
+      spacingX: 8, alignment: 'start'
+    },
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'spacingX', 'alignment', 'animation'],
+    visualType: 'hbox',
+  },
+  {
+    id: 'tab-group',
+    name: 'Tab Group',
+    category: 'コンテナ',
+    icon: '🗂️',
+    defaultSize: { width: 320, height: 60 },
+    defaultProps: {
+      fillColor: '#333333', strokeColor: '#555555', strokeWidth: 1, radius: 4, opacity: 1,
+      tabNames: 'Tab1,Tab2,Tab3'
+    },
+    role: 'container', importance: 'secondary', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'tabNames', 'animation'],
+    visualType: 'tabgroup',
+  },
+  {
+    id: 'prefab-ref',
+    name: 'Prefab Reference',
+    category: 'コンテナ',
+    icon: '🔗',
+    defaultSize: { width: 100, height: 100 },
+    defaultProps: {
+      fillColor: 'rgba(255,100,100,0.2)', strokeColor: '#ff5555', strokeWidth: 2, radius: 0, opacity: 1,
+      refPath: 'ui_common_header.json'
+    },
+    role: 'container', importance: 'special', state: 'default',
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'refPath', 'animation'],
+    visualType: 'prefab',
+  }
 ];
 
 /**

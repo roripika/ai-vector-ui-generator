@@ -457,9 +457,43 @@ window.Editor = (function () {
     div.style.height = el.height + 'px';
     div.style.zIndex = el.zIndex;
     div.style.opacity = el.props.opacity ?? 1;
+    
+    // アニメーションクラスのリセットと適用
+    div.classList.remove('anim-blink', 'anim-pulse', 'anim-float');
+    if (el.props.animation && el.props.animation !== 'none') {
+      div.classList.add(`anim-${el.props.animation}`);
+    }
 
     const visualLayer = div.querySelector('.visual-layer');
     _applyVisual(visualLayer, el);
+    
+    // Auto layout containers (VBox / HBox) apply CSS flex to their childrenLayer
+    const childrenLayer = div.querySelector('.children-layer');
+    const tpl = window.getTemplate(el.templateId);
+    if (tpl) {
+      if (tpl.visualType === 'vbox') {
+        childrenLayer.style.display = 'flex';
+        childrenLayer.style.flexDirection = 'column';
+        childrenLayer.style.gap = (el.props.spacingY || 8) + 'px';
+        childrenLayer.style.alignItems = _getFlexAlign(el.props.alignment);
+        childrenLayer.style.justifyContent = 'flex-start';
+      } else if (tpl.visualType === 'hbox') {
+        childrenLayer.style.display = 'flex';
+        childrenLayer.style.flexDirection = 'row';
+        childrenLayer.style.gap = (el.props.spacingX || 8) + 'px';
+        childrenLayer.style.alignItems = 'center';
+        childrenLayer.style.justifyContent = _getFlexAlign(el.props.alignment);
+      } else {
+        childrenLayer.style.display = 'block';
+      }
+    }
+  }
+
+  function _getFlexAlign(align) {
+    if (align === 'center') return 'center';
+    if (align === 'end') return 'flex-end';
+    if (align === 'space-between') return 'space-between';
+    return 'flex-start';
   }
 
   function _applyVisual(div, el) {
@@ -591,6 +625,67 @@ window.Editor = (function () {
       label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:2px;z-index:2;`;
       label.textContent = `Grid View (${cols} cols)`;
       div.appendChild(label);
+    } else if (vt === 'vbox' || vt === 'hbox') {
+      const c = p.strokeColor || '#444';
+      div.style.background = p.fillColor || 'transparent';
+      div.style.border = `1px dashed ${c}`;
+      
+      const label = document.createElement('div');
+      label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:2px;`;
+      label.textContent = tpl.name;
+      div.style.position = 'relative';
+      div.appendChild(label);
+    } else if (vt === 'scroll') {
+      div.style.background = p.fillColor || 'rgba(0,0,0,0.3)';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      div.style.position = 'relative';
+      const c = p.strokeColor || '#666';
+      
+      if (p.scrollDirection === 'vertical' || p.scrollDirection === 'both') {
+        const vbar = document.createElement('div');
+        vbar.style.cssText = `position:absolute;right:2px;top:2px;bottom:2px;width:6px;background:${c};border-radius:3px;opacity:0.5;`;
+        div.appendChild(vbar);
+      }
+      if (p.scrollDirection === 'horizontal' || p.scrollDirection === 'both') {
+        const hbar = document.createElement('div');
+        hbar.style.cssText = `position:absolute;left:2px;right:2px;bottom:2px;height:6px;background:${c};border-radius:3px;opacity:0.5;`;
+        div.appendChild(hbar);
+      }
+      
+      const label = document.createElement('div');
+      label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;`;
+      label.textContent = tpl.name;
+      div.appendChild(label);
+    } else if (vt === 'tabgroup') {
+      div.style.background = p.fillColor || '#333';
+      div.style.borderRadius = (p.radius || 4) + 'px';
+      if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
+        div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
+      }
+      div.style.display = 'flex';
+      div.style.flexDirection = 'row';
+      div.style.alignItems = 'flex-end';
+      div.style.padding = '4px 4px 0 4px';
+      
+      const tabNames = (p.tabNames || 'Tab1,Tab2').split(',');
+      tabNames.forEach((t, i) => {
+        const tab = document.createElement('div');
+        const isActive = i === 0;
+        tab.style.cssText = `flex:1;text-align:center;padding:8px 4px;font-size:12px;color:${isActive ? '#fff' : '#aaa'};background:${isActive ? '#444' : 'transparent'};border-radius:6px 6px 0 0;margin:0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
+        tab.textContent = t.trim();
+        div.appendChild(tab);
+      });
+    } else if (vt === 'prefab') {
+      div.style.background = p.fillColor || 'rgba(255,100,100,0.2)';
+      div.style.border = `${p.strokeWidth || 2}px dashed ${p.strokeColor || '#ff5555'}`;
+      div.style.color = p.strokeColor || '#ff5555';
+      div.style.fontSize = '12px';
+      div.style.fontWeight = 'bold';
+      div.style.textAlign = 'center';
+      div.style.padding = '8px';
+      div.innerHTML = `[Prefab]<br><span style="font-size:10px;font-weight:normal;word-break:break-all;">${p.refPath || 'none'}</span>`;
     } else if (tpl.category === 'コンテナ') {
       // パネル系
       const r = p.radius || 0;

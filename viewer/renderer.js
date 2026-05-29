@@ -286,16 +286,41 @@ function _renderPropertiesPanel(el) {
   if (p.opacity !== undefined) html += _row('透明度', `<input class="prop-input-num" type="number" id="prop-opacity" value="${p.opacity}" data-prop="opacity" min="0" max="1" step="0.05">`);
   if (p.value !== undefined) html += _row('値 (0-1)', `<input class="prop-input-num" type="number" id="prop-value" value="${p.value}" data-prop="value" min="0" max="1" step="0.05">`);
   if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="fill" ${p.objectFit==='fill'?'selected':''}>fill</option></select>`);
+  if (p.animation !== undefined) html += _row('アニメ', `<select class="prop-select" data-prop="animation">
+    <option value="none" ${p.animation==='none'?'selected':''}>なし</option>
+    <option value="blink" ${p.animation==='blink'?'selected':''}>点滅 (Blink)</option>
+    <option value="pulse" ${p.animation==='pulse'?'selected':''}>鼓動 (Pulse)</option>
+    <option value="float" ${p.animation==='float'?'selected':''}>浮遊 (Float)</option>
+  </select>`);
   html += `</div><div class="prop-sep"></div>`;
 
   // --- Layout ---
-  if (p.columns !== undefined || p.spacingX !== undefined) {
+  if (p.columns !== undefined || p.spacingX !== undefined || p.scrollDirection !== undefined || p.alignment !== undefined || p.tabNames !== undefined || p.refPath !== undefined) {
     html += `<div class="prop-section">`;
-    html += `<div class="prop-section-title">レイアウト (Grid/List)</div>`;
+    html += `<div class="prop-section-title">レイアウト / 特殊設定</div>`;
+    if (p.refPath !== undefined) html += _row('Prefab参照', `<input class="prop-input" value="${_esc(p.refPath)}" data-prop="refPath" placeholder="ex: ui_common_header.json">`);
+    if (p.tabNames !== undefined) html += _row('タブ名', `<input class="prop-input" value="${_esc(p.tabNames)}" data-prop="tabNames" placeholder="Tab1,Tab2...">`);
+    
     if (p.columns !== undefined) html += _row('列数 (固定)', `<input class="prop-input-num" type="number" value="${p.columns}" data-prop="columns" min="1">`);
     if (p.spacingX !== undefined) html += _row('横余白', `<input class="prop-input-num" type="number" value="${p.spacingX}" data-prop="spacingX" min="0">`);
     if (p.spacingY !== undefined) html += _row('縦余白', `<input class="prop-input-num" type="number" value="${p.spacingY}" data-prop="spacingY" min="0">`);
     if (p.cellHeight !== undefined) html += _row('セル高さ', `<input class="prop-input-num" type="number" value="${p.cellHeight}" data-prop="cellHeight" min="1">`);
+    
+    if (p.alignment !== undefined) html += _row('揃え位置', `<select class="prop-select" data-prop="alignment">
+      <option value="start" ${p.alignment==='start'?'selected':''}>start</option>
+      <option value="center" ${p.alignment==='center'?'selected':''}>center</option>
+      <option value="end" ${p.alignment==='end'?'selected':''}>end</option>
+      <option value="space-between" ${p.alignment==='space-between'?'selected':''}>space-between</option>
+    </select>`);
+    
+    if (p.scrollDirection !== undefined) html += _row('スクロール方向', `<select class="prop-select" data-prop="scrollDirection">
+      <option value="vertical" ${p.scrollDirection==='vertical'?'selected':''}>縦 (Vertical)</option>
+      <option value="horizontal" ${p.scrollDirection==='horizontal'?'selected':''}>横 (Horizontal)</option>
+      <option value="both" ${p.scrollDirection==='both'?'selected':''}>両方 (Both)</option>
+    </select>`);
+    if (p.contentWidth !== undefined) html += _row('内包幅', `<input class="prop-input-num" type="number" value="${p.contentWidth}" data-prop="contentWidth" min="1">`);
+    if (p.contentHeight !== undefined) html += _row('内包高さ', `<input class="prop-input-num" type="number" value="${p.contentHeight}" data-prop="contentHeight" min="1">`);
+    
     html += `</div><div class="prop-sep"></div>`;
   }
 
