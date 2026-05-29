@@ -23,6 +23,10 @@ const constraintsTarget = document.getElementById("constraints-target");
 const constraintFlags = document.getElementById("constraint-flags");
 const constraintParams = document.getElementById("constraint-params");
 const applyConstraints = document.getElementById("apply-constraints");
+const textureEditor = document.getElementById("texture-editor");
+const textureTarget = document.getElementById("texture-target");
+const texturePrompt = document.getElementById("texture-prompt");
+const applyTextureBtn = document.getElementById("apply-texture-btn");
 const filenameInput = document.getElementById("filename-input");
 const tagsInput = document.getElementById("tags-input");
 const tagsHint = document.getElementById("tags-hint");
@@ -34,13 +38,33 @@ const generatedList = document.getElementById("generated-list");
 const copyButton = document.getElementById("copy-json");
 const downloadButton = document.getElementById("download-json");
 
+// AI設定
+const aiEnabled = document.getElementById("ai-enabled");
+const aiProvider = document.getElementById("ai-provider");
+const aiApiKey = document.getElementById("ai-api-key");
+const aiModel = document.getElementById("ai-model");
+
+// 差分修正
+const refinePanel = document.getElementById("refine-panel");
+const refineInstruction = document.getElementById("refine-instruction");
+const applyRefine = document.getElementById("apply-refine");
+const showTemplatesButton = document.getElementById("show-templates");
+const templateModal = document.getElementById("template-modal");
+const closeTemplateModal = document.getElementById("close-template-modal");
+const templateSearch = document.getElementById("template-search");
+const tagFilters = document.getElementById("tag-filters");
+const templateGrid = document.getElementById("template-grid");
+
 let currentJson = "{}";
 let currentAsset = null;
 let allowedTags = [];
 let currentTemplateId = "-";
 let gaugeLayers = [];
 let constraintTargets = [];
+let textureLayers = [];
 let allowedConstraintFlags = [];
+let allTemplates = [];
+let activeTags = new Set();
 
 function setStatus(message) {
   statusLabel.textContent = message;
@@ -64,6 +88,7 @@ function setJson(asset, id) {
   }
   updateGaugeEditor(normalized);
   updateConstraintEditor(normalized);
+  updateTextureEditor(normalized);
 }
 
 function normalizeConstraintItem(item) {
@@ -393,6 +418,66 @@ function updateGaugeParamVisibility(profile) {
   shapeSegmentsField.hidden = profile !== "segmented";
 }
 
+function findTextureLayers(asset) {
+  const layers = [];
+  if (!asset || typeof asset !== "object") {
+    return layers;
+  }
+
+  function record(layer, label) {
+    if (!layer || typeof layer !== "object") return;
+    if (layer.shape === "roundedRect") {
+      layers.push({ label, layer });
+    }
+  }
+
+  if (Array.isArray(asset.layers)) {
+    for (const layer of asset.layers) {
+      record(layer, layer.id || "roundedRect");
+    }
+  }
+
+  if (Array.isArray(asset.components)) {
+    for (const component of asset.components) {
+      const prefix = component.id ? `${component.id} / ` : "";
+      for (const layer of component.layers || []) {
+        record(layer, `${prefix}${layer.id || "roundedRect"}`);
+      }
+    }
+  }
+
+  return layers;
+}
+
+function updateTextureEditor(asset) {
+  textureLayers = findTextureLayers(asset);
+  if (!textureLayers.length) {
+    textureEditor.hidden = true;
+    textureTarget.innerHTML = "";
+    return;
+  }
+
+  textureEditor.hidden = false;
+  const previous = textureTarget.value;
+  textureTarget.innerHTML = "";
+  textureLayers.forEach((entry, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = entry.label;
+    textureTarget.appendChild(option);
+  });
+
+  const nextIndex = previous && textureLayers[Number(previous)] ? Number(previous) : 0;
+  textureTarget.value = String(nextIndex);
+
+  const layer = textureLayers[nextIndex].layer;
+  if (layer && layer.texture && layer.texture.prompt) {
+    texturePrompt.value = layer.texture.prompt;
+  } else {
+    texturePrompt.value = "";
+  }
+}
+
 async function compileAsset(asset) {
   setStatus("再レンダ中...");
   let response;
@@ -449,12 +534,15 @@ async function generateAsset() {
   }
   setStatus("生成中...");
 
+  // AI設定を取得
+  const ai_config = getAIConfig();
+
   let response;
   try {
     response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, ai_config }),
     });
   } catch (error) {
     setStatus(`通信エラー: ${error.message}`);
@@ -482,6 +570,9 @@ async function generateAsset() {
   updateTagHints(data.asset);
   warnUnknownTags(parseTagsInput());
   setSaveStatus("未保存");
+
+  // 生成成功時に差分修正パネルを表示
+  refinePanel.hidden = false;
 }
 
 function clearAll() {
@@ -601,6 +692,64 @@ function applyConstraintChanges() {
   compileAsset(currentAsset);
 }
 
+async function applyTextureChanges() {
+  if (!currentAsset || !textureLayers.length) {
+    setStatus("テクスチャ対象がありません");
+    return;
+  }
+
+  const index = Number(textureTarget.value || 0);
+  const entry = textureLayers[index];
+  if (!entry) {
+    setStatus("テクスチャ対象が選択されていません");
+    return;
+  }
+
+  const prompt = texturePrompt.value.trim();
+  if (!prompt) {
+    setStatus("画像生成プロンプトを入力してください");
+    return;
+  }
+
+  setStatus("画像生成中...");
+  // AI設定を取得
+  const ai_config = getAIConfig();
+
+  let response;
+  try {
+    response = await fetch("/api/generate_texture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, ai_config }),
+    });
+  } catch (error) {
+    setStatus(`通信エラー: ${error.message}`);
+    return;
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    setStatus("画像生成のレスポンスが不正です");
+    return;
+  }
+
+  if (!response.ok) {
+    setStatus(`画像生成エラー: ${data.error || "failed"}`);
+    return;
+  }
+
+  // 成功したらJSONアセットに texture の情報をセットして compileAsset
+  entry.layer.texture = {
+    prompt: prompt,
+    path: data.texture_uri
+  };
+
+  setStatus("画像生成完了");
+  compileAsset(currentAsset);
+}
+
 copyButton.addEventListener("click", async () => {
   if (!currentJson || currentJson === "{}") {
     setStatus("JSONがありません");
@@ -636,6 +785,7 @@ downloadButton.addEventListener("click", downloadJson);
 saveButton.addEventListener("click", saveToRepo);
 applyGauge.addEventListener("click", applyGaugeChanges);
 applyConstraints.addEventListener("click", applyConstraintChanges);
+applyTextureBtn.addEventListener("click", applyTextureChanges);
 gaugeTarget.addEventListener("change", () => {
   const index = Number(gaugeTarget.value || 0);
   if (gaugeLayers[index]) {
@@ -647,6 +797,15 @@ constraintsTarget.addEventListener("change", () => {
   if (constraintTargets[index]) {
     buildConstraintFlagOptions(constraintTargets[index].target);
     setConstraintInputs(constraintTargets[index].target);
+  }
+});
+textureTarget.addEventListener("change", () => {
+  const index = Number(textureTarget.value || 0);
+  const entry = textureLayers[index];
+  if (entry && entry.layer && entry.layer.texture && entry.layer.texture.prompt) {
+    texturePrompt.value = entry.layer.texture.prompt;
+  } else {
+    texturePrompt.value = "";
   }
 });
 shapeProfile.addEventListener("change", () => {
@@ -783,8 +942,211 @@ async function fetchTags() {
   }
 }
 
+// AI設定の管理
+function getAIConfig() {
+  const enabled = aiEnabled.checked;
+  if (!enabled) {
+    return { enabled: false };
+  }
+
+  const provider = aiProvider.value;
+  const api_key = aiApiKey.value.trim() || null;
+  const model = aiModel.value || null;
+
+  return {
+    enabled: true,
+    provider,
+    api_key,
+    model
+  };
+}
+
+function loadAIConfig() {
+  try {
+    const saved = localStorage.getItem("ai_config");
+    if (saved) {
+      const config = JSON.parse(saved);
+      if (config.enabled !== undefined) aiEnabled.checked = config.enabled;
+      if (config.provider) aiProvider.value = config.provider;
+      if (config.api_key) aiApiKey.value = config.api_key;
+      if (config.model) aiModel.value = config.model;
+    }
+  } catch (e) {
+    console.error("Failed to load AI config:", e);
+  }
+}
+
+function saveAIConfig() {
+  try {
+    const config = getAIConfig();
+    localStorage.setItem("ai_config", JSON.stringify(config));
+  } catch (e) {
+    console.error("Failed to save AI config:", e);
+  }
+}
+
+// 差分修正
+async function applyRefinement() {
+  const instruction = refineInstruction.value.trim();
+  if (!instruction) {
+    setStatus("修正指示を入力してください");
+    return;
+  }
+
+  if (!currentAsset) {
+    setStatus("先に生成してください");
+    return;
+  }
+
+  setStatus("修正中...");
+
+  const ai_config = getAIConfig();
+
+  let response;
+  try {
+    response = await fetch("/api/refine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ asset: currentAsset, instruction, ai_config }),
+    });
+  } catch (error) {
+    setStatus(`通信エラー: ${error.message}`);
+    return;
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    setStatus("レスポンスが不正です");
+    return;
+  }
+
+  if (!response.ok) {
+    setStatus(`エラー: ${data.error || "failed"}`);
+    return;
+  }
+
+  setStatus("修正完了");
+  setPreview(data.svg);
+  setJson(data.asset, currentTemplateId);
+  updateTagHints(data.asset);
+  warnUnknownTags(parseTagsInput());
+  setSaveStatus("未保存");
+
+  // 修正指示をクリア
+  refineInstruction.value = "";
+}
+
+// テンプレートブラウザ
+async function openTemplateModal() {
+  templateModal.hidden = false;
+  if (allTemplates.length === 0) {
+    setStatus("テンプレート読み込み中...");
+    try {
+      const res = await fetch("/api/templates");
+      const data = await res.json();
+      allTemplates = data.templates || [];
+      renderTagFilters();
+    } catch (e) {
+      console.error("Failed to fetch templates:", e);
+    }
+  }
+  renderTemplateGrid();
+  setStatus("テンプレート一覧を表示");
+}
+
+function renderTagFilters() {
+  const tags = new Set();
+  allTemplates.forEach(t => (t.tags || []).forEach(tag => tags.add(tag)));
+
+  tagFilters.innerHTML = "";
+  Array.from(tags).sort().forEach(tag => {
+    const chip = document.createElement("span");
+    chip.className = "tag-chip";
+    chip.textContent = tag;
+    chip.onclick = () => {
+      if (activeTags.has(tag)) {
+        activeTags.delete(tag);
+        chip.classList.remove("active");
+      } else {
+        activeTags.add(tag);
+        chip.classList.add("active");
+      }
+      renderTemplateGrid();
+    };
+    tagFilters.appendChild(chip);
+  });
+}
+
+function renderTemplateGrid() {
+  const query = templateSearch.value.toLowerCase();
+  const filtered = allTemplates.filter(t => {
+    const matchesSearch = t.id.toLowerCase().includes(query) ||
+      t.intent.toLowerCase().includes(query) ||
+      (t.keywords || []).some(k => k.toLowerCase().includes(query));
+    const matchesTags = activeTags.size === 0 ||
+      (t.tags || []).some(tag => activeTags.has(tag));
+    return matchesSearch && matchesTags;
+  });
+
+  templateGrid.innerHTML = "";
+  filtered.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "template-card";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = t.id;
+
+    const p = document.createElement("p");
+    p.textContent = t.intent;
+
+    const when = document.createElement("div");
+    when.className = "card-when";
+    when.textContent = (t.when || []).join(" / ");
+
+    const tagsContainer = document.createElement("div");
+    tagsContainer.className = "card-tags";
+    (t.tags || []).forEach(tag => {
+      const span = document.createElement("span");
+      span.className = "card-tag";
+      span.textContent = tag;
+      tagsContainer.appendChild(span);
+    });
+
+    card.appendChild(h3);
+    card.appendChild(p);
+    card.appendChild(when);
+    card.appendChild(tagsContainer);
+
+    card.onclick = () => {
+      promptInput.value = `Template: ${t.id}\nIntent: ${t.intent}`;
+      templateModal.hidden = true;
+      // スクロールをプロンプトに戻す
+      promptInput.focus();
+    };
+
+    templateGrid.appendChild(card);
+  });
+}
+
+// イベントリスナー
+aiEnabled.addEventListener("change", saveAIConfig);
+aiProvider.addEventListener("change", saveAIConfig);
+aiApiKey.addEventListener("input", saveAIConfig);
+aiModel.addEventListener("change", saveAIConfig);
+applyRefine.addEventListener("click", applyRefinement);
+showTemplatesButton.addEventListener("click", openTemplateModal);
+closeTemplateModal.addEventListener("click", () => templateModal.hidden = true);
+templateSearch.addEventListener("input", renderTemplateGrid);
+
+templateModal.onclick = (e) => {
+  if (e.target === templateModal) templateModal.hidden = true;
+};
+
 setJson({}, "-");
 setSelection(null);
 setSaveStatus("未保存");
 fetchTags();
 loadGeneratedList();
+loadAIConfig();

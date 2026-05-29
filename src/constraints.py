@@ -44,7 +44,8 @@ def normalize_asset_constraints(asset: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(asset, dict):
         return asset
 
-    normalize_constraints_item(asset)
+    # Top-level asset does not support constraints directly in the schema
+    # normalize_constraints_item(asset)
 
     layers = asset.get("layers")
     if isinstance(layers, list):

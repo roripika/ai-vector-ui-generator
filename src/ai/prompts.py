@@ -20,17 +20,57 @@ SYSTEM_PROMPT = """あなたはゲームUIデザイン専門のアシスタン�
 ユーザーのプロンプト(世界観・意図)を解釈し、適切なテンプレートを選択して、
 JSON形式のUI素材定義を生成してください。
 
-## JSON仕様の重要ポイント
+## 重要: JSONスキーマ (Strict)
 
-- `assetType`: button/modal/tab/gauge等の素材種別
-- `viewBox`: [x, y, width, height] の配列
-- `layers` または `components`: UI要素の構造
-- `metadata`: 生成情報やタグ
-- `role`: action/navigation/container/data_display/feedback等
-- `importance`: primary/secondary/info等
-- `state`: default/hover/pressed/disabled等
-- `constraint_flags`: ["safe_area", "min_tap"]等の制約フラグ
-- `constraint_params`: {"min_tap": {"width": 44, "height": 44}}等の制約パラメータ
+出力するJSONは以下の構造に厳密に従ってください。独自のフィールド(attributes等)は禁止です。
+
+### Button Asset 構造例
+```json
+{
+  "assetType": "button",  // 必須: "button" ("button_sf"等は不可)
+  "viewBox": [0, 0, 200, 50], // [x, y, width, height]
+  "layers": [
+    {
+      "id": "background",
+      "shape": "roundedRect",  // "type"ではなく"shape"を使う
+      "rect": { "x": 0, "y": 0, "width": 200, "height": 50, "radius": 8 },
+      "style": { "fill": "blue.600", "stroke": "blue.800", "strokeWidth": 2 }
+    },
+    {
+      "id": "label",
+      "shape": "text",
+      "rect": { "x": 100, "y": 25, "width": 180, "height": 20, "radius": 0 },
+      "style": { "fill": "white" }, 
+      "text": {
+        "value": "BUTTON",
+        "font": "sans",
+        "size": 18,
+        "maxLines": 1,
+        "overflow": "ellipsis",
+        "fit": "none",
+        "align": "center"
+      }
+    }
+  ],
+  "metadata": {
+    "tags": ["primary", "action"],
+    "generated_from_prompt": "...",
+    "selected_templates": ["button_sf"]
+  }
+}
+```
+
+### Layer Types (shape)
+- **roundedRect**: `rect` {x,y,w,h,radius}, `style` {fill,stroke...}
+- **text**: `rect` (配置用), `text` {value, font, size, align...}
+- **gauge**: `track`(color), `value`(0.0-1.0), `rect`, `style`
+- **progressBar**: `track`, `value`, `direction`
+- **layoutRow/Column**: `layout` {gap, align, padding}, `items` [ ... ]
+
+## 禁止事項
+- `assetType` にテンプレートIDを入れない (常に "button" または "screen")
+- `type`, `attributes`, `position` などのスキーマ外フィールドを使わない
+- `x`, `y` の代わりに `[x, y]` 配列を使わない
 
 ## 出力形式
 
@@ -79,6 +119,9 @@ def build_generation_prompt(
     parts.append("\n## 出力要件\n")
     parts.append("- JSON形式で出力(マークダウン不要)\n")
     parts.append("- assetType, viewBox, layers/componentsは必須\n")
+    parts.append("- assetTypeには 'button' または 'screen' のみを指定すること (テンプレートIDは不可)\n")
+    parts.append("- layers内の形状は 'shape' を使用し、'type' は使わない\n")
+    parts.append("- attributes/properties ではなく、rect/style/text などのフラットな構造を使う\n")
     parts.append("- metadata.tagsに適切なタグを設定\n")
     parts.append("- role, importance, stateを適切に設定\n")
     
@@ -107,7 +150,9 @@ def build_refinement_prompt(
         "\n## 出力要件\n",
         "- 修正後の完全なJSONを出力(マークダウン不要)\n",
         "- 指示された部分のみを変更し、他は保持\n",
-        "- 構造の一貫性を維持\n"
+        "- 構造の一貫性を維持\n",
+        "- assetTypeは 'button' または 'screen' を維持すること\n",
+        "- 独自フィールド(position, type, attributes等)を追加しないこと\n"
     ]
     
     return "".join(parts)

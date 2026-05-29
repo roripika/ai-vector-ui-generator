@@ -127,7 +127,6 @@ class GeminiProvider(BaseAIProvider):
                         "修正されたJSONが必須フィールドを含んでいません"
                     )
                 
-                # メタデータを更新
                 if "metadata" not in data:
                     data["metadata"] = {}
                 if "refinement_history" not in data["metadata"]:
@@ -153,3 +152,34 @@ class GeminiProvider(BaseAIProvider):
                 raise AIProviderError(f"修正に失敗しました: {e}")
         
         raise AIProviderError(f"{max_retries}回のリトライ後も修正に失敗しました")
+
+    def generate_image(self, prompt: str, output_path: str) -> str:
+        """プロンプトから画像を生成して保存"""
+        from pathlib import Path
+        try:
+            # 最新の画像生成モデルを利用(環境やライブラリ更新による可用性に注意)
+            try:
+                # パッケージが対応している場合の標準イメージAPI
+                model = self.genai.ImageGenerationModel("imagen-3.0-generate-001")
+                result = model.generate_images(
+                    prompt=prompt,
+                    number_of_images=1,
+                    aspect_ratio="1:1"
+                )
+                if not result.images:
+                    raise AIProviderError("画像が生成されませんでした")
+                image = result.images[0]
+                
+                # output_pathのディレクトリを準備
+                out_file = Path(output_path)
+                out_file.parent.mkdir(parents=True, exist_ok=True)
+                
+                # 画像の保存 (PIL Image オブジェクトと想定)
+                image.save(str(out_file))
+                
+                return f"file://{out_file.resolve()}"
+            except AttributeError:
+                # google.generativeai バージョンによって ImageGenerationModel が存在しない場合へのフォールバック等があればここに追加
+                raise AIProviderError("APIクライアントが画像生成をサポートしていません。SDKをアップデートしてください")
+        except Exception as e:
+            raise AIProviderError(f"画像生成に失敗しました: {e}")

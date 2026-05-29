@@ -1,156 +1,238 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>UI Studio</title>
-    <link rel="stylesheet" href="studio.css" />
-  </head>
-  <body>
-    <header class="app-header">
-      <div>
-        <p class="eyebrow">ai-vector-ui-generator</p>
-        <h1>UI Studio</h1>
-        <p class="subtitle">Phase 1: プロンプトからUI素材を生成（テンプレベース）</p>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI Studio</title>
+  <link rel="stylesheet" href="studio.css" />
+</head>
+
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">ai-vector-ui-generator</p>
+      <h1>UI Studio</h1>
+      <p class="subtitle">Phase 1: プロンプトからUI素材を生成（テンプレベース）</p>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Preview Console</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="panel prompt-panel">
+      <div class="panel-header">
+        <h2>プロンプト</h2>
+        <p class="status" id="status">待機中</p>
       </div>
-      <nav class="nav">
-        <a href="index.html">Preview Console</a>
-      </nav>
-    </header>
 
-    <main class="layout">
-      <section class="panel prompt-panel">
-        <div class="panel-header">
-          <h2>プロンプト</h2>
-          <p class="status" id="status">待機中</p>
+      <!-- AI設定 -->
+      <details class="ai-settings">
+        <summary>AI設定</summary>
+        <div class="field">
+          <label>
+            <input type="checkbox" id="ai-enabled" />
+            AI生成を有効化
+          </label>
         </div>
-        <textarea
-          id="prompt-input"
-          rows="8"
-          placeholder="世界観や意図を書いてください。例: 神殿風の強い発光ボタン / 非ブロッキング通知"
-        ></textarea>
-        <div class="actions">
-          <button id="generate">素材を生成</button>
-          <button id="clear">クリア</button>
+        <div class="field">
+          <label for="ai-provider">プロバイダー</label>
+          <select id="ai-provider">
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
         </div>
-        <div class="chips">
-          <button class="chip" data-prompt="神殿風の発光ボタン">神殿風の発光ボタン</button>
-          <button class="chip" data-prompt="タブバー、未読バッジ付き">タブバー、未読バッジ付き</button>
-          <button class="chip" data-prompt="モーダルで確認ダイアログ">モーダルで確認ダイアログ</button>
-          <button class="chip" data-prompt="トースト通知、成功表示">トースト通知、成功表示</button>
+        <div class="field">
+          <label for="ai-api-key">APIキー</label>
+          <input id="ai-api-key" type="password" placeholder="環境変数から取得 or ここに入力" />
+          <p class="hint">ブラウザのlocalStorageに保存されます</p>
         </div>
-        <p class="note">AI連携は次フェーズ。現在はテンプレ選択型です。</p>
-      </section>
+        <div class="field">
+          <label for="ai-model">モデル</label>
+          <select id="ai-model">
+            <option value="">デフォルト</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <option value="gpt-4o-mini">GPT-4o-mini</option>
+            <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+          </select>
+        </div>
+      </details>
 
-      <section class="panel output-panel">
-        <div class="panel-header">
-          <h2>出力</h2>
-          <div class="output-actions">
-            <button id="copy-json">JSONをコピー</button>
-            <button id="download-json">JSONを保存</button>
-          </div>
-        </div>
-        <div class="preview" id="preview">
-          <div class="empty">ここにSVGプレビューが表示されます</div>
-        </div>
-        <div class="selection">
-          <div class="selection-header">
-            <span>選定結果</span>
-            <span class="asset-type" id="asset-type">type: -</span>
-          </div>
-          <p class="selection-summary" id="selection-summary">template: -</p>
-          <ul class="selection-list" id="selection-list"></ul>
-          <div class="selection-rationale" id="selection-rationale"></div>
-        </div>
-        <div class="gauge-editor" id="gauge-editor" hidden>
-          <div class="selection-header">
-            <span>ゲージ形状</span>
-            <button id="apply-gauge" class="ghost">適用</button>
-          </div>
-          <div class="field">
-            <label for="gauge-target">対象</label>
-            <select id="gauge-target"></select>
-          </div>
-          <div class="field">
-            <label for="shape-profile">shape_profile</label>
-            <select id="shape-profile">
-              <option value="radial">radial</option>
-              <option value="segmented">segmented</option>
-              <option value="polygon">polygon</option>
-              <option value="custom_svg">custom_svg</option>
-              <option value="unknown">unknown</option>
-            </select>
-          </div>
-          <div class="field" id="shape-sides-field">
-            <label for="shape-sides">sides</label>
-            <input id="shape-sides" type="number" min="3" step="1" />
-          </div>
-          <div class="field" id="shape-segments-field">
-            <label for="shape-segments">segment_count</label>
-            <input id="shape-segments" type="number" min="1" step="1" />
-          </div>
-          <div class="field">
-            <label for="shape-thickness">thickness</label>
-            <input id="shape-thickness" type="number" min="0" step="0.5" />
-          </div>
-          <p class="hint">shape_profileとshape_paramsを変更して再レンダできます。</p>
-        </div>
-        <div class="constraints-editor" id="constraints-editor" hidden>
-          <div class="selection-header">
-            <span>constraints</span>
-            <button id="apply-constraints" class="ghost">適用</button>
-          </div>
-          <div class="field">
-            <label for="constraints-target">対象</label>
-            <select id="constraints-target"></select>
-          </div>
-          <div class="field">
-            <label>constraint_flags</label>
-            <div class="checkbox-grid" id="constraint-flags"></div>
-          </div>
-          <div class="field">
-            <label for="constraint-params">constraint_params (JSON)</label>
-            <textarea id="constraint-params" rows="4" placeholder='{\"min_tap\": {\"width\": 44, \"height\": 44}}'></textarea>
-          </div>
-          <p class="hint">flagsはチェック、paramsはJSONで編集して再レンダできます。</p>
-        </div>
-        <div class="save-panel">
-          <div class="field">
-            <label for="filename-input">保存名</label>
-            <input id="filename-input" type="text" placeholder="button_primary_action_20260108_235901.json" />
-          </div>
-          <div class="field">
-            <label for="tags-input">tags</label>
-            <input id="tags-input" type="text" placeholder="action, primary, fx_glow" />
-            <p class="hint" id="tags-hint">候補: -</p>
-            <p class="hint warning" id="tags-warning"></p>
-          </div>
-          <div class="row">
-            <button id="save-repo">Repoに保存</button>
-            <span class="status" id="save-status">未保存</span>
-          </div>
-        </div>
-        <div class="generated">
-          <div class="selection-header">
-            <span>最近の生成物</span>
-            <button id="refresh-generated" class="ghost">更新</button>
-          </div>
-          <ul class="generated-list" id="generated-list"></ul>
-        </div>
-        <div class="json">
-          <div class="json-header">
-            <span>生成JSON</span>
-            <span class="template-id" id="template-id">template: -</span>
-          </div>
-          <pre id="json-output">{}</pre>
-        </div>
-      </section>
-    </main>
+      <textarea id="prompt-input" rows="8" placeholder="世界観や意図を書いてください。例: 神殿風の強い発光ボタン / 非ブロッキング通知"></textarea>
+      <div class="actions">
+        <button id="generate">素材を生成</button>
+        <button id="show-templates" class="secondary">テンプレート一覧</button>
+        <button id="clear">クリア</button>
+      </div>
+      <div class="chips">
+        <button class="chip" data-prompt="神殿風の発光ボタン">神殿風の発光ボタン</button>
+        <button class="chip" data-prompt="タブバー、未読バッジ付き">タブバー、未読バッジ付き</button>
+        <button class="chip" data-prompt="モーダルで確認ダイアログ">モーダルで確認ダイアログ</button>
+        <button class="chip" data-prompt="トースト通知、成功表示">トースト通知、成功表示</button>
+      </div>
 
-    <footer class="app-footer">
-      <p>CLIは使わず、ブラウザで生成→JSON保存する流れを想定。</p>
-    </footer>
+      <!-- 差分修正 -->
+      <div class="refine-panel" id="refine-panel" hidden>
+        <div class="selection-header">
+          <span>差分修正</span>
+        </div>
+        <div class="field">
+          <label for="refine-instruction">修正指示</label>
+          <textarea id="refine-instruction" rows="3" placeholder="例: ボタンをもっと強調して / 色を暗くして"></textarea>
+        </div>
+        <button id="apply-refine">修正を適用</button>
+      </div>
+    </section>
 
-    <script src="studio.js"></script>
-  </body>
+    <section class="panel output-panel">
+      <div class="panel-header">
+        <h2>出力</h2>
+        <div class="output-actions">
+          <button id="copy-json">JSONをコピー</button>
+          <button id="download-json">JSONを保存</button>
+        </div>
+      </div>
+      <div class="preview" id="preview">
+        <div class="empty">ここにSVGプレビューが表示されます</div>
+      </div>
+      <div class="selection">
+        <div class="selection-header">
+          <span>選定結果</span>
+          <span class="asset-type" id="asset-type">type: -</span>
+        </div>
+        <p class="selection-summary" id="selection-summary">template: -</p>
+        <ul class="selection-list" id="selection-list"></ul>
+        <div class="selection-rationale" id="selection-rationale"></div>
+      </div>
+      <div class="gauge-editor" id="gauge-editor" hidden>
+        <div class="selection-header">
+          <span>ゲージ形状</span>
+          <button id="apply-gauge" class="ghost">適用</button>
+        </div>
+        <div class="field">
+          <label for="gauge-target">対象</label>
+          <select id="gauge-target"></select>
+        </div>
+        <div class="field">
+          <label for="shape-profile">shape_profile</label>
+          <select id="shape-profile">
+            <option value="radial">radial</option>
+            <option value="segmented">segmented</option>
+            <option value="polygon">polygon</option>
+            <option value="custom_svg">custom_svg</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </div>
+        <div class="field" id="shape-sides-field">
+          <label for="shape-sides">sides</label>
+          <input id="shape-sides" type="number" min="3" step="1" />
+        </div>
+        <div class="field" id="shape-segments-field">
+          <label for="shape-segments">segment_count</label>
+          <input id="shape-segments" type="number" min="1" step="1" />
+        </div>
+        <div class="field">
+          <label for="shape-thickness">thickness</label>
+          <input id="shape-thickness" type="number" min="0" step="0.5" />
+        </div>
+        <p class="hint">shape_profileとshape_paramsを変更して再レンダできます。</p>
+      </div>
+      <div class="constraints-editor" id="constraints-editor" hidden>
+        <div class="selection-header">
+          <span>constraints</span>
+          <button id="apply-constraints" class="ghost">適用</button>
+        </div>
+        <div class="field">
+          <label for="constraints-target">対象</label>
+          <select id="constraints-target"></select>
+        </div>
+        <div class="field">
+          <label>constraint_flags</label>
+          <div class="checkbox-grid" id="constraint-flags"></div>
+        </div>
+        <div class="field">
+          <label for="constraint-params">constraint_params (JSON)</label>
+          <textarea id="constraint-params" rows="4"
+            placeholder='{\"min_tap\": {\"width\": 44, \"height\": 44}}'></textarea>
+        </div>
+        <p class="hint">flagsはチェック、paramsはJSONで編集して再レンダできます。</p>
+      </div>
+      <div class="texture-editor" id="texture-editor" hidden>
+        <div class="selection-header">
+          <span>テクスチャ (アセンブラ)</span>
+          <button id="apply-texture-btn" class="ghost">画像生成＆適用</button>
+        </div>
+        <div class="field">
+          <label for="texture-target">対象レイヤー(roundedRect)</label>
+          <select id="texture-target"></select>
+        </div>
+        <div class="field">
+          <label for="texture-prompt">画像生成プロンプト</label>
+          <textarea id="texture-prompt" rows="3" placeholder="質感や絵柄。例: 古びた羊皮紙, 輝く緑色のスライムゼリー"></textarea>
+        </div>
+        <p class="hint">生成画像を対象レイヤーの形状で切り抜き（クリッピングパス）合成します。AI設定を使用します。</p>
+      </div>
+      <div class="save-panel">
+        <div class="field">
+          <label for="filename-input">保存名</label>
+          <input id="filename-input" type="text" placeholder="button_primary_action_20260108_235901.json" />
+        </div>
+        <div class="field">
+          <label for="tags-input">tags</label>
+          <input id="tags-input" type="text" placeholder="action, primary, fx_glow" />
+          <p class="hint" id="tags-hint">候補: -</p>
+          <p class="hint warning" id="tags-warning"></p>
+        </div>
+        <div class="row">
+          <button id="save-repo">Repoに保存</button>
+          <span class="status" id="save-status">未保存</span>
+        </div>
+      </div>
+      <div class="generated">
+        <div class="selection-header">
+          <span>最近の生成物</span>
+          <button id="refresh-generated" class="ghost">更新</button>
+        </div>
+        <ul class="generated-list" id="generated-list"></ul>
+      </div>
+      <div class="json">
+        <div class="json-header">
+          <span>生成JSON</span>
+          <span class="template-id" id="template-id">template: -</span>
+        </div>
+        <pre id="json-output">{}</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>CLIは使わず、ブラウザで生成→JSON保存する流れを想定。</p>
+  </footer>
+
+  <!-- テンプレート選択モーダル -->
+  <div class="modal" id="template-modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>対応テンプレート一覧</h2>
+        <button id="close-template-modal" class="close-button">&times;</button>
+      </div>
+      <div class="template-filters">
+        <div class="search-box">
+          <input type="text" id="template-search" placeholder="キーワードで検索 (例: ボタン, ゲージ)..." />
+        </div>
+        <div class="tag-filters" id="tag-filters">
+          <!-- タグチップがここに動的に追加される -->
+        </div>
+      </div>
+      <div class="template-grid" id="template-grid">
+        <!-- テンプレートカードがここに動的に追加される -->
+      </div>
+    </div>
+  </div>
+
+  <script src="studio.js"></script>
+</body>
+
 </html>

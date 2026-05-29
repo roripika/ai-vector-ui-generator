@@ -3,8 +3,12 @@
   "$id": "https://ai-vector-ui-generator/schema/ui_asset.schema.json",
   "title": "Vector UI Asset",
   "oneOf": [
-    { "$ref": "#/definitions/buttonAsset" },
-    { "$ref": "#/definitions/screenAsset" }
+    {
+      "$ref": "#/definitions/buttonAsset"
+    },
+    {
+      "$ref": "#/definitions/screenAsset"
+    }
   ],
   "definitions": {
     "token": {
@@ -45,15 +49,27 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "maxLength": 120 },
-        "description": { "type": "string", "maxLength": 500 },
+        "name": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
         "tags": {
           "type": "array",
-          "items": { "type": "string", "maxLength": 32 },
+          "items": {
+            "type": "string",
+            "maxLength": 32
+          },
           "maxItems": 16,
           "uniqueItems": true
         },
-        "generated_from_prompt": { "type": "string", "maxLength": 2000 },
+        "generated_from_prompt": {
+          "type": "string",
+          "maxLength": 2000
+        },
         "selected_templates": {
           "type": "array",
           "items": {
@@ -65,7 +81,36 @@
           "maxItems": 8,
           "uniqueItems": true
         },
-        "generator_version": { "$ref": "#/definitions/generatorVersion" }
+        "generator_version": {
+          "$ref": "#/definitions/generatorVersion"
+        },
+        "refinement_history": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "instruction",
+              "ai_provider",
+              "ai_model"
+            ],
+            "properties": {
+              "instruction": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "ai_provider": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "ai_model": {
+                "type": "string",
+                "maxLength": 64
+              }
+            }
+          }
+        }
       }
     },
     "generatorVersion": {
@@ -111,8 +156,16 @@
             "input"
           ]
         },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
-        { "type": "string", "enum": ["unknown"] }
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "unknown"
+          ]
+        }
       ]
     },
     "importanceTag": {
@@ -131,8 +184,16 @@
             "decorative"
           ]
         },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
-        { "type": "string", "enum": ["unknown"] }
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "unknown"
+          ]
+        }
       ]
     },
     "stateTag": {
@@ -159,8 +220,16 @@
             "off"
           ]
         },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
-        { "type": "string", "enum": ["unknown"] }
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "unknown"
+          ]
+        }
       ]
     },
     "constraintKey": {
@@ -181,8 +250,16 @@
             "max_lines"
           ]
         },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
-        { "type": "string", "enum": ["unknown"] }
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "unknown"
+          ]
+        }
       ]
     },
     "constraints": {
@@ -190,7 +267,9 @@
         {
           "type": "array",
           "maxItems": 32,
-          "items": { "$ref": "#/definitions/constraintKey" }
+          "items": {
+            "$ref": "#/definitions/constraintKey"
+          }
         },
         {
           "type": "object",
@@ -201,7 +280,9 @@
     "constraintFlags": {
       "type": "array",
       "maxItems": 32,
-      "items": { "$ref": "#/definitions/constraintKey" }
+      "items": {
+        "$ref": "#/definitions/constraintKey"
+      }
     },
     "constraintParams": {
       "type": "object",
@@ -209,19 +290,42 @@
     },
     "layoutRef": {
       "anyOf": [
-        { "type": "string", "pattern": "^(slot|grid|flow|stack|list):[A-Za-z0-9_-]+$" },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" },
-        { "type": "string", "enum": ["unknown"] },
-        { "type": "object", "additionalProperties": true }
+        {
+          "type": "string",
+          "pattern": "^(slot|grid|flow|stack|list):[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "unknown"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        }
       ]
     },
     "shapeProfile": {
       "anyOf": [
         {
           "type": "string",
-          "enum": ["radial", "segmented", "polygon", "custom_svg", "unknown"]
+          "enum": [
+            "radial",
+            "segmented",
+            "polygon",
+            "custom_svg",
+            "unknown"
+          ]
         },
-        { "type": "string", "pattern": "^custom:[A-Za-z0-9_-]+$" }
+        {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9_-]+$"
+        }
       ]
     },
     "shapeParams": {
@@ -235,40 +339,79 @@
     "rectBase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "y", "width", "height"],
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
       "properties": {
-        "x": { "$ref": "#/definitions/finiteNumber" },
-        "y": { "$ref": "#/definitions/finiteNumber" },
-        "width": { "$ref": "#/definitions/positiveLength" },
-        "height": { "$ref": "#/definitions/positiveLength" },
-        "radius": { "$ref": "#/definitions/nonNegativeLength" }
+        "x": {
+          "$ref": "#/definitions/finiteNumber"
+        },
+        "y": {
+          "$ref": "#/definitions/finiteNumber"
+        },
+        "width": {
+          "$ref": "#/definitions/positiveLength"
+        },
+        "height": {
+          "$ref": "#/definitions/positiveLength"
+        },
+        "radius": {
+          "$ref": "#/definitions/nonNegativeLength"
+        }
       }
     },
     "roundedRect": {
       "allOf": [
-        { "$ref": "#/definitions/rectBase" },
+        {
+          "$ref": "#/definitions/rectBase"
+        },
         {
           "type": "object",
-          "required": ["radius"],
+          "required": [
+            "radius"
+          ],
           "properties": {
-            "radius": { "$ref": "#/definitions/nonNegativeLength" }
+            "radius": {
+              "$ref": "#/definitions/nonNegativeLength"
+            }
           }
         }
       ]
     },
-    "textRect": { "$ref": "#/definitions/rectBase" },
+    "textRect": {
+      "$ref": "#/definitions/rectBase"
+    },
     "style": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["fill"],
+      "required": [
+        "fill"
+      ],
       "properties": {
-        "fill": { "$ref": "#/definitions/token" },
-        "stroke": { "$ref": "#/definitions/token" },
-        "strokeWidth": { "$ref": "#/definitions/nonNegativeLength" },
-        "glow": { "$ref": "#/definitions/token" },
+        "fill": {
+          "$ref": "#/definitions/token"
+        },
+        "stroke": {
+          "$ref": "#/definitions/token"
+        },
+        "strokeWidth": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "glow": {
+          "$ref": "#/definitions/token"
+        },
         "blendMode": {
           "type": "string",
-          "enum": ["normal", "screen", "multiply", "overlay", "soft-light"]
+          "enum": [
+            "normal",
+            "screen",
+            "multiply",
+            "overlay",
+            "soft-light"
+          ]
         }
       }
     },
@@ -284,37 +427,100 @@
     "gradientStop": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["offset", "color"],
+      "required": [
+        "offset",
+        "color"
+      ],
       "properties": {
-        "offset": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.001 },
-        "color": { "$ref": "#/definitions/colorValue" },
-        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 }
+        "offset": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.001
+        },
+        "color": {
+          "anyOf": [
+            { "$ref": "#/definitions/colorValue" },
+            { "$ref": "#/definitions/token" }
+          ]
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.01
+        }
       }
     },
     "linearGradient": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["angle", "stops"],
+      "required": [
+        "angle",
+        "stops"
+      ],
       "properties": {
-        "angle": { "type": "number", "minimum": 0, "maximum": 360 },
+        "angle": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360
+        },
         "stops": {
           "type": "array",
           "minItems": 2,
           "maxItems": 6,
-          "items": { "$ref": "#/definitions/gradientStop" }
+          "items": {
+            "$ref": "#/definitions/gradientStop"
+          }
         },
-        "spreadMethod": { "type": "string", "enum": ["pad", "reflect", "repeat"] }
+        "spreadMethod": {
+          "type": "string",
+          "enum": [
+            "pad",
+            "reflect",
+            "repeat"
+          ]
+        }
       }
     },
     "glowSpec": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["color", "opacity", "stdDeviation"],
+      "required": [
+        "color",
+        "opacity",
+        "stdDeviation"
+      ],
       "properties": {
-        "color": { "$ref": "#/definitions/colorValue" },
-        "opacity": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
-        "stdDeviation": { "$ref": "#/definitions/nonNegativeLength" },
-        "margin": { "$ref": "#/definitions/nonNegativeLength" }
+        "color": {
+          "$ref": "#/definitions/colorValue"
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.01
+        },
+        "stdDeviation": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "margin": {
+          "$ref": "#/definitions/nonNegativeLength"
+        }
+      }
+    },
+    "textureSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
       }
     },
     "theme": {
@@ -323,40 +529,94 @@
       "properties": {
         "colors": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/colorValue" }
+          "additionalProperties": {
+            "$ref": "#/definitions/colorValue"
+          }
         },
         "fonts": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/fontValue" }
+          "additionalProperties": {
+            "$ref": "#/definitions/fontValue"
+          }
         },
         "gradients": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/linearGradient" }
+          "additionalProperties": {
+            "$ref": "#/definitions/linearGradient"
+          }
         },
         "glows": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/definitions/glowSpec" }
+          "additionalProperties": {
+            "$ref": "#/definitions/glowSpec"
+          }
         }
       }
     },
     "textContent": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["value", "font", "size", "maxLines", "overflow", "fit"],
+      "required": [
+        "value",
+        "font",
+        "size",
+        "maxLines",
+        "overflow",
+        "fit"
+      ],
       "properties": {
-        "value": { "type": "string", "minLength": 1, "maxLength": 280 },
-        "font": { "$ref": "#/definitions/token" },
-        "size": { "$ref": "#/definitions/positiveLength" },
-        "maxLines": { "type": "integer", "minimum": 1, "maximum": 6 },
-        "overflow": { "type": "string", "enum": ["ellipsis", "clip"] },
-        "fit": { "type": "string", "enum": ["none", "shrink"] },
-        "align": { "type": "string", "enum": ["left", "center", "right"] }
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 280
+        },
+        "font": {
+          "$ref": "#/definitions/token"
+        },
+        "size": {
+          "$ref": "#/definitions/positiveLength"
+        },
+        "maxLines": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "overflow": {
+          "type": "string",
+          "enum": [
+            "ellipsis",
+            "clip"
+          ]
+        },
+        "fit": {
+          "type": "string",
+          "enum": [
+            "none",
+            "shrink"
+          ]
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ]
+        },
+        "clipPadding": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 20,
+          "description": "clipPath の上端に追加するパディング (px)。フォントのアセンダーがクリップされる場合に増やす。デフォルト: 2"
+        }
       }
     },
     "bindVar": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["var"],
+      "required": [
+        "var"
+      ],
       "properties": {
         "var": {
           "type": "string",
@@ -367,26 +627,49 @@
       }
     },
     "bindLiteral": {
-      "type": ["number", "boolean"]
+      "type": [
+        "number",
+        "boolean"
+      ]
     },
     "bindExpr": {
       "oneOf": [
-        { "$ref": "#/definitions/bindVar" },
-        { "$ref": "#/definitions/bindLiteral" },
-        { "$ref": "#/definitions/bindOp" }
+        {
+          "$ref": "#/definitions/bindVar"
+        },
+        {
+          "$ref": "#/definitions/bindLiteral"
+        },
+        {
+          "$ref": "#/definitions/bindOp"
+        }
       ]
     },
     "bindOp": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["op", "args"],
+      "required": [
+        "op",
+        "args"
+      ],
       "properties": {
-        "op": { "type": "string", "enum": ["gt", "lt", "eq", "and", "or"] },
+        "op": {
+          "type": "string",
+          "enum": [
+            "gt",
+            "lt",
+            "eq",
+            "and",
+            "or"
+          ]
+        },
         "args": {
           "type": "array",
           "minItems": 2,
           "maxItems": 6,
-          "items": { "$ref": "#/definitions/bindExpr" }
+          "items": {
+            "$ref": "#/definitions/bindExpr"
+          }
         }
       }
     },
@@ -394,66 +677,136 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "value": { "$ref": "#/definitions/bindVar" },
-        "visibleWhen": { "$ref": "#/definitions/bindExpr" },
-        "enabledWhen": { "$ref": "#/definitions/bindExpr" }
+        "value": {
+          "$ref": "#/definitions/bindVar"
+        },
+        "visibleWhen": {
+          "$ref": "#/definitions/bindExpr"
+        },
+        "enabledWhen": {
+          "$ref": "#/definitions/bindExpr"
+        }
       }
     },
     "stateValue": {
       "oneOf": [
-        { "type": "number" },
-        { "type": "boolean" },
-        { "$ref": "#/definitions/stateObject" }
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "$ref": "#/definitions/stateObject"
+        }
       ]
     },
     "stateObject": {
       "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/stateValue" }
+      "additionalProperties": {
+        "$ref": "#/definitions/stateValue"
+      }
     },
     "padding": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "top": { "$ref": "#/definitions/nonNegativeLength" },
-        "right": { "$ref": "#/definitions/nonNegativeLength" },
-        "bottom": { "$ref": "#/definitions/nonNegativeLength" },
-        "left": { "$ref": "#/definitions/nonNegativeLength" }
+        "top": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "right": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "bottom": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "left": {
+          "$ref": "#/definitions/nonNegativeLength"
+        }
       }
     },
     "layoutRow": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "gap": { "$ref": "#/definitions/nonNegativeLength" },
-        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
-        "padding": { "$ref": "#/definitions/padding" }
+        "gap": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "stretch"
+          ]
+        },
+        "padding": {
+          "$ref": "#/definitions/padding"
+        }
       }
     },
     "layoutColumn": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "gap": { "$ref": "#/definitions/nonNegativeLength" },
-        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
-        "padding": { "$ref": "#/definitions/padding" }
+        "gap": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "stretch"
+          ]
+        },
+        "padding": {
+          "$ref": "#/definitions/padding"
+        }
       }
     },
     "layoutGrid": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["columns"],
+      "required": [
+        "columns"
+      ],
       "properties": {
-        "columns": { "type": "integer", "minimum": 1, "maximum": 64 },
-        "rowGap": { "$ref": "#/definitions/nonNegativeLength" },
-        "colGap": { "$ref": "#/definitions/nonNegativeLength" },
-        "align": { "type": "string", "enum": ["start", "center", "end", "stretch"] },
-        "padding": { "$ref": "#/definitions/padding" }
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "rowGap": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "colGap": {
+          "$ref": "#/definitions/nonNegativeLength"
+        },
+        "align": {
+          "type": "string",
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "stretch"
+          ]
+        },
+        "padding": {
+          "$ref": "#/definitions/padding"
+        }
       }
     },
     "layoutItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "componentId", "size"],
+      "required": [
+        "id",
+        "componentId",
+        "size"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -467,20 +820,39 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "size": { "$ref": "#/definitions/size" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" }
+        "size": {
+          "$ref": "#/definitions/size"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        }
       }
     },
     "slot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "rect"],
+      "required": [
+        "id",
+        "rect"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -488,15 +860,28 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "description": { "type": "string", "maxLength": 200 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 200
+        }
       }
     },
     "rectLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -504,25 +889,63 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "roundedRect" },
-        "rect": { "$ref": "#/definitions/roundedRect" },
-        "style": { "$ref": "#/definitions/style" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "roundedRect"
+        },
+        "rect": {
+          "$ref": "#/definitions/roundedRect"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "texture": {
+          "$ref": "#/definitions/textureSpec"
+        }
       }
     },
     "textLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style", "text"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style",
+        "text"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -530,26 +953,63 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "text" },
-        "rect": { "$ref": "#/definitions/textRect" },
-        "style": { "$ref": "#/definitions/style" },
-        "text": { "$ref": "#/definitions/textContent" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "text"
+        },
+        "rect": {
+          "$ref": "#/definitions/textRect"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "text": {
+          "$ref": "#/definitions/textContent"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "layoutRowLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "layout", "items"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "layout",
+        "items"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -557,31 +1017,68 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "layoutRow" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "layout": { "$ref": "#/definitions/layoutRow" },
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "layoutRow"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "layout": {
+          "$ref": "#/definitions/layoutRow"
+        },
         "items": {
           "type": "array",
           "minItems": 1,
           "maxItems": 128,
-          "items": { "$ref": "#/definitions/layoutItem" }
+          "items": {
+            "$ref": "#/definitions/layoutItem"
+          }
         },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "layoutColumnLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "layout", "items"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "layout",
+        "items"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -589,31 +1086,68 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "layoutColumn" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "layout": { "$ref": "#/definitions/layoutColumn" },
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "layoutColumn"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "layout": {
+          "$ref": "#/definitions/layoutColumn"
+        },
         "items": {
           "type": "array",
           "minItems": 1,
           "maxItems": 128,
-          "items": { "$ref": "#/definitions/layoutItem" }
+          "items": {
+            "$ref": "#/definitions/layoutItem"
+          }
         },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "layoutGridLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "layout", "items"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "layout",
+        "items"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -621,31 +1155,68 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "layoutGrid" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "layout": { "$ref": "#/definitions/layoutGrid" },
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "layoutGrid"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "layout": {
+          "$ref": "#/definitions/layoutGrid"
+        },
         "items": {
           "type": "array",
           "minItems": 1,
           "maxItems": 256,
-          "items": { "$ref": "#/definitions/layoutItem" }
+          "items": {
+            "$ref": "#/definitions/layoutItem"
+          }
         },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "gaugeLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style", "track"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style",
+        "track"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -653,30 +1224,78 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "gauge" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "style": { "$ref": "#/definitions/style" },
-        "track": { "$ref": "#/definitions/token" },
-        "value": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
-        "shape_profile": { "$ref": "#/definitions/shapeProfile" },
-        "shape_params": { "$ref": "#/definitions/shapeParams" },
-        "value_model": { "$ref": "#/definitions/valueModel" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "gauge"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "track": {
+          "$ref": "#/definitions/token"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.01
+        },
+        "shape_profile": {
+          "$ref": "#/definitions/shapeProfile"
+        },
+        "shape_params": {
+          "$ref": "#/definitions/shapeParams"
+        },
+        "value_model": {
+          "$ref": "#/definitions/valueModel"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "progressBarLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style", "track"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style",
+        "track"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -684,28 +1303,75 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "progressBar" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "style": { "$ref": "#/definitions/style" },
-        "track": { "$ref": "#/definitions/token" },
-        "value": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
-        "direction": { "type": "string", "enum": ["leftToRight", "rightToLeft"] },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "progressBar"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "track": {
+          "$ref": "#/definitions/token"
+        },
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.01
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "leftToRight",
+            "rightToLeft"
+          ]
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "cooldownLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -713,27 +1379,73 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "cooldownOverlay" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "style": { "$ref": "#/definitions/style" },
-        "progress": { "type": "number", "minimum": 0, "maximum": 1, "multipleOf": 0.01 },
-        "direction": { "type": "string", "enum": ["topToBottom", "bottomToTop"] },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "cooldownOverlay"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "progress": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "multipleOf": 0.01
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "topToBottom",
+            "bottomToTop"
+          ]
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "toggleLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style", "knobFill"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style",
+        "knobFill"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -741,26 +1453,63 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "toggle" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "style": { "$ref": "#/definitions/style" },
-        "knobFill": { "$ref": "#/definitions/token" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "toggle"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "knobFill": {
+          "$ref": "#/definitions/token"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "badgeLayer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "shape", "rect", "style", "text"],
+      "required": [
+        "id",
+        "shape",
+        "rect",
+        "style",
+        "text"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -768,62 +1517,153 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "shape": { "const": "badge" },
-        "rect": { "$ref": "#/definitions/rectBase" },
-        "style": { "$ref": "#/definitions/style" },
-        "textStyle": { "$ref": "#/definitions/style" },
-        "text": { "$ref": "#/definitions/textContent" },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "bind": { "$ref": "#/definitions/bind" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "shape": {
+          "const": "badge"
+        },
+        "rect": {
+          "$ref": "#/definitions/rectBase"
+        },
+        "style": {
+          "$ref": "#/definitions/style"
+        },
+        "textStyle": {
+          "$ref": "#/definitions/style"
+        },
+        "text": {
+          "$ref": "#/definitions/textContent"
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "bind": {
+          "$ref": "#/definitions/bind"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "layer": {
       "oneOf": [
-        { "$ref": "#/definitions/rectLayer" },
-        { "$ref": "#/definitions/textLayer" },
-        { "$ref": "#/definitions/layoutRowLayer" },
-        { "$ref": "#/definitions/layoutColumnLayer" },
-        { "$ref": "#/definitions/layoutGridLayer" },
-        { "$ref": "#/definitions/gaugeLayer" },
-        { "$ref": "#/definitions/progressBarLayer" },
-        { "$ref": "#/definitions/cooldownLayer" },
-        { "$ref": "#/definitions/toggleLayer" },
-        { "$ref": "#/definitions/badgeLayer" }
+        {
+          "$ref": "#/definitions/rectLayer"
+        },
+        {
+          "$ref": "#/definitions/textLayer"
+        },
+        {
+          "$ref": "#/definitions/layoutRowLayer"
+        },
+        {
+          "$ref": "#/definitions/layoutColumnLayer"
+        },
+        {
+          "$ref": "#/definitions/layoutGridLayer"
+        },
+        {
+          "$ref": "#/definitions/gaugeLayer"
+        },
+        {
+          "$ref": "#/definitions/progressBarLayer"
+        },
+        {
+          "$ref": "#/definitions/cooldownLayer"
+        },
+        {
+          "$ref": "#/definitions/toggleLayer"
+        },
+        {
+          "$ref": "#/definitions/badgeLayer"
+        }
       ]
     },
     "canvas": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["width", "height"],
+      "required": [
+        "width",
+        "height"
+      ],
       "properties": {
-        "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
-        "height": { "type": "integer", "minimum": 1, "maximum": 8192 },
-        "safeArea": { "$ref": "#/definitions/safeArea" }
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "safeArea": {
+          "$ref": "#/definitions/safeArea"
+        }
       }
     },
     "safeArea": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "y", "width", "height"],
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
       "properties": {
-        "x": { "type": "integer", "minimum": 0, "maximum": 8192 },
-        "y": { "type": "integer", "minimum": 0, "maximum": 8192 },
-        "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
-        "height": { "type": "integer", "minimum": 1, "maximum": 8192 }
+        "x": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8192
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8192
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        }
       }
     },
     "component": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "viewBox", "layers"],
+      "required": [
+        "id",
+        "viewBox",
+        "layers"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -831,48 +1671,96 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "name": { "type": "string", "maxLength": 80 },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
-        "shape_profile": { "$ref": "#/definitions/shapeProfile" },
-        "shape_params": { "$ref": "#/definitions/shapeParams" },
-        "value_model": { "$ref": "#/definitions/valueModel" },
-        "viewBox": { "$ref": "#/definitions/viewBox" },
+        "name": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
+        "shape_profile": {
+          "$ref": "#/definitions/shapeProfile"
+        },
+        "shape_params": {
+          "$ref": "#/definitions/shapeParams"
+        },
+        "value_model": {
+          "$ref": "#/definitions/valueModel"
+        },
+        "viewBox": {
+          "$ref": "#/definitions/viewBox"
+        },
         "layers": {
           "type": "array",
           "minItems": 1,
           "maxItems": 32,
-          "items": { "$ref": "#/definitions/layer" }
+          "items": {
+            "$ref": "#/definitions/layer"
+          }
         }
       }
     },
     "offset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "y"],
+      "required": [
+        "x",
+        "y"
+      ],
       "properties": {
-        "x": { "$ref": "#/definitions/finiteNumber" },
-        "y": { "$ref": "#/definitions/finiteNumber" }
+        "x": {
+          "$ref": "#/definitions/finiteNumber"
+        },
+        "y": {
+          "$ref": "#/definitions/finiteNumber"
+        }
       }
     },
     "size": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["width", "height"],
+      "required": [
+        "width",
+        "height"
+      ],
       "properties": {
-        "width": { "$ref": "#/definitions/positiveLength" },
-        "height": { "$ref": "#/definitions/positiveLength" }
+        "width": {
+          "$ref": "#/definitions/positiveLength"
+        },
+        "height": {
+          "$ref": "#/definitions/positiveLength"
+        }
       }
     },
     "instance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "componentId", "anchorTo", "anchor", "offset", "size"],
+      "required": [
+        "id",
+        "componentId",
+        "anchorTo",
+        "anchor",
+        "offset",
+        "size"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -886,13 +1774,27 @@
           "minLength": 1,
           "maxLength": 64
         },
-        "role": { "$ref": "#/definitions/roleTag" },
-        "importance": { "$ref": "#/definitions/importanceTag" },
-        "state": { "$ref": "#/definitions/stateTag" },
-        "constraints": { "$ref": "#/definitions/constraints" },
-        "constraint_flags": { "$ref": "#/definitions/constraintFlags" },
-        "constraint_params": { "$ref": "#/definitions/constraintParams" },
-        "layout_ref": { "$ref": "#/definitions/layoutRef" },
+        "role": {
+          "$ref": "#/definitions/roleTag"
+        },
+        "importance": {
+          "$ref": "#/definitions/importanceTag"
+        },
+        "state": {
+          "$ref": "#/definitions/stateTag"
+        },
+        "constraints": {
+          "$ref": "#/definitions/constraints"
+        },
+        "constraint_flags": {
+          "$ref": "#/definitions/constraintFlags"
+        },
+        "constraint_params": {
+          "$ref": "#/definitions/constraintParams"
+        },
+        "layout_ref": {
+          "$ref": "#/definitions/layoutRef"
+        },
         "anchorTo": {
           "type": "string",
           "pattern": "^[a-z][a-z0-9_-]*$",
@@ -913,69 +1815,112 @@
             "bottomRight"
           ]
         },
-        "offset": { "$ref": "#/definitions/offset" },
-        "size": { "$ref": "#/definitions/size" },
-        "zIndex": { "type": "integer", "minimum": 0, "maximum": 255 }
+        "offset": {
+          "$ref": "#/definitions/offset"
+        },
+        "size": {
+          "$ref": "#/definitions/size"
+        },
+        "zIndex": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
       }
     },
     "buttonAsset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["assetType", "viewBox", "layers"],
+      "required": [
+        "assetType",
+        "viewBox",
+        "layers"
+      ],
       "properties": {
         "version": {
           "type": "string",
           "pattern": "^\\d+\\.\\d+\\.\\d+$"
         },
-        "assetType": { "const": "button" },
-        "viewBox": { "$ref": "#/definitions/viewBox" },
-        "metadata": { "$ref": "#/definitions/metadata" },
-        "theme": { "$ref": "#/definitions/theme" },
+        "assetType": {
+          "const": "button"
+        },
+        "viewBox": {
+          "$ref": "#/definitions/viewBox"
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "theme": {
+          "$ref": "#/definitions/theme"
+        },
         "layers": {
           "type": "array",
           "minItems": 1,
           "maxItems": 16,
-          "items": { "$ref": "#/definitions/layer" }
+          "items": {
+            "$ref": "#/definitions/layer"
+          }
         }
       }
     },
     "screenAsset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["assetType", "canvas", "components", "instances"],
+      "required": [
+        "assetType",
+        "canvas",
+        "components",
+        "instances"
+      ],
       "properties": {
         "version": {
           "type": "string",
           "pattern": "^\\d+\\.\\d+\\.\\d+$"
         },
-        "assetType": { "const": "screen" },
+        "assetType": {
+          "const": "screen"
+        },
         "patternId": {
           "type": "string",
           "pattern": "^[a-z][a-z0-9_-]*$",
           "minLength": 1,
           "maxLength": 64
         },
-        "metadata": { "$ref": "#/definitions/metadata" },
-        "theme": { "$ref": "#/definitions/theme" },
-        "mockState": { "$ref": "#/definitions/stateObject" },
-        "canvas": { "$ref": "#/definitions/canvas" },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "theme": {
+          "$ref": "#/definitions/theme"
+        },
+        "mockState": {
+          "$ref": "#/definitions/stateObject"
+        },
+        "canvas": {
+          "$ref": "#/definitions/canvas"
+        },
         "components": {
           "type": "array",
           "minItems": 1,
           "maxItems": 64,
-          "items": { "$ref": "#/definitions/component" }
+          "items": {
+            "$ref": "#/definitions/component"
+          }
         },
         "slots": {
           "type": "array",
           "minItems": 0,
           "maxItems": 64,
-          "items": { "$ref": "#/definitions/slot" }
+          "items": {
+            "$ref": "#/definitions/slot"
+          }
         },
         "instances": {
           "type": "array",
           "minItems": 1,
           "maxItems": 128,
-          "items": { "$ref": "#/definitions/instance" }
+          "items": {
+            "$ref": "#/definitions/instance"
+          }
         }
       }
     }

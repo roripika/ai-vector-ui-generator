@@ -1,10 +1,14 @@
 :root {
   --bg: #11151c;
+  --bg-1: #0f131a;
+  --bg-2: #1a202b;
   --bg-soft: #1a202b;
   --panel: #1f2531;
   --accent: #f2b45b;
+  --accent-1: #f9c574;
   --accent-2: #4ecdc4;
   --ink: #f5f3ef;
+  --text: #f5f3ef;
   --muted: #9aa1ad;
   --border: #2f3645;
   --shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
@@ -220,8 +224,96 @@ button#clear {
   border: 1px solid var(--border);
   color: var(--muted);
   padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+/* AI設定 */
+.ai-settings {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.ai-settings summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-2);
+  user-select: none;
+  padding: 0.25rem 0;
+}
+
+.ai-settings summary:hover {
+  color: var(--accent-1);
+}
+
+.ai-settings[open] summary {
+  margin-bottom: 1rem;
+}
+
+.ai-settings .field {
+  margin-bottom: 0.75rem;
+}
+
+.ai-settings .field:last-child {
+  margin-bottom: 0;
+}
+
+.ai-settings input[type="password"],
+.ai-settings select {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.ai-settings input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+/* 差分修正パネル */
+.refine-panel {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--accent-2);
+  border-radius: 6px;
+}
+
+.refine-panel .field {
+  margin-bottom: 0.75rem;
+}
+
+.refine-panel textarea {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.refine-panel button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent-2);
+  color: var(--bg-1);
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.refine-panel button:hover {
+  background: var(--accent-1);
 }
 
 .note {
@@ -376,4 +468,202 @@ pre {
     flex-direction: column;
     gap: 12px;
   }
+}
+
+/* テンプレートブラウザ・モーダル */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal[hidden] {
+  display: none !important;
+}
+
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: var(--ink);
+}
+
+.template-filters {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-box input {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tag-chip:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+
+.tag-chip.active {
+  background: var(--accent-2);
+  border-color: var(--accent-2);
+  color: #0d1218;
+}
+
+.template-grid {
+  padding: 24px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  flex: 1;
+}
+
+.template-card {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.template-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.template-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.template-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.template-card .card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.card-tag {
+  font-size: 0.65rem;
+  background: var(--bg-2);
+  color: var(--muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.template-card .card-when {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* スクロールバーのカスタマイズ */
+.template-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.template-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.template-grid::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+.template-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }

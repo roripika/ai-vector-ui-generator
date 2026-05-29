@@ -1,0 +1,62 @@
+{
+  "assetType": "button",
+  "viewBox": [
+    0,
+    0,
+    300,
+    100
+  ],
+  "layers": [
+    {
+      "id": "bg",
+      "shape": "roundedRect",
+      "rect": {
+        "x": 10,
+        "y": 10,
+        "width": 280,
+        "height": 80,
+        "radius": 20
+      },
+      "style": {
+        "fill": "ui.primary",
+        "stroke": "ui.border",
+        "strokeWidth": 4
+      },
+      "texture": {
+        "path": "file:///Users/ooharayukio/godot_cxx_2d_game_template/godot-cpp/test/project/icon.png"
+      }
+    },
+    {
+      "id": "label",
+      "shape": "text",
+      "rect": {
+        "x": 20,
+        "y": 20,
+        "width": 260,
+        "height": 60
+      },
+      "text": {
+        "value": "Masked Texture",
+        "size": 24,
+        "align": "center",
+        "font": "ui.body",
+        "maxLines": 1,
+        "overflow": "clip",
+        "fit": "none"
+      },
+      "style": {
+        "fill": "ui.textSecondary"
+      }
+    }
+  ],
+  "theme": {
+    "colors": {
+      "ui.primary": "#3b82f6",
+      "ui.border": "#1e40af",
+      "ui.textSecondary": "#ffffff"
+    },
+    "fonts": {
+      "ui.body": "sans-serif"
+    }
+  }
+}

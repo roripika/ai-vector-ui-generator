@@ -74,6 +74,27 @@ class BaseAIProvider(ABC):
             AIProviderError: 修正に失敗した場合
         """
         pass
+
+    @abstractmethod
+    def generate_image(
+        self,
+        prompt: str,
+        output_path: str
+    ) -> str:
+        """プロンプトから画像を生成して保存
+        
+        Args:
+            prompt: 画像生成プロンプト
+            output_path: 保存先のファイルパス
+            
+        Returns:
+            保存されたファイルのパス (URI形式、例: file:///path/to/img.png)
+            
+        Raises:
+            AIProviderError: 生成に失敗した場合
+        """
+        pass
+
     
     def _validate_json_structure(self, data: Dict[str, Any]) -> bool:
         """生成されたJSONの基本構造を検証

@@ -54,6 +54,9 @@ def export_pdf(svg_path: Path, pdf_path: Path) -> None:
 def _inkscape_binary() -> str:
     binary = shutil.which("inkscape")
     if not binary:
+        mac_path = "/Applications/Inkscape.app/Contents/MacOS/inkscape"
+        if Path(mac_path).exists():
+            return mac_path
         raise RuntimeError("Inkscape was not found in PATH. Install it to enable rendering.")
     return binary
 

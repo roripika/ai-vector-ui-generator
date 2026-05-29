@@ -28,6 +28,9 @@ def validate_asset(asset: dict[str, Any], schema_path: Optional[Path] = None) ->
 
     for error in sorted(validator.iter_errors(asset), key=_error_sort_key):
         issues.append(f"{_format_path(error.path)}: {error.message}")
+        if error.context:
+            for suberror in error.context:
+                issues.append(f"  - Cause: {_format_path(suberror.path)}: {suberror.message}")
 
     issues.extend(_semantic_checks(asset))
 

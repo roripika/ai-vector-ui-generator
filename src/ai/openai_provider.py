@@ -149,3 +149,28 @@ class OpenAIProvider(BaseAIProvider):
                 raise AIProviderError(f"修正に失敗しました: {e}")
         
         raise AIProviderError(f"{max_retries}回のリトライ後も修正に失敗しました")
+
+    def generate_image(self, prompt: str, output_path: str) -> str:
+        """プロンプトから画像を生成して保存 (DALL-E 3)"""
+        import urllib.request
+        from pathlib import Path
+        try:
+            response = self.client.images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                size="1024x1024",
+                quality="standard",
+                n=1,
+            )
+            image_url = response.data[0].url
+            if not image_url:
+                raise AIProviderError("画像のURLが取得できませんでした")
+                
+            out_file = Path(output_path)
+            out_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            urllib.request.urlretrieve(image_url, str(out_file))
+            
+            return f"file://{out_file.resolve()}"
+        except Exception as e:
+            raise AIProviderError(f"画像生成に失敗しました: {e}")

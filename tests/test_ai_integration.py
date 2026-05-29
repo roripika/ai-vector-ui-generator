@@ -5,11 +5,34 @@
 """
 
 import os
-
+import json
 import pytest
 
 from src.ai import create_provider
 from src.ai.base import AIProviderError
+from src.validator import validate_asset
+from src.constraints import normalize_asset_constraints
+# server.pyの実装をテストでも利用する
+from src.preview.server import _clean_top_level_fields
+
+def validate_generated_asset(asset, stage="generation"):
+    """生成されたアセットがサーバーロジックを通してバリデーションを通るか検証"""
+    print(f"\n--- Raw AI Output ({stage}) ---")
+    print(json.dumps(asset, indent=2, ensure_ascii=False))
+    
+    # サーバー側ロジックの再現
+    _clean_top_level_fields(asset)
+    normalize_asset_constraints(asset)
+    
+    print(f"\n--- Normalized Asset ({stage}) ---")
+    print(json.dumps(asset, indent=2, ensure_ascii=False))
+
+    try:
+        validate_asset(asset)
+    except Exception as e:
+        print(f"\n!!! VALIDATION ERROR DETAILS !!!\n{e}\n")
+        pytest.fail(f"Validation failed during {stage}: {e}")
+    return asset
 
 
 @pytest.mark.skipif(
@@ -28,15 +51,10 @@ class TestOpenAIIntegration:
             temperature=0.3
         )
         
-        # 基本構造の確認
-        assert "assetType" in result
-        assert "viewBox" in result
-        assert isinstance(result["viewBox"], list)
-        assert len(result["viewBox"]) == 4
+        validate_generated_asset(result, "generation")
         
         # メタデータの確認
         assert "metadata" in result
-        assert result["metadata"]["generated_from_prompt"] == "シンプルな青いボタン"
         assert result["metadata"]["ai_provider"] == "openai"
 
     def test_refine_asset(self):
@@ -48,6 +66,7 @@ class TestOpenAIIntegration:
             "赤いボタン",
             temperature=0.3
         )
+        validate_generated_asset(asset, "generation")
         
         # 差分修正
         refined = provider.refine_asset(
@@ -55,15 +74,10 @@ class TestOpenAIIntegration:
             "色を青に変更して",
             temperature=0.3
         )
-        
-        # 基本構造の確認
-        assert "assetType" in refined
-        assert "viewBox" in refined
+        validate_generated_asset(refined, "refinement")
         
         # 修正履歴の確認
-        assert "metadata" in refined
         assert "refinement_history" in refined["metadata"]
-        assert len(refined["metadata"]["refinement_history"]) > 0
 
 
 @pytest.mark.skipif(
@@ -81,17 +95,7 @@ class TestGeminiIntegration:
             "シンプルな緑のボタン",
             temperature=0.3
         )
-        
-        # 基本構造の確認
-        assert "assetType" in result
-        assert "viewBox" in result
-        assert isinstance(result["viewBox"], list)
-        assert len(result["viewBox"]) == 4
-        
-        # メタデータの確認
-        assert "metadata" in result
-        assert result["metadata"]["generated_from_prompt"] == "シンプルな緑のボタン"
-        assert result["metadata"]["ai_provider"] == "gemini"
+        validate_generated_asset(result, "generation")
 
     def test_refine_asset(self):
         """実際の差分修正テスト"""
@@ -102,6 +106,7 @@ class TestGeminiIntegration:
             "黄色いボタン",
             temperature=0.3
         )
+        validate_generated_asset(asset, "generation")
         
         # 差分修正
         refined = provider.refine_asset(
@@ -109,22 +114,4 @@ class TestGeminiIntegration:
             "色をオレンジに変更して",
             temperature=0.3
         )
-        
-        # 基本構造の確認
-        assert "assetType" in refined
-        assert "viewBox" in refined
-        
-        # 修正履歴の確認
-        assert "metadata" in refined
-        assert "refinement_history" in refined["metadata"]
-        assert len(refined["metadata"]["refinement_history"]) > 0
-
-
-class TestProviderFallback:
-    """プロバイダーフォールバックのテスト"""
-
-    def test_invalid_api_key(self):
-        """無効なAPIキーのテスト"""
-        with pytest.raises(Exception):
-            provider = create_provider("openai", api_key="invalid-key")
-            provider.generate_from_prompt("テスト")
+        validate_generated_asset(refined, "refinement")

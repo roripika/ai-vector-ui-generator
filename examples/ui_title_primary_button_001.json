@@ -1,0 +1,58 @@
+{
+  "version": "0.1.0",
+  "assetType": "button",
+  "viewBox": [0, 0, 128, 36],
+  "metadata": {
+    "name": "Title Screen Primary Button",
+    "description": "Primary action button for title screen (START/GAME START/はじめる)",
+    "tags": ["button", "primary", "title-screen", "cta"],
+    "generated_from_prompt": "Create a primary action button for game title screen. Should be bold, eye-catching, and convey 'start game' action. Use gradient fill with glow effect.",
+    "selected_templates": ["button_sf"],
+    "generator_version": {
+      "schema": "0.1.0",
+      "studio": "0.1.0"
+    }
+  },
+  "layers": [
+    {
+      "id": "button-body",
+      "name": "Button Base",
+      "shape": "roundedRect",
+      "rect": { "x": 2, "y": 2, "width": 124, "height": 32, "radius": 10 },
+      "style": {
+        "fill": "ui.primaryGradient"
+      },
+      "zIndex": 0
+    },
+    {
+      "id": "button-highlight",
+      "name": "Highlight",
+      "shape": "roundedRect",
+      "rect": { "x": 6, "y": 5, "width": 116, "height": 7, "radius": 6 },
+      "style": {
+        "fill": "ui.highlightGradient"
+      },
+      "zIndex": 1
+    },
+    {
+      "id": "button-text",
+      "name": "Button Text",
+      "shape": "text",
+      "rect": { "x": 2, "y": 14, "width": 124, "height": 20 },
+      "style": {
+        "fill": "ui.textDark"
+      },
+      "text": {
+        "value": "START",
+        "font": "ui.fontPrimary",
+        "size": 20,
+        "maxLines": 1,
+        "overflow": "clip",
+        "fit": "none",
+        "align": "center",
+        "clipPadding": 2
+      },
+      "zIndex": 2
+    }
+  ]
+}
