@@ -1,4 +1,6 @@
-#include "UIJsonBuilder.h"
+import os
+
+cpp_code = """#include "UIJsonBuilder.h"
 #include <fstream>
 #include <algorithm>
 
@@ -431,3 +433,6 @@ ax::Node* UIJsonBuilder::buildFromFile(const std::string& filepath, NodeCreatedC
     
     return rootNode;
 }
+"""
+with open("sdks/axmol/UIJsonBuilder.cpp", "w") as f:
+    f.write(cpp_code)

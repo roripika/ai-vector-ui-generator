@@ -252,6 +252,7 @@ window.Editor = (function () {
         role: tpl.role,
         importance: tpl.importance,
         viewBox: [0, 0, tpl.defaultSize.width, tpl.defaultSize.height],
+        visualType: tpl.visualType || '',
         layers: (tpl.component && tpl.component.layers) ? tpl.component.layers : [],
       });
     }
@@ -274,6 +275,9 @@ window.Editor = (function () {
       if (el.props.imagePath) instance.imagePath = el.props.imagePath;
       if (el.props.imageNormal) instance.imageNormal = el.props.imageNormal;
       if (el.props.imagePressed) instance.imagePressed = el.props.imagePressed;
+      
+      // 全プロパティをまるごと保存
+      instance.props = { ...el.props };
       
       instancesMap[el.id] = instance;
     });
@@ -367,11 +371,17 @@ window.Editor = (function () {
           state: inst.state || tpl.state,
           props: { ...tpl.defaultProps },
         };
+        // 後方互換性のため個別フィールドも読む
         if (inst.overrideText) el.props.text = inst.overrideText;
         if (inst.overrideFill) el.props.fillColor = inst.overrideFill;
         if (inst.imagePath) el.props.imagePath = inst.imagePath;
         if (inst.imageNormal) el.props.imageNormal = inst.imageNormal;
         if (inst.imagePressed) el.props.imagePressed = inst.imagePressed;
+        
+        // 新しい props オブジェクトがあれば上書き
+        if (inst.props && typeof inst.props === 'object') {
+          el.props = { ...el.props, ...inst.props };
+        }
         
         state.elements.push(el);
         if (inst.children) flatten(inst.children, el.id);

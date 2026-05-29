@@ -5,7 +5,6 @@
 #include "rapidjson/document.h"
 #include <string>
 #include <unordered_map>
-
 #include <functional>
 
 typedef std::function<void(ax::Node* node, const rapidjson::Value& layerData)> NodeCreatedCallback;
@@ -23,6 +22,28 @@ private:
 
     ax::Color3B parseColor(const std::string& colorStr, const rapidjson::Value& themeColors);
     std::string resolveBindValue(const rapidjson::Value& layerData, const rapidjson::Value& state);
-    ax::Node* buildComponent(const rapidjson::Value& componentData, const rapidjson::Value& theme, const rapidjson::Value& state, NodeCreatedCallback callback);
-    ax::Node* buildLayer(const rapidjson::Value& layerData, const rapidjson::Value& theme, const rapidjson::Value& state, NodeCreatedCallback callback);
+    
+    ax::Node* buildInstance(
+        const rapidjson::Value& inst, 
+        const std::unordered_map<std::string, const rapidjson::Value*>& componentMap,
+        const rapidjson::Value& theme, 
+        const rapidjson::Value& state, 
+        NodeCreatedCallback callback
+    );
+
+    ax::Node* buildComponentVisuals(
+        const rapidjson::Value& componentData, 
+        const rapidjson::Value& inst,
+        const rapidjson::Value& theme, 
+        const rapidjson::Value& state, 
+        NodeCreatedCallback callback
+    );
+    
+    ax::Node* buildLayer(
+        const rapidjson::Value& layerData, 
+        const rapidjson::Value& inst,
+        const rapidjson::Value& theme, 
+        const rapidjson::Value& state, 
+        NodeCreatedCallback callback
+    );
 };
