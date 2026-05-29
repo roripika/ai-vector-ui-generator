@@ -17,6 +17,9 @@
         <div id="filter-wrap">
             <input type="text" id="file-search" placeholder="ファイルを検索..." />
         </div>
+        <!-- 実行ボタン -->
+        <button id="btn-run" class="btn-run" disabled>▶ 実行</button>
+        <button id="btn-stop" class="btn-stop" disabled>⏹ 停止</button>
         <span id="status-indicator"></span>
     </div>
 
@@ -36,11 +39,17 @@
             </div>
         </div>
 
-        <!-- 右エリア：プレビューキャンバス -->
+        <!-- 右エリア -->
         <div id="content-area">
             <div id="file-info-bar">
                 <span id="file-info">ファイル未選択</span>
+                <div id="interaction-badge" style="display:none">
+                    <span id="action-count-badge"></span>
+                    <span id="anim-count-badge"></span>
+                </div>
             </div>
+
+            <!-- SVGキャンバス -->
             <div id="workspace">
                 <div id="canvas-container">
                     <div class="preview-placeholder">
@@ -49,6 +58,18 @@
                     </div>
                 </div>
             </div>
+
+            <!-- イベントログパネル -->
+            <div id="event-log-panel">
+                <div id="event-log-header">
+                    <span>📋 イベントログ</span>
+                    <button id="btn-clear-log">クリア</button>
+                </div>
+                <div id="event-log-body">
+                    <div class="log-empty">「▶ 実行」を押してインタラクティブモードを開始してください</div>
+                </div>
+            </div>
+
             <pre id="error-console" style="display: none;"></pre>
         </div>
     </div>

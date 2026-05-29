@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
     openWorkspaceDialog: () => ipcRenderer.invoke('open-workspace-dialog'),
     listJsonFiles: () => ipcRenderer.invoke('list-json-files'),
     selectFile: (filePath) => ipcRenderer.invoke('select-file', filePath),
+    readJsonFile: (filePath) => ipcRenderer.invoke('read-json-file', filePath),
     onWorkspaceOpened: (callback) => ipcRenderer.on('workspace-opened', (_event, data) => callback(data)),
     onWorkspaceFilesUpdated: (callback) => ipcRenderer.on('workspace-files-updated', (_event, files) => callback(files)),
 

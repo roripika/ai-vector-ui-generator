@@ -100,6 +100,16 @@ ipcMain.handle('select-file', async (_event, filePath) => {
     }
 });
 
+ipcMain.handle('read-json-file', async (_event, filePath) => {
+    if (!fs.existsSync(filePath)) return null;
+    try {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(raw);
+    } catch (e) {
+        return null;
+    }
+});
+
 // ===== ワークスペース内部処理 =====
 
 function getJsonFiles(dirPath) {

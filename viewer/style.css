@@ -24,9 +24,7 @@ body, html {
     z-index: 10;
 }
 
-.toolbar-spacer {
-    flex-grow: 1;
-}
+.toolbar-spacer { flex-grow: 1; }
 
 #workspace-path-display {
     font-size: 12px;
@@ -37,10 +35,7 @@ body, html {
     white-space: nowrap;
 }
 
-#filter-wrap {
-    display: flex;
-    align-items: center;
-}
+#filter-wrap { display: flex; align-items: center; }
 
 #file-search {
     background: #3c3c3c;
@@ -53,12 +48,8 @@ body, html {
     outline: none;
     transition: border-color 0.2s;
 }
-#file-search:focus {
-    border-color: #4b9eff;
-}
-#file-search::placeholder {
-    color: #666;
-}
+#file-search:focus { border-color: #4b9eff; }
+#file-search::placeholder { color: #666; }
 
 button {
     background-color: #3a3d41;
@@ -71,9 +62,35 @@ button {
     transition: background-color 0.15s, border-color 0.15s;
     white-space: nowrap;
 }
-button:hover {
-    background-color: #4a5060;
-    border-color: #6a7080;
+button:hover { background-color: #4a5060; border-color: #6a7080; }
+button:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* 実行・停止ボタン */
+.btn-run {
+    background-color: #1a5c2a;
+    border-color: #2d8044;
+    color: #7fffa0;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    gap: 4px;
+}
+.btn-run:hover { background-color: #226633; border-color: #3aaa55; }
+.btn-run.running {
+    background-color: #2d8044;
+    border-color: #3aaa55;
+    animation: pulse-run 1.5s infinite;
+}
+.btn-stop {
+    background-color: #5c1a1a;
+    border-color: #802d2d;
+    color: #ffaaaa;
+    font-weight: 600;
+}
+.btn-stop:hover { background-color: #6e2323; border-color: #aa3a3a; }
+
+@keyframes pulse-run {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(58,170,85,0.4); }
+    50%       { box-shadow: 0 0 0 6px rgba(58,170,85,0); }
 }
 
 #status-indicator {
@@ -87,7 +104,7 @@ button:hover {
 .status-success   { color: #2ecc71; }
 .status-error     { color: #e74c3c; }
 
-/* ===== メインレイアウト（2ペイン） ===== */
+/* ===== メインレイアウト ===== */
 #main-layout {
     display: flex;
     flex: 1;
@@ -105,7 +122,6 @@ button:hover {
     flex-direction: column;
     flex-shrink: 0;
     overflow: hidden;
-    resize: horizontal;
 }
 
 #sidebar-header {
@@ -144,13 +160,11 @@ button:hover {
 #file-list::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 #file-list::-webkit-scrollbar-thumb:hover { background: #555; }
 
-/* ファイルアイテム */
 .file-item {
     display: flex;
     align-items: center;
     padding: 6px 12px;
     cursor: pointer;
-    border-radius: 0;
     font-size: 13px;
     color: #c8c8c8;
     gap: 8px;
@@ -158,42 +172,17 @@ button:hover {
     border-left: 3px solid transparent;
     user-select: none;
 }
-.file-item:hover {
-    background-color: #2a2d2e;
-}
+.file-item:hover { background-color: #2a2d2e; }
 .file-item.active {
     background-color: #094771;
     border-left-color: #4b9eff;
     color: #fff;
 }
+.file-item-icon { flex-shrink: 0; font-size: 14px; }
+.file-item-info { display: flex; flex-direction: column; overflow: hidden; }
+.file-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.file-item-path { font-size: 10px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.file-item-icon {
-    flex-shrink: 0;
-    font-size: 14px;
-}
-
-.file-item-info {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.file-item-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
-}
-
-.file-item-path {
-    font-size: 10px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* フォルダグループ */
 .folder-group-label {
     display: flex;
     align-items: center;
@@ -206,7 +195,6 @@ button:hover {
     gap: 5px;
 }
 
-/* 空の状態 */
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -219,12 +207,9 @@ button:hover {
     text-align: center;
     padding: 20px;
 }
-.empty-icon {
-    font-size: 36px;
-    opacity: 0.5;
-}
+.empty-icon { font-size: 36px; opacity: 0.5; }
 
-/* ===== コンテンツエリア（右） ===== */
+/* ===== コンテンツエリア ===== */
 #content-area {
     flex: 1;
     display: flex;
@@ -238,15 +223,41 @@ button:hover {
     padding: 5px 16px;
     border-bottom: 1px solid #111;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 #file-info {
     font-size: 12px;
     color: #888;
     font-family: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    flex: 1;
 }
 
-/* ===== ワークスペース＆キャンバス ===== */
+#interaction-badge {
+    display: flex;
+    gap: 8px;
+}
+
+#action-count-badge, #anim-count-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+#action-count-badge {
+    background: rgba(74, 144, 226, 0.2);
+    color: #7db8ff;
+    border: 1px solid rgba(74, 144, 226, 0.3);
+}
+#anim-count-badge {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+/* ===== ワークスペースキャンバス ===== */
 #workspace {
     flex: 1;
     position: relative;
@@ -276,7 +287,6 @@ button:hover {
     background-color: white;
 }
 
-/* プレビュープレースホルダー */
 .preview-placeholder {
     display: flex;
     flex-direction: column;
@@ -287,6 +297,179 @@ button:hover {
     user-select: none;
 }
 .placeholder-icon { font-size: 48px; opacity: 0.4; }
+
+/* ===== インタラクティブモード：ホットスポット ===== */
+.interactive-mode .hotspot {
+    cursor: pointer;
+    outline: none;
+}
+.interactive-mode .hotspot rect,
+.interactive-mode .hotspot path,
+.interactive-mode .hotspot circle {
+    transition: filter 0.15s, opacity 0.15s;
+}
+.interactive-mode .hotspot:hover rect,
+.interactive-mode .hotspot:hover path,
+.interactive-mode .hotspot:hover circle {
+    filter: brightness(1.25);
+    opacity: 0.9;
+}
+.interactive-mode .hotspot:active rect,
+.interactive-mode .hotspot:active path,
+.interactive-mode .hotspot:active circle {
+    filter: brightness(0.75);
+    opacity: 0.85;
+}
+
+/* アクションハイライト枠 */
+.interactive-mode .hotspot::after { display: none; }
+.hotspot-overlay {
+    fill: none;
+    stroke: #4b9eff;
+    stroke-width: 2;
+    stroke-dasharray: 6 3;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+.interactive-mode .hotspot:hover .hotspot-overlay { opacity: 0.7; }
+
+/* クリックリップル */
+.click-ripple {
+    fill: rgba(255,255,255,0.35);
+    animation: ripple-anim 0.4s ease-out forwards;
+    pointer-events: none;
+}
+@keyframes ripple-anim {
+    0%   { r: 0;  opacity: 0.6; }
+    100% { r: 40; opacity: 0; }
+}
+
+/* ===== アニメーション (CSS) ===== */
+/* enter系 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+}
+/* loop系 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* アニメーション付与クラス（実行ボタンで付与） */
+.anim-enter { animation: fadeIn 0.4s ease-out both; }
+.anim-enter-slide-up { animation: fadeSlideUp 0.45s ease-out both; }
+.anim-enter-scale { animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+.anim-loop-bounce { animation: bounce 1.2s infinite ease-in-out; }
+.anim-loop-pulse  { animation: pulse 1.5s infinite ease-in-out; }
+.anim-loop-spin   { animation: spin 2s linear infinite; }
+.anim-loop-shimmer { animation: shimmer 2s infinite ease-in-out; }
+
+/* ===== イベントログパネル ===== */
+#event-log-panel {
+    background-color: #1a1a1a;
+    border-top: 1px solid #111;
+    flex-shrink: 0;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.2s;
+}
+
+#event-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 14px;
+    background-color: #222;
+    border-bottom: 1px solid #333;
+    font-size: 11px;
+    color: #888;
+    flex-shrink: 0;
+}
+
+#event-log-header span { font-weight: 600; letter-spacing: 0.04em; }
+
+#btn-clear-log {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: #333;
+    border-color: #444;
+    color: #999;
+}
+#btn-clear-log:hover { background: #3c3c3c; color: #bbb; }
+
+#event-log-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+    font-family: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 12px;
+}
+#event-log-body::-webkit-scrollbar { width: 4px; }
+#event-log-body::-webkit-scrollbar-thumb { background: #333; }
+
+.log-empty {
+    padding: 16px 14px;
+    color: #555;
+    font-family: inherit;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.log-entry {
+    display: flex;
+    align-items: baseline;
+    padding: 3px 14px;
+    gap: 10px;
+    border-left: 3px solid transparent;
+    animation: fadeSlideUp 0.2s ease-out both;
+}
+.log-entry:hover { background-color: #252525; }
+
+.log-entry.type-click { border-left-color: #4b9eff; }
+.log-entry.type-anim  { border-left-color: #a855f7; }
+.log-entry.type-run   { border-left-color: #2ecc71; }
+.log-entry.type-stop  { border-left-color: #888; }
+
+.log-time {
+    color: #555;
+    font-size: 11px;
+    flex-shrink: 0;
+    min-width: 60px;
+}
+.log-icon { flex-shrink: 0; }
+.log-msg {
+    color: #ccc;
+    flex: 1;
+}
+.log-meta {
+    color: #666;
+    font-size: 11px;
+    flex-shrink: 0;
+}
 
 /* エラーコンソール */
 #error-console {
@@ -305,15 +488,3 @@ button:hover {
     font-size: 12px;
     z-index: 100;
 }
-
-/* ===== アニメーション ===== */
-@keyframes fadeSlideUp {
-    0%   { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(10px); }
-}
-.anim-enter-fade_slide_up { animation: fadeSlideUp 0.4s ease-out forwards; }
-.anim-loop-bounce          { animation: bounce 1s infinite ease-in-out; }
