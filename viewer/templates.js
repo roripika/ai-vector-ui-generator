@@ -382,10 +382,11 @@ window.TEMPLATES = [
     icon: '🎛️',
     defaultSize: { width: 320, height: 320 },
     defaultProps: {
-      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1
+      fillColor: 'transparent', strokeColor: '#444444', strokeWidth: 1, radius: 0, opacity: 1,
+      columns: 3, spacingX: 8, spacingY: 8, cellHeight: 80
     },
     role: 'container', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'columns', 'spacingX', 'spacingY', 'cellHeight'],
     visualType: 'grid',
   },
 ];

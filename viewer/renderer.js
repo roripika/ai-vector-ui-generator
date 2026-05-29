@@ -288,6 +288,17 @@ function _renderPropertiesPanel(el) {
   if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="fill" ${p.objectFit==='fill'?'selected':''}>fill</option></select>`);
   html += `</div><div class="prop-sep"></div>`;
 
+  // --- Layout ---
+  if (p.columns !== undefined || p.spacingX !== undefined) {
+    html += `<div class="prop-section">`;
+    html += `<div class="prop-section-title">レイアウト (Grid/List)</div>`;
+    if (p.columns !== undefined) html += _row('列数 (固定)', `<input class="prop-input-num" type="number" value="${p.columns}" data-prop="columns" min="1">`);
+    if (p.spacingX !== undefined) html += _row('横余白', `<input class="prop-input-num" type="number" value="${p.spacingX}" data-prop="spacingX" min="0">`);
+    if (p.spacingY !== undefined) html += _row('縦余白', `<input class="prop-input-num" type="number" value="${p.spacingY}" data-prop="spacingY" min="0">`);
+    if (p.cellHeight !== undefined) html += _row('セル高さ', `<input class="prop-input-num" type="number" value="${p.cellHeight}" data-prop="cellHeight" min="1">`);
+    html += `</div><div class="prop-sep"></div>`;
+  }
+
   // --- Images ---
   if (p.imagePath !== undefined || p.imageNormal !== undefined) {
     html += `<div class="prop-section">`;

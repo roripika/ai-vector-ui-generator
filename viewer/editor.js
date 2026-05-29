@@ -554,22 +554,42 @@ window.Editor = (function () {
       fill.style.cssText = `width:${v * 100}%;height:100%;background:${p.fillColor || '#2ecc71'};border-radius:${r}px;transition:width 0.3s;`;
       div.appendChild(fill);
     } else if (vt === 'grid') {
-      // グリッドビュー（背景にグリッド線を表示）
+      // グリッドビュー（ダミーセルを描画してレイアウトを表現）
       div.style.background = p.fillColor || 'transparent';
       if (p.strokeWidth && p.strokeColor && p.strokeColor !== 'transparent') {
         div.style.border = `${p.strokeWidth}px solid ${p.strokeColor}`;
       }
-      // CSSハッチングでグリッドを表現
-      const gridSize = 40;
+      div.style.position = 'relative';
+      
+      const cols = Math.max(1, parseInt(p.columns || 3));
+      const spX = parseInt(p.spacingX || 0);
+      const spY = parseInt(p.spacingY || 0);
+      const cellH = parseInt(p.cellHeight || 80);
+      
+      // 内側のパディングを考慮（簡易的に0とする）
+      const availableW = Math.max(0, el.width - spX * (cols - 1));
+      const cellW = availableW / cols;
+      
       const c = p.strokeColor || '#444';
-      div.style.backgroundImage = `linear-gradient(${c} 1px, transparent 1px), linear-gradient(90deg, ${c} 1px, transparent 1px)`;
-      div.style.backgroundSize = `${gridSize}px ${gridSize}px`;
-      div.style.backgroundPosition = '-1px -1px';
+      
+      // ダミーのセル枠を描画
+      const gridContainer = document.createElement('div');
+      gridContainer.style.cssText = `position:absolute;inset:0;pointer-events:none;display:flex;flex-wrap:wrap;gap:${spY}px ${spX}px;align-content:flex-start;padding:0;`;
+      
+      // 画面に収まる程度のダミー数（最大20個程度）
+      const rowsToFit = Math.ceil(el.height / (cellH + spY)) + 1;
+      const dummyCount = Math.min(20, cols * rowsToFit);
+      
+      for(let i=0; i<dummyCount; i++) {
+        const cell = document.createElement('div');
+        cell.style.cssText = `width:${cellW}px;height:${cellH}px;border:1px dashed ${c};box-sizing:border-box;opacity:0.3;`;
+        gridContainer.appendChild(cell);
+      }
+      div.appendChild(gridContainer);
       
       const label = document.createElement('div');
-      label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:2px;`;
-      label.textContent = tpl.name;
-      div.style.position = 'relative';
+      label.style.cssText = `position:absolute;top:8px;left:12px;font-size:11px;color:${c};font-family:sans-serif;pointer-events:none;background:rgba(0,0,0,0.5);padding:2px 4px;border-radius:2px;z-index:2;`;
+      label.textContent = `Grid View (${cols} cols)`;
       div.appendChild(label);
     } else if (tpl.category === 'コンテナ') {
       // パネル系
