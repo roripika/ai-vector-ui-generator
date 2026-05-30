@@ -32,7 +32,13 @@
       <option value="720x1280">720 × 1280</option>
       <option value="960x540">960 × 540</option>
       <option value="1920x1080">1920 × 1080</option>
+      <option value="custom">カスタム</option>
     </select>
+    <div id="custom-canvas-inputs" style="display:none; align-items:center; gap:4px; margin-left:8px;">
+      <input type="number" id="canvas-custom-w" style="width:50px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; padding:2px;" title="Width">
+      <span>x</span>
+      <input type="number" id="canvas-custom-h" style="width:50px; background:#333; color:#fff; border:1px solid #555; border-radius:3px; padding:2px;" title="Height">
+    </div>
   </div>
   <div class="tb-sep"></div>
   <div class="tb-group">
@@ -56,6 +62,7 @@
     <div id="left-tabs">
       <button class="tab-btn active" data-tab="parts">部品</button>
       <button class="tab-btn" data-tab="files">ファイル</button>
+      <button class="tab-btn" data-tab="assets">アセット</button>
     </div>
 
     <!-- 部品タブ -->
@@ -69,6 +76,18 @@
         <div class="panel-empty">
           「📁 開く」でワークスペースフォルダを選択してください
         </div>
+      </div>
+    </div>
+
+    <!-- アセットタブ -->
+    <div id="tab-assets" class="tab-content">
+      <div id="asset-browser-toolbar">
+        <button id="btn-refresh-assets">↻ 更新</button>
+        <button id="btn-set-asset-dir">📁 フォルダ設定</button>
+        <span id="asset-count"></span>
+      </div>
+      <div id="asset-browser">
+        <div class="panel-empty">「📁 開く」でワークスペースを選択してください</div>
       </div>
     </div>
 

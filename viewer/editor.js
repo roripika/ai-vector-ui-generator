@@ -6,6 +6,18 @@
  */
 window.Editor = (function () {
 
+  function _resolveLocalPath(pPath, baseDir) {
+    if (!pPath) return '';
+    if (pPath.startsWith('http://') || pPath.startsWith('https://') || pPath.startsWith('data:')) return pPath;
+    if (pPath.startsWith('file://')) return pPath;
+    let isAbsolute = pPath.startsWith('/') || pPath.match(/^[a-zA-Z]:[\\\/]/);
+    if (isAbsolute) {
+      return `file://${pPath}`;
+    }
+    return `file://${baseDir}/${pPath}`;
+  }
+
+
   // ========================================================
   // 状態
   // ========================================================
@@ -117,6 +129,8 @@ window.Editor = (function () {
     else if (key === 'role') el.role = value;
     else if (key === 'importance') el.importance = value;
     else if (key === 'state') el.state = value;
+    else if (key === 'alignX') el.alignX = value;
+    else if (key === 'alignY') el.alignY = value;
     else el.props[key] = value;
     state.isDirty = true;
     _renderElement(el);
@@ -270,6 +284,8 @@ window.Editor = (function () {
         state: el.state,
         zIndex: el.zIndex,
       };
+      if (el.alignX) instance.alignX = el.alignX;
+      if (el.alignY) instance.alignY = el.alignY;
       if (el.props.text) instance.overrideText = el.props.text;
       if (el.props.fillColor) instance.overrideFill = el.props.fillColor;
       if (el.props.imagePath) instance.imagePath = el.props.imagePath;
@@ -377,6 +393,8 @@ window.Editor = (function () {
         if (inst.imagePath) el.props.imagePath = inst.imagePath;
         if (inst.imageNormal) el.props.imageNormal = inst.imageNormal;
         if (inst.imagePressed) el.props.imagePressed = inst.imagePressed;
+        if (inst.alignX) el.alignX = inst.alignX;
+        if (inst.alignY) el.alignY = inst.alignY;
         
         // 新しい props オブジェクトがあれば上書き
         if (inst.props && typeof inst.props === 'object') {
@@ -419,7 +437,7 @@ window.Editor = (function () {
 
   function _renderElement(el) {
     const canvas = state._canvas;
-    let div = document.querySelector(`[data-id="${el.id}"]`);
+    let div = document.querySelector(`.canvas-element[data-id="${el.id}"]`);
     if (!div) {
       div = document.createElement('div');
       div.setAttribute('data-id', el.id);
@@ -447,7 +465,7 @@ window.Editor = (function () {
     // Parent resolving
     let parentNode = canvas;
     if (el.parentId) {
-      const pDiv = document.querySelector(`[data-id="${el.parentId}"]`);
+      const pDiv = document.querySelector(`.canvas-element[data-id="${el.parentId}"]`);
       if (pDiv) parentNode = pDiv.querySelector('.children-layer');
     }
     
@@ -461,10 +479,43 @@ window.Editor = (function () {
       }
     }
 
-    div.style.left = el.x + 'px';
-    div.style.top = el.y + 'px';
+    div.style.left = 'auto';
+    div.style.right = 'auto';
+    div.style.top = 'auto';
+    div.style.bottom = 'auto';
+    div.style.transform = 'none';
     div.style.width = el.width + 'px';
     div.style.height = el.height + 'px';
+
+    if (el.alignX === 'right') {
+      div.style.right = el.x + 'px';
+    } else if (el.alignX === 'center') {
+      div.style.left = '50%';
+      div.style.transform = `translateX(calc(-50% + ${el.x}px))`;
+    } else if (el.alignX === 'stretch') {
+      div.style.left = el.x + 'px';
+      div.style.right = '0px';
+      div.style.width = 'auto';
+    } else {
+      div.style.left = el.x + 'px';
+    }
+
+    if (el.alignY === 'bottom') {
+      div.style.bottom = el.y + 'px';
+    } else if (el.alignY === 'center') {
+      div.style.top = '50%';
+      if (el.alignX === 'center') {
+        div.style.transform = `translate(calc(-50% + ${el.x}px), calc(-50% + ${el.y}px))`;
+      } else {
+        div.style.transform = `translateY(calc(-50% + ${el.y}px))`;
+      }
+    } else if (el.alignY === 'stretch') {
+      div.style.top = el.y + 'px';
+      div.style.bottom = '0px';
+      div.style.height = 'auto';
+    } else {
+      div.style.top = el.y + 'px';
+    }
     div.style.zIndex = el.zIndex;
     div.style.opacity = el.props.opacity ?? 1;
     
@@ -540,7 +591,7 @@ window.Editor = (function () {
     if (vt === 'image' || vt === 'sprite_button') {
       const src = p.imageNormal || p.imagePath || '';
       if (src) {
-        div.style.backgroundImage = `url("file://${state.workspaceDir}/${src}")`;
+        div.style.backgroundImage = `url("${_resolveLocalPath(src, state.assetDir || state.workspaceDir)}")`;
         div.style.backgroundSize = p.objectFit || 'contain';
         div.style.backgroundPosition = 'center';
         div.style.backgroundRepeat = 'no-repeat';
@@ -844,6 +895,36 @@ window.Editor = (function () {
       span.style.cssText = `font-size:${p.fontSize || 18}px;color:${p.textColor || '#ffffff'};font-family:sans-serif;font-weight:${(p.fontSize || 18) > 20 ? 'bold' : 'normal'};width:100%;padding:0 4px;text-align:${p.textAlign || 'left'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
       span.textContent = p.text || tpl.name;
       div.appendChild(span);
+      if (p.fontPath) {
+        const baseDir = state.assetDir || state.workspaceDir;
+        const fullPathStr = _resolveLocalPath(p.fontPath, baseDir);
+        const fullPath = fullPathStr.split("/").map(s => encodeURIComponent(s)).join("/").replace("file%3A//", "file://").replace("file%3A%2F%2F", "file://");
+        const fontName = 'font_' + p.fontPath.replace(/[^a-zA-Z0-9]/g, '_');
+        window._loadedFonts = window._loadedFonts || {};
+        if (!window._loadedFonts[fullPath]) {
+          window._loadedFonts[fullPath] = fontName;
+          const style = document.createElement('style');
+          style.textContent = `@font-face { font-family: "${fontName}"; src: url("${fullPath}"); }`;
+          document.head.appendChild(style);
+        }
+        span.style.fontFamily = `"${fontName}"`;
+      }
+
+      if (p.fontPath) {
+        const baseDir = state.assetDir || state.workspaceDir;
+        const fullPathStr = _resolveLocalPath(p.fontPath, baseDir);
+        const fullPath = fullPathStr.split("/").map(s => encodeURIComponent(s)).join("/").replace("file%3A//", "file://").replace("file%3A%2F%2F", "file://");
+        const fontName = 'font_' + p.fontPath.replace(/[^a-zA-Z0-9]/g, '_');
+        window._loadedFonts = window._loadedFonts || {};
+        if (!window._loadedFonts[fullPath]) {
+          window._loadedFonts[fullPath] = fontName;
+          const style = document.createElement('style');
+          style.textContent = `@font-face { font-family: "${fontName}"; src: url("${fullPath}"); }`;
+          document.head.appendChild(style);
+        }
+        span.style.fontFamily = `"${fontName}"`;
+      }
+
     } else {
       // ボタン・バッジ・フィードバック等
       const r = p.radius || 8;
@@ -856,18 +937,89 @@ window.Editor = (function () {
       span.style.cssText = `font-size:${p.fontSize || 16}px;color:${p.textColor || '#fff'};font-family:sans-serif;font-weight:bold;text-align:center;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
       span.textContent = p.text || tpl.name;
       div.appendChild(span);
+      if (p.fontPath) {
+        const baseDir = state.assetDir || state.workspaceDir;
+        const fullPathStr = _resolveLocalPath(p.fontPath, baseDir);
+        const fullPath = fullPathStr.split("/").map(s => encodeURIComponent(s)).join("/").replace("file%3A//", "file://").replace("file%3A%2F%2F", "file://");
+        const fontName = 'font_' + p.fontPath.replace(/[^a-zA-Z0-9]/g, '_');
+        window._loadedFonts = window._loadedFonts || {};
+        if (!window._loadedFonts[fullPath]) {
+          window._loadedFonts[fullPath] = fontName;
+          const style = document.createElement('style');
+          style.textContent = `@font-face { font-family: "${fontName}"; src: url("${fullPath}"); }`;
+          document.head.appendChild(style);
+        }
+        span.style.fontFamily = `"${fontName}"`;
+      }
+
+      if (p.fontPath) {
+        const baseDir = state.assetDir || state.workspaceDir;
+        const fullPathStr = _resolveLocalPath(p.fontPath, baseDir);
+        const fullPath = fullPathStr.split("/").map(s => encodeURIComponent(s)).join("/").replace("file%3A//", "file://").replace("file%3A%2F%2F", "file://");
+        const fontName = 'font_' + p.fontPath.replace(/[^a-zA-Z0-9]/g, '_');
+        window._loadedFonts = window._loadedFonts || {};
+        if (!window._loadedFonts[fullPath]) {
+          window._loadedFonts[fullPath] = fontName;
+          const style = document.createElement('style');
+          style.textContent = `@font-face { font-family: "${fontName}"; src: url("${fullPath}"); }`;
+          document.head.appendChild(style);
+        }
+        span.style.fontFamily = `"${fontName}"`;
+      }
+
     }
   }
 
   function _getAbsoluteRect(el) {
-    let x = el.x, y = el.y;
-    let curr = state.elements.find(e => e.id === el.parentId);
+    if (!el) return {x:0, y:0, width:0, height:0};
+    
+    let absX = 0;
+    let absY = 0;
+    let cWidth = el.width;
+    let cHeight = el.height;
+    
+    let curr = el;
     while (curr) {
-      x += curr.x;
-      y += curr.y;
-      curr = state.elements.find(e => e.id === curr.parentId);
+      let parentW = state.canvasWidth;
+      let parentH = state.canvasHeight;
+      let p = curr.parentId ? state.elements.find(e => e.id === curr.parentId) : null;
+      if (p) {
+        parentW = p.width;
+        parentH = p.height;
+      }
+      
+      let ox = 0, oy = 0;
+      let cw = curr.width, ch = curr.height;
+      
+      if (curr.alignX === 'stretch') {
+        cw = parentW - curr.x;
+      } else if (curr.alignX === 'center') {
+        ox = parentW / 2 - curr.width / 2;
+      } else if (curr.alignX === 'right') {
+        ox = parentW - curr.width;
+      }
+      
+      if (curr.alignY === 'stretch') {
+        ch = parentH - curr.y;
+      } else if (curr.alignY === 'center') {
+        oy = parentH / 2 - curr.height / 2;
+      } else if (curr.alignY === 'bottom') {
+        oy = parentH - curr.height;
+      }
+      
+      let signX = (curr.alignX === 'right') ? -1 : 1;
+      let signY = (curr.alignY === 'bottom') ? -1 : 1;
+
+      absX += ox + (curr.x * signX);
+      absY += oy + (curr.y * signY);
+      
+      if (curr === el) {
+        cWidth = cw;
+        cHeight = ch;
+      }
+      curr = p;
     }
-    return { x, y, width: el.width, height: el.height };
+    return { x: absX, y: absY, width: cWidth, height: cHeight };
   }
 
   // ========================================================
@@ -969,10 +1121,27 @@ window.Editor = (function () {
     const newAbsX = _snap(drag.startAbsX + dx);
     const newAbsY = _snap(drag.startAbsY + dy);
     
-    const parentAbs = el.parentId ? _getAbsoluteRect(state.elements.find(e => e.id === el.parentId)) : {x:0, y:0};
+    let parentW = state.canvasWidth;
+    let parentH = state.canvasHeight;
+    const parentEl = el.parentId ? state.elements.find(e => e.id === el.parentId) : null;
+    if (parentEl) {
+      parentW = parentEl.width;
+      parentH = parentEl.height;
+    }
+    const parentAbs = el.parentId ? _getAbsoluteRect(parentEl) : {x:0, y:0};
 
-    el.x = newAbsX - parentAbs.x;
-    el.y = newAbsY - parentAbs.y;
+    let ox = 0, oy = 0;
+    if (el.alignX === 'center') ox = parentW / 2 - el.width / 2;
+    else if (el.alignX === 'right') ox = parentW - el.width;
+    
+    if (el.alignY === 'center') oy = parentH / 2 - el.height / 2;
+    else if (el.alignY === 'bottom') oy = parentH - el.height;
+
+    let signX = (el.alignX === 'right') ? -1 : 1;
+    let signY = (el.alignY === 'bottom') ? -1 : 1;
+
+    el.x = (newAbsX - parentAbs.x - ox) * signX;
+    el.y = (newAbsY - parentAbs.y - oy) * signY;
 
     _renderElement(el);
     _updateSelectionOverlay();
@@ -993,12 +1162,13 @@ window.Editor = (function () {
     if (!el) return;
     _pushHistory();
 
+    const oldAbs = _getAbsoluteRect(el);
     resize = {
       dir: e.currentTarget.getAttribute('data-dir'),
       startMouseX: e.clientX,
       startMouseY: e.clientY,
-      startX: el.x, startY: el.y,
-      startW: el.width, startH: el.height,
+      startAbsX: oldAbs.x, startAbsY: oldAbs.y,
+      startW: oldAbs.width, startH: oldAbs.height,
     };
     document.addEventListener('pointermove', _onResizeMove);
     document.addEventListener('pointerup', _onResizeEnd, { once: true });
@@ -1014,15 +1184,51 @@ window.Editor = (function () {
     const dy = (e.clientY - resize.startMouseY) / zoom;
 
     const d = resize.dir;
-    let x = resize.startX, y = resize.startY;
-    let w = resize.startW, h = resize.startH;
+    let absX = resize.startAbsX;
+    let absY = resize.startAbsY;
+    let w = resize.startW;
+    let h = resize.startH;
 
-    if (d.includes('e')) w = Math.max(8, w + dx);
-    if (d.includes('s')) h = Math.max(8, h + dy);
-    if (d.includes('w')) { x = _snap(resize.startX + dx); w = Math.max(8, resize.startW - dx); }
-    if (d.includes('n')) { y = _snap(resize.startY + dy); h = Math.max(8, resize.startH - dy); }
+    if (d.includes('e')) w += dx;
+    if (d.includes('s')) h += dy;
+    if (d.includes('w')) { absX += dx; w -= dx; }
+    if (d.includes('n')) { absY += dy; h -= dy; }
 
-    el.x = x; el.y = y; el.width = w; el.height = h;
+    w = Math.max(8, _snap(w));
+    h = Math.max(8, _snap(h));
+    
+    // adjust absX and absY back based on snap (if dragging left/top)
+    if (d.includes('w')) absX = resize.startAbsX + (resize.startW - w);
+    if (d.includes('n')) absY = resize.startAbsY + (resize.startH - h);
+
+    absX = _snap(absX);
+    absY = _snap(absY);
+
+    el.width = w;
+    el.height = h;
+
+    let parentW = state.canvasWidth;
+    let parentH = state.canvasHeight;
+    const parentEl = el.parentId ? state.elements.find(e => e.id === el.parentId) : null;
+    if (parentEl) {
+      parentW = parentEl.width;
+      parentH = parentEl.height;
+    }
+    const parentAbs = el.parentId ? _getAbsoluteRect(parentEl) : {x:0, y:0};
+
+    let ox = 0, oy = 0;
+    if (el.alignX === 'center') ox = parentW / 2 - el.width / 2;
+    else if (el.alignX === 'right') ox = parentW - el.width;
+    
+    if (el.alignY === 'center') oy = parentH / 2 - el.height / 2;
+    else if (el.alignY === 'bottom') oy = parentH - el.height;
+
+    let signX = (el.alignX === 'right') ? -1 : 1;
+    let signY = (el.alignY === 'bottom') ? -1 : 1;
+
+    el.x = (absX - parentAbs.x - ox) * signX;
+    el.y = (absY - parentAbs.y - oy) * signY;
+
     _renderElement(el);
     _updateSelectionOverlay();
     _notifySelect();

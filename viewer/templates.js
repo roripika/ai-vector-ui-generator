@@ -17,7 +17,7 @@ window.TEMPLATES = [
     defaultSize: { width: 240, height: 64 },
     defaultProps: {
       text: 'Button', fillColor: '#3a86ff', textColor: '#ffffff',
-      strokeColor: '#8ecfff', strokeWidth: 2, radius: 18, opacity: 1, fontSize: 20,
+      strokeColor: '#8ecfff', strokeWidth: 2, radius: 18, opacity: 1, fontSize: 20, fontPath: '',
     },
     role: 'action', importance: 'primary', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -30,7 +30,7 @@ window.TEMPLATES = [
     defaultSize: { width: 200, height: 56 },
     defaultProps: {
       text: 'Cancel', fillColor: '#3a3d41', textColor: '#d4d4d4',
-      strokeColor: '#6a7080', strokeWidth: 2, radius: 14, opacity: 1, fontSize: 18,
+      strokeColor: '#6a7080', strokeWidth: 2, radius: 14, opacity: 1, fontSize: 18, fontPath: '',
     },
     role: 'action', importance: 'secondary', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -43,7 +43,7 @@ window.TEMPLATES = [
     defaultSize: { width: 200, height: 56 },
     defaultProps: {
       text: 'Delete', fillColor: '#cc2233', textColor: '#ffffff',
-      strokeColor: '#ff5566', strokeWidth: 2, radius: 14, opacity: 1, fontSize: 18,
+      strokeColor: '#ff5566', strokeWidth: 2, radius: 14, opacity: 1, fontSize: 18, fontPath: '',
     },
     role: 'action', importance: 'critical', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -56,7 +56,7 @@ window.TEMPLATES = [
     defaultSize: { width: 56, height: 56 },
     defaultProps: {
       text: '⚙', fillColor: '#2d2d2d', textColor: '#8ecfff',
-      strokeColor: '#4b9eff', strokeWidth: 2, radius: 12, opacity: 1, fontSize: 24,
+      strokeColor: '#4b9eff', strokeWidth: 2, radius: 12, opacity: 1, fontSize: 24, fontPath: '',
     },
     role: 'action', importance: 'secondary', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -73,10 +73,10 @@ window.TEMPLATES = [
     defaultSize: { width: 360, height: 48 },
     defaultProps: {
       text: 'Title Text', fillColor: 'transparent', textColor: '#ffffff',
-      radius: 0, opacity: 1, fontSize: 32, textAlign: 'left',
+      radius: 0, opacity: 1, fontSize: 32, fontPath: '', textAlign: 'left',
     },
     role: 'text', importance: 'primary', state: 'default',
-    propFields: ['text', 'textColor', 'fontSize', 'textAlign', 'opacity'],
+    propFields: ['text', 'textColor', 'fontSize', 'fontPath', 'textAlign', 'opacity'],
   },
   {
     id: 'body-label',
@@ -86,10 +86,10 @@ window.TEMPLATES = [
     defaultSize: { width: 320, height: 32 },
     defaultProps: {
       text: 'Body text here', fillColor: 'transparent', textColor: '#cccccc',
-      radius: 0, opacity: 1, fontSize: 18, textAlign: 'left',
+      radius: 0, opacity: 1, fontSize: 18, fontPath: '', textAlign: 'left',
     },
     role: 'text', importance: 'info', state: 'default',
-    propFields: ['text', 'textColor', 'fontSize', 'textAlign', 'opacity'],
+    propFields: ['text', 'textColor', 'fontSize', 'fontPath', 'textAlign', 'opacity'],
   },
   {
     id: 'caption-label',
@@ -99,10 +99,10 @@ window.TEMPLATES = [
     defaultSize: { width: 200, height: 24 },
     defaultProps: {
       text: 'Caption', fillColor: 'transparent', textColor: '#888888',
-      radius: 0, opacity: 1, fontSize: 12, textAlign: 'left',
+      radius: 0, opacity: 1, fontSize: 12, fontPath: '', textAlign: 'left',
     },
     role: 'text', importance: 'muted', state: 'default',
-    propFields: ['text', 'textColor', 'fontSize', 'textAlign', 'opacity'],
+    propFields: ['text', 'textColor', 'fontSize', 'fontPath', 'textAlign', 'opacity'],
   },
   {
     id: 'number-label',
@@ -112,10 +112,10 @@ window.TEMPLATES = [
     defaultSize: { width: 120, height: 48 },
     defaultProps: {
       text: '1,234', fillColor: 'transparent', textColor: '#f1c40f',
-      radius: 0, opacity: 1, fontSize: 28, textAlign: 'right',
+      radius: 0, opacity: 1, fontSize: 28, fontPath: '', textAlign: 'right',
     },
     role: 'data_display', importance: 'emphasis', state: 'default',
-    propFields: ['text', 'textColor', 'fontSize', 'textAlign', 'opacity'],
+    propFields: ['text', 'textColor', 'fontSize', 'fontPath', 'textAlign', 'opacity'],
   },
 
   // =========================================================
@@ -225,10 +225,10 @@ window.TEMPLATES = [
     defaultProps: {
       text: 'Input text...', fillColor: '#1e1e1e', textColor: '#aaaaaa',
       strokeColor: '#555555', strokeWidth: 1,
-      radius: 8, opacity: 1, fontSize: 16, textAlign: 'left',
+      radius: 8, opacity: 1, fontSize: 16, fontPath: '', textAlign: 'left',
     },
     role: 'input', importance: 'primary', state: 'default',
-    propFields: ['text', 'fillColor', 'textColor', 'strokeColor', 'strokeWidth', 'radius', 'fontSize', 'textAlign', 'opacity'],
+    propFields: ['text', 'fillColor', 'textColor', 'strokeColor', 'strokeWidth', 'radius', 'fontSize', 'fontPath', 'textAlign', 'opacity'],
   },
 
   // =========================================================
@@ -243,7 +243,7 @@ window.TEMPLATES = [
     defaultProps: {
       text: '3', fillColor: '#e74c3c', textColor: '#ffffff',
       strokeColor: '#ff7070', strokeWidth: 2,
-      radius: 20, opacity: 1, fontSize: 18,
+      radius: 20, opacity: 1, fontSize: 18, fontPath: '',
     },
     role: 'badge', importance: 'critical', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -257,7 +257,7 @@ window.TEMPLATES = [
     defaultProps: {
       text: 'NEW', fillColor: '#f39c12', textColor: '#ffffff',
       strokeColor: 'transparent', strokeWidth: 0,
-      radius: 6, opacity: 1, fontSize: 14,
+      radius: 6, opacity: 1, fontSize: 14, fontPath: '',
     },
     role: 'badge', importance: 'emphasis', state: 'default',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -271,7 +271,7 @@ window.TEMPLATES = [
     defaultProps: {
       text: 'ミッション完了！ +500 EXP', fillColor: '#1a3a1a', textColor: '#7fff7f',
       strokeColor: '#2ecc71', strokeWidth: 2,
-      radius: 8, opacity: 1, fontSize: 16,
+      radius: 8, opacity: 1, fontSize: 16, fontPath: '',
     },
     role: 'feedback', importance: 'info', state: 'success',
     propFields: ['text', 'fillColor', 'textColor', 'radius', 'opacity'],
@@ -301,10 +301,10 @@ window.TEMPLATES = [
     defaultSize: { width: 160, height: 60 },
     defaultProps: {
       imageNormal: '', imagePressed: '', imageDisabled: '',
-      text: 'Button', textColor: '#ffffff', fontSize: 18, opacity: 1
+      text: 'Button', textColor: '#ffffff', fontSize: 18, fontPath: '', opacity: 1
     },
     role: 'action', importance: 'primary', state: 'default',
-    propFields: ['imageNormal', 'imagePressed', 'imageDisabled', 'text', 'textColor', 'fontSize', 'opacity'],
+    propFields: ['imageNormal', 'imagePressed', 'imageDisabled', 'text', 'textColor', 'fontSize', 'fontPath', 'opacity'],
     visualType: 'sprite_button',
   },
 
@@ -469,10 +469,10 @@ window.TEMPLATES = [
     defaultSize: { width: 24, height: 24 },
     defaultProps: {
       fillColor: '#ff3b30', strokeColor: '#ffffff', strokeWidth: 2, radius: 12, opacity: 1,
-      text: '1', textColor: '#ffffff', fontSize: 12
+      text: '1', textColor: '#ffffff', fontSize: 12, fontPath: ''
     },
     role: 'indicator', importance: 'secondary', state: 'default',
-    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'text', 'textColor', 'fontSize', 'animation'],
+    propFields: ['fillColor', 'strokeColor', 'strokeWidth', 'radius', 'opacity', 'text', 'textColor', 'fontSize', 'fontPath', 'animation'],
     visualType: 'badge',
   },
   {

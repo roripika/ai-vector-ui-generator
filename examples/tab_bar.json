@@ -3,152 +3,510 @@
   "assetType": "screen",
   "metadata": {
     "name": "Tab Bar",
-    "description": "Tab bar with selected state and badge",
-    "tags": ["screen", "tab", "navigation"]
+    "description": "Full-width tab navigation bar with active state",
+    "tags": [
+      "screen",
+      "tab",
+      "navigation"
+    ]
   },
   "patternId": "tabs",
   "canvas": {
     "width": 1280,
     "height": 720,
-    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+    "safeArea": {
+      "x": 40,
+      "y": 40,
+      "width": 1200,
+      "height": 640
+    }
   },
   "components": [
     {
-      "id": "tab-item",
-      "name": "Tab Item",
-      "role": "navigation",
-      "importance": "secondary",
-      "viewBox": [0, 0, 160, 72],
+      "id": "canvas-bg",
+      "viewBox": [
+        0,
+        0,
+        1280,
+        720
+      ],
       "layers": [
         {
-          "id": "tab-base",
+          "id": "bg-fill",
           "shape": "roundedRect",
-          "rect": { "x": 0, "y": 0, "width": 160, "height": 72, "radius": 16 },
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 720,
+            "radius": 0
+          },
           "style": {
-            "fill": "ui.surface",
-            "stroke": "ui.strokeLight",
-            "strokeWidth": 2
-          },
-          "role": "container",
-          "importance": "secondary"
-        },
-        {
-          "id": "tab-icon",
-          "shape": "roundedRect",
-          "rect": { "x": 64, "y": 10, "width": 32, "height": 24, "radius": 6 },
-          "style": { "fill": "ui.accent" },
-          "role": "icon",
-          "importance": "secondary",
-          "constraint_flags": ["aspect_ratio"]
-        },
-        {
-          "id": "tab-label",
-          "shape": "text",
-          "rect": { "x": 12, "y": 40, "width": 136, "height": 20 },
-          "style": { "fill": "ui.textSecondary" },
-          "text": {
-            "value": "Tab",
-            "font": "ui.font.primary",
-            "size": 16,
-            "maxLines": 1,
-            "overflow": "ellipsis",
-            "fit": "shrink",
-            "align": "center"
-          },
-          "role": "text",
-          "importance": "secondary",
-          "constraint_flags": ["baseline"]
-        },
-        {
-          "id": "tab-badge",
-          "shape": "badge",
-          "rect": { "x": 112, "y": 6, "width": 40, "height": 20 },
-          "style": { "fill": "ui.accent" },
-          "textStyle": { "fill": "ui.textPrimary" },
-          "text": {
-            "value": "3",
-            "font": "ui.font.primary",
-            "size": 12,
-            "maxLines": 1,
-            "overflow": "ellipsis",
-            "fit": "shrink",
-            "align": "center"
-          },
-          "role": "badge",
-          "importance": "info",
-          "constraint_flags": ["snap"]
+            "fill": "ui.surface"
+          }
         }
       ]
     },
     {
-      "id": "tab-bar",
-      "name": "Tab Bar",
-      "role": "navigation",
-      "importance": "secondary",
-      "constraint_flags": ["spacing"],
-      "viewBox": [0, 0, 640, 72],
+      "id": "page-header",
+      "viewBox": [
+        0,
+        0,
+        1280,
+        64
+      ],
       "layers": [
         {
-          "id": "tabs-row",
-          "shape": "layoutRow",
-          "rect": { "x": 0, "y": 0, "width": 640, "height": 72 },
-          "layout": { "gap": 12, "align": "center", "padding": { "left": 0, "right": 0 } },
-          "items": [
-            {
-              "id": "tab-home",
-              "componentId": "tab-item",
-              "size": { "width": 160, "height": 72 },
-              "role": "navigation",
-              "importance": "primary",
-              "state": "selected"
-            },
-            {
-              "id": "tab-messages",
-              "componentId": "tab-item",
-              "size": { "width": 160, "height": 72 },
-              "role": "navigation",
-              "importance": "secondary",
-              "state": "default"
-            },
-            {
-              "id": "tab-shop",
-              "componentId": "tab-item",
-              "size": { "width": 160, "height": 72 },
-              "role": "navigation",
-              "importance": "secondary",
-              "state": "default"
-            },
-            {
-              "id": "tab-settings",
-              "componentId": "tab-item",
-              "size": { "width": 160, "height": 72 },
-              "role": "navigation",
-              "importance": "secondary",
-              "state": "default"
-            }
-          ],
-          "role": "navigation",
-          "importance": "secondary",
-          "constraint_flags": ["spacing"],
-          "layout_ref": "flow:tab_row"
+          "id": "header-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 64,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "header-title",
+          "shape": "text",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 64
+          },
+          "style": {
+            "fill": "ui.textPrimary"
+          },
+          "text": {
+            "value": "ホーム",
+            "font": "ui.font.title",
+            "size": 22,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tab-home",
+      "name": "ホーム",
+      "role": "navigation",
+      "importance": "primary",
+      "viewBox": [
+        0,
+        0,
+        320,
+        72
+      ],
+      "layers": [
+        {
+          "id": "tab-home-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 72,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.primaryGradient",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "tab-home-indicator",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 96,
+            "y": 0,
+            "width": 128,
+            "height": 3,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.accent"
+          }
+        },
+        {
+          "id": "tab-home-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 134,
+            "y": 10,
+            "width": 52,
+            "height": 28,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.accent"
+          }
+        },
+        {
+          "id": "tab-home-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 42,
+            "width": 296,
+            "height": 22
+          },
+          "style": {
+            "fill": "ui.textPrimary"
+          },
+          "text": {
+            "value": "ホーム",
+            "font": "ui.font.primary",
+            "size": 15,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tab-quest",
+      "name": "クエスト",
+      "role": "navigation",
+      "importance": "secondary",
+      "viewBox": [
+        0,
+        0,
+        320,
+        72
+      ],
+      "layers": [
+        {
+          "id": "tab-quest-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 72,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "tab-quest-indicator",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 96,
+            "y": 0,
+            "width": 128,
+            "height": 3,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
+          }
+        },
+        {
+          "id": "tab-quest-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 134,
+            "y": 10,
+            "width": 52,
+            "height": 28,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.strokeLight"
+          }
+        },
+        {
+          "id": "tab-quest-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 42,
+            "width": 296,
+            "height": 22
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "クエスト",
+            "font": "ui.font.primary",
+            "size": 15,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tab-battle",
+      "name": "バトル",
+      "role": "navigation",
+      "importance": "secondary",
+      "viewBox": [
+        0,
+        0,
+        320,
+        72
+      ],
+      "layers": [
+        {
+          "id": "tab-battle-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 72,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "tab-battle-indicator",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 96,
+            "y": 0,
+            "width": 128,
+            "height": 3,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
+          }
+        },
+        {
+          "id": "tab-battle-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 134,
+            "y": 10,
+            "width": 52,
+            "height": 28,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.strokeLight"
+          }
+        },
+        {
+          "id": "tab-battle-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 42,
+            "width": 296,
+            "height": 22
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "バトル",
+            "font": "ui.font.primary",
+            "size": 15,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tab-shop",
+      "name": "ショップ",
+      "role": "navigation",
+      "importance": "secondary",
+      "viewBox": [
+        0,
+        0,
+        320,
+        72
+      ],
+      "layers": [
+        {
+          "id": "tab-shop-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 72,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "tab-shop-indicator",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 96,
+            "y": 0,
+            "width": 128,
+            "height": 3,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
+          }
+        },
+        {
+          "id": "tab-shop-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 134,
+            "y": 10,
+            "width": 52,
+            "height": 28,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.strokeLight"
+          }
+        },
+        {
+          "id": "tab-shop-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 42,
+            "width": 296,
+            "height": 22
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "ショップ",
+            "font": "ui.font.primary",
+            "size": 15,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "shrink",
+            "align": "center"
+          }
         }
       ]
     }
   ],
   "instances": [
     {
-      "id": "main-tab-bar",
-      "componentId": "tab-bar",
+      "id": "bg",
+      "componentId": "canvas-bg",
       "anchorTo": "canvas",
-      "anchor": "bottom",
-      "offset": { "x": 0, "y": -24 },
-      "size": { "width": 640, "height": 72 },
-      "role": "navigation",
-      "importance": "secondary",
-      "state": "default",
-      "constraint_flags": ["safe_area"],
-      "layout_ref": "flow:tab_row",
+      "anchor": "topLeft",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1280,
+        "height": 720
+      },
+      "zIndex": 0
+    },
+    {
+      "id": "header",
+      "componentId": "page-header",
+      "anchorTo": "canvas",
+      "anchor": "topLeft",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1280,
+        "height": 64
+      },
       "zIndex": 1
+    },
+    {
+      "id": "nav-tab-home",
+      "componentId": "tab-home",
+      "anchorTo": "canvas",
+      "anchor": "bottomLeft",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 320,
+        "height": 72
+      },
+      "zIndex": 2
+    },
+    {
+      "id": "nav-tab-quest",
+      "componentId": "tab-quest",
+      "anchorTo": "canvas",
+      "anchor": "bottomLeft",
+      "offset": {
+        "x": 320,
+        "y": 0
+      },
+      "size": {
+        "width": 320,
+        "height": 72
+      },
+      "zIndex": 2
+    },
+    {
+      "id": "nav-tab-battle",
+      "componentId": "tab-battle",
+      "anchorTo": "canvas",
+      "anchor": "bottomLeft",
+      "offset": {
+        "x": 640,
+        "y": 0
+      },
+      "size": {
+        "width": 320,
+        "height": 72
+      },
+      "zIndex": 2
+    },
+    {
+      "id": "nav-tab-shop",
+      "componentId": "tab-shop",
+      "anchorTo": "canvas",
+      "anchor": "bottomLeft",
+      "offset": {
+        "x": 960,
+        "y": 0
+      },
+      "size": {
+        "width": 320,
+        "height": 72
+      },
+      "zIndex": 2
     }
   ]
 }

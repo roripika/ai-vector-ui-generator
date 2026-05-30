@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  #back { width: 200px; height: 200px; background: red; position: absolute; }
+  #front { width: 200px; height: 200px; position: absolute; }
+  #visual { width: 100%; height: 100%; background: blue; pointer-events: none; opacity: 0.5; }
+</style>
+</head>
+<body>
+  <div id="back" onclick="console.log('back')"></div>
+  <div id="front" onclick="console.log('front')">
+    <div id="visual"></div>
+  </div>
+  <script>
+    document.elementFromPoint(100, 100).click();
+  </script>
+</body>
+</html>

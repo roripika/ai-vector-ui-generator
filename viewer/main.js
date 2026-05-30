@@ -22,6 +22,7 @@ function createWindow() {
     },
   });
   win.loadFile('index.html');
+  win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -47,9 +48,23 @@ function getJsonFiles(dirPath) {
 ipcMain.handle('open-workspace-dialog', async () => {
   const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openDirectory'] });
   if (canceled || !filePaths.length) return;
-  workspaceDir = filePaths[0];
+  
+  _setWorkspace(filePaths[0]);
+});
+
+ipcMain.handle('set-workspace-dir', async (_e, dirPath) => {
+  if (dirPath && fs.existsSync(dirPath)) {
+    _setWorkspace(dirPath);
+    return true;
+  }
+  return false;
+});
+
+function _setWorkspace(dirPath) {
+  workspaceDir = dirPath;
 
   const win = BrowserWindow.getAllWindows()[0];
+  if (!win) return;
   win.webContents.send('workspace-opened', { dir: workspaceDir, files: getJsonFiles(workspaceDir) });
 
   // ファイル監視
@@ -60,18 +75,13 @@ ipcMain.handle('open-workspace-dialog', async () => {
       win.webContents.send('workspace-files-updated', getJsonFiles(workspaceDir));
     });
   }
-});
+}
 
 // ======================================================
 // ファイル操作 IPC
 // ======================================================
 
-// JSON読み込み
-ipcMain.handle('read-json-file', async (_e, filePath) => {
-  if (!filePath || !fs.existsSync(filePath)) return null;
-  try { return JSON.parse(fs.readFileSync(filePath, 'utf8')); }
-  catch (e) { return null; }
-});
+
 
 // 新規ファイル作成
 ipcMain.handle('new-file', async (_e, dir, fileName) => {
@@ -99,6 +109,57 @@ ipcMain.handle('save-file', async (_e, filePath, jsonData) => {
     fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), 'utf8');
     return { success: true };
   } catch (e) { return { success: false, error: e.message }; }
+});
+
+// JSONファイル読み込み（prefab参照解決用）
+ipcMain.handle('read-json-file', async (_e, filePath) => {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return { success: true, data: JSON.parse(content) };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+});
+
+// 画像アセット一覧
+ipcMain.handle('select-asset-dir', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+  if (canceled || !filePaths.length) return null;
+  return filePaths[0];
+});
+
+ipcMain.handle('select-file', async (_e, defaultDir) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), { 
+    defaultPath: defaultDir, 
+    properties: ['openFile'] 
+  });
+  if (canceled || !filePaths.length) return null;
+  return filePaths[0];
+});
+
+// 画像アセット一覧
+ipcMain.handle('list-image-assets', async (_e, dir) => {
+  if (!dir) return [];
+  const IMAGE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.svg', '.webp']);
+  const results = [];
+  function scan(subDir, relBase) {
+    try {
+      for (const f of fs.readdirSync(subDir)) {
+        const ext = path.extname(f).toLowerCase();
+        if (IMAGE_EXTS.has(ext)) {
+          results.push({
+            name: f,
+            fullPath: path.join(subDir, f),
+            relativePath: relBase ? relBase + '/' + f : f,
+          });
+        }
+      }
+    } catch(e) {}
+  }
+  scan(dir, '');
+  const outDir = path.join(dir, 'out');
+  if (fs.existsSync(outDir)) scan(outDir, 'out');
+  return results;
 });
 
 // Export JSON（名前をつけて保存）

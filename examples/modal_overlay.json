@@ -3,43 +3,50 @@
   "assetType": "screen",
   "metadata": {
     "name": "Modal Overlay",
-    "description": "Modal with overlay and close button",
-    "tags": ["screen", "modal", "overlay"]
+    "description": "Modal with overlay, close button, and cancel/confirm actions",
+    "tags": [
+      "screen",
+      "modal",
+      "overlay"
+    ]
   },
   "patternId": "modal",
   "canvas": {
     "width": 1280,
     "height": 720,
-    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
-  },
-  "slots": [
-    {
-      "id": "modal_title",
-      "rect": { "x": 320, "y": 200, "width": 640, "height": 40 },
-      "description": "Modal title slot"
-    },
-    {
-      "id": "modal_body",
-      "rect": { "x": 320, "y": 260, "width": 640, "height": 200 },
-      "description": "Modal body slot"
+    "safeArea": {
+      "x": 40,
+      "y": 40,
+      "width": 1200,
+      "height": 640
     }
-  ],
+  },
   "components": [
     {
       "id": "screen-overlay",
       "name": "Screen Overlay",
       "role": "overlay",
       "importance": "muted",
-      "constraint_flags": ["overlap"],
-      "viewBox": [0, 0, 1280, 720],
+      "viewBox": [
+        0,
+        0,
+        1280,
+        720
+      ],
       "layers": [
         {
           "id": "overlay-fill",
           "shape": "roundedRect",
-          "rect": { "x": 0, "y": 0, "width": 1280, "height": 720, "radius": 0 },
-          "style": { "fill": "ui.surface" },
-          "role": "overlay",
-          "importance": "muted"
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 720,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
+          }
         }
       ]
     },
@@ -48,59 +55,202 @@
       "name": "Modal Panel",
       "role": "modal",
       "importance": "primary",
-      "constraint_flags": ["padding", "nine_slice"],
-      "viewBox": [0, 0, 720, 420],
+      "viewBox": [
+        0,
+        0,
+        720,
+        460
+      ],
       "layers": [
         {
           "id": "panel-base",
           "shape": "roundedRect",
-          "rect": { "x": 0, "y": 0, "width": 720, "height": 420, "radius": 24 },
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 720,
+            "height": 460,
+            "radius": 24
+          },
           "style": {
-            "fill": "ui.surface",
+            "fill": "ui.textDark",
             "stroke": "ui.strokeLight",
             "strokeWidth": 2
+          }
+        },
+        {
+          "id": "panel-header-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 720,
+            "height": 72,
+            "radius": 24
           },
-          "role": "container",
-          "importance": "secondary",
-          "constraint_flags": ["nine_slice"]
+          "style": {
+            "fill": "ui.surface"
+          }
+        },
+        {
+          "id": "panel-header-bottom",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 48,
+            "width": 720,
+            "height": 24,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
+          }
         },
         {
           "id": "panel-title",
           "shape": "text",
-          "rect": { "x": 40, "y": 32, "width": 640, "height": 36 },
-          "style": { "fill": "ui.textPrimary" },
+          "rect": {
+            "x": 36,
+            "y": 22,
+            "width": 560,
+            "height": 32
+          },
+          "style": {
+            "fill": "ui.textPrimary"
+          },
           "text": {
-            "value": "Item Details",
+            "value": "アイテム詳細",
             "font": "ui.font.title",
-            "size": 26,
+            "size": 24,
             "maxLines": 1,
             "overflow": "ellipsis",
             "fit": "shrink",
             "align": "left"
+          }
+        },
+        {
+          "id": "panel-divider",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 36,
+            "y": 76,
+            "width": 648,
+            "height": 1,
+            "radius": 0
           },
-          "role": "text",
-          "importance": "primary",
-          "constraint_flags": ["max_lines"],
-          "layout_ref": "slot:modal_title"
+          "style": {
+            "fill": "ui.strokeLight"
+          }
         },
         {
           "id": "panel-body",
           "shape": "text",
-          "rect": { "x": 40, "y": 92, "width": 640, "height": 200 },
-          "style": { "fill": "ui.textSecondary" },
+          "rect": {
+            "x": 36,
+            "y": 96,
+            "width": 648,
+            "height": 200
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
           "text": {
-            "value": "This modal explains how the item behaves during battle.",
+            "value": "このアイテムはバトル中に使用できる特殊な道具です。HPを500回復し、さらに3ターンの間、防御力が50%上昇します。戦況が不利なときに使用してください。",
             "font": "ui.font.primary",
-            "size": 18,
-            "maxLines": 4,
+            "size": 17,
+            "maxLines": 6,
             "overflow": "clip",
             "fit": "none",
             "align": "left"
+          }
+        },
+        {
+          "id": "panel-footer-divider",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 36,
+            "y": 370,
+            "width": 648,
+            "height": 1,
+            "radius": 0
           },
-          "role": "data_display",
-          "importance": "info",
-          "constraint_flags": ["max_lines"],
-          "layout_ref": "slot:modal_body"
+          "style": {
+            "fill": "ui.strokeLight"
+          }
+        },
+        {
+          "id": "btn-cancel-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 36,
+            "y": 390,
+            "width": 300,
+            "height": 52,
+            "radius": 14
+          },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
+          }
+        },
+        {
+          "id": "btn-cancel-label",
+          "shape": "text",
+          "rect": {
+            "x": 36,
+            "y": 390,
+            "width": 300,
+            "height": 52
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "キャンセル",
+            "font": "ui.font.primary",
+            "size": 18,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
+          }
+        },
+        {
+          "id": "btn-confirm-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 384,
+            "y": 390,
+            "width": 300,
+            "height": 52,
+            "radius": 14
+          },
+          "style": {
+            "fill": "ui.primaryGradient"
+          }
+        },
+        {
+          "id": "btn-confirm-label",
+          "shape": "text",
+          "rect": {
+            "x": 384,
+            "y": 390,
+            "width": 300,
+            "height": 52
+          },
+          "style": {
+            "fill": "ui.textPrimary"
+          },
+          "text": {
+            "value": "使用する",
+            "font": "ui.font.title",
+            "size": 18,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
+          }
         }
       ]
     },
@@ -109,16 +259,48 @@
       "name": "Close Button",
       "role": "action",
       "importance": "secondary",
-      "constraint_flags": ["min_tap", "hit_area"],
-      "viewBox": [0, 0, 40, 40],
+      "viewBox": [
+        0,
+        0,
+        44,
+        44
+      ],
       "layers": [
         {
           "id": "close-base",
           "shape": "roundedRect",
-          "rect": { "x": 0, "y": 0, "width": 40, "height": 40, "radius": 12 },
-          "style": { "fill": "ui.accent" },
-          "role": "action",
-          "importance": "secondary"
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 44,
+            "height": 44,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.accent"
+          }
+        },
+        {
+          "id": "close-text",
+          "shape": "text",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 44,
+            "height": 44
+          },
+          "style": {
+            "fill": "ui.textDark"
+          },
+          "text": {
+            "value": "×",
+            "font": "ui.font.title",
+            "size": 22,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
+          }
         }
       ]
     }
@@ -129,12 +311,14 @@
       "componentId": "screen-overlay",
       "anchorTo": "canvas",
       "anchor": "topLeft",
-      "offset": { "x": 0, "y": 0 },
-      "size": { "width": 1280, "height": 720 },
-      "role": "overlay",
-      "importance": "muted",
-      "state": "default",
-      "layout_ref": "stack:modal_overlay",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1280,
+        "height": 720
+      },
       "zIndex": 0
     },
     {
@@ -142,13 +326,14 @@
       "componentId": "modal-panel",
       "anchorTo": "canvas",
       "anchor": "center",
-      "offset": { "x": 0, "y": -10 },
-      "size": { "width": 720, "height": 420 },
-      "role": "modal",
-      "importance": "primary",
-      "state": "default",
-      "constraint_flags": ["safe_area"],
-      "layout_ref": "slot:modal_root",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 720,
+        "height": 460
+      },
       "zIndex": 1
     },
     {
@@ -156,13 +341,14 @@
       "componentId": "close-button",
       "anchorTo": "modal",
       "anchor": "topRight",
-      "offset": { "x": -24, "y": 24 },
-      "size": { "width": 40, "height": 40 },
-      "role": "action",
-      "importance": "secondary",
-      "state": "default",
-      "constraint_flags": ["min_tap", "hit_area"],
-      "layout_ref": "slot:modal_close",
+      "offset": {
+        "x": -16,
+        "y": 14
+      },
+      "size": {
+        "width": 44,
+        "height": 44
+      },
       "zIndex": 2
     }
   ]

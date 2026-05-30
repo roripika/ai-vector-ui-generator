@@ -3,54 +3,341 @@
   "assetType": "screen",
   "metadata": {
     "name": "HUD Basic",
-    "description": "HUD widgets with binding placeholders",
-    "tags": ["screen", "hud"]
+    "description": "Game HUD: HP/MP bars, boss bar, skill slots, auto toggle, wave counter",
+    "tags": [
+      "screen",
+      "hud"
+    ]
   },
   "patternId": "hud_basic",
   "canvas": {
     "width": 1280,
     "height": 720,
-    "safeArea": { "x": 40, "y": 40, "width": 1200, "height": 640 }
+    "safeArea": {
+      "x": 40,
+      "y": 40,
+      "width": 1200,
+      "height": 640
+    }
   },
   "components": [
     {
-      "id": "hud-hp-bar",
-      "viewBox": [0, 0, 320, 32],
+      "id": "canvas-bg",
+      "viewBox": [
+        0,
+        0,
+        1280,
+        720
+      ],
       "layers": [
         {
-          "id": "hp-progress",
-          "shape": "progressBar",
-          "rect": { "x": 0, "y": 4, "width": 320, "height": 24, "radius": 12 },
-          "style": { "fill": "ui.primaryGradient" },
-          "track": "ui.surface",
-          "value": 0.85,
-          "bind": { "value": { "var": "player.hpRatio" } }
-        },
-        {
-          "id": "hp-label",
-          "shape": "text",
-          "rect": { "x": 12, "y": 4, "width": 296, "height": 24 },
-          "style": { "fill": "ui.textPrimary" },
-          "text": {
-            "value": "HP",
-            "font": "ui.font.primary",
-            "size": 16,
-            "maxLines": 1,
-            "overflow": "ellipsis",
-            "fit": "none",
-            "align": "left"
+          "id": "bg-main",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 720,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.surface"
           }
         }
       ]
     },
     {
-      "id": "hud-skill",
-      "viewBox": [0, 0, 64, 64],
+      "id": "bottom-hud-bar",
+      "viewBox": [
+        0,
+        0,
+        1280,
+        100
+      ],
       "layers": [
         {
-          "id": "skill-base",
+          "id": "bottom-bg",
           "shape": "roundedRect",
-          "rect": { "x": 0, "y": 0, "width": 64, "height": 64, "radius": 12 },
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 100,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.textDark"
+          }
+        },
+        {
+          "id": "bottom-divider",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 1280,
+            "height": 2,
+            "radius": 0
+          },
+          "style": {
+            "fill": "ui.strokeLight"
+          }
+        }
+      ]
+    },
+    {
+      "id": "player-status",
+      "viewBox": [
+        0,
+        0,
+        380,
+        88
+      ],
+      "layers": [
+        {
+          "id": "status-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 380,
+            "height": 88,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "hp-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 8,
+            "width": 30,
+            "height": 16
+          },
+          "style": {
+            "fill": "ui.accent"
+          },
+          "text": {
+            "value": "HP",
+            "font": "ui.font.primary",
+            "size": 13,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          }
+        },
+        {
+          "id": "hp-value",
+          "shape": "text",
+          "rect": {
+            "x": 252,
+            "y": 8,
+            "width": 116,
+            "height": 16
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "850 / 1000",
+            "font": "ui.font.primary",
+            "size": 12,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "right"
+          }
+        },
+        {
+          "id": "hp-bar",
+          "shape": "progressBar",
+          "rect": {
+            "x": 12,
+            "y": 28,
+            "width": 356,
+            "height": 14,
+            "radius": 7
+          },
+          "style": {
+            "fill": "ui.primaryGradient"
+          },
+          "track": "ui.surface",
+          "value": 0.85
+        },
+        {
+          "id": "mp-label",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 50,
+            "width": 30,
+            "height": 16
+          },
+          "style": {
+            "fill": "ui.strokeLight"
+          },
+          "text": {
+            "value": "MP",
+            "font": "ui.font.primary",
+            "size": 13,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          }
+        },
+        {
+          "id": "mp-value",
+          "shape": "text",
+          "rect": {
+            "x": 252,
+            "y": 50,
+            "width": 116,
+            "height": 16
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "420 / 600",
+            "font": "ui.font.primary",
+            "size": 12,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "right"
+          }
+        },
+        {
+          "id": "mp-bar",
+          "shape": "progressBar",
+          "rect": {
+            "x": 12,
+            "y": 70,
+            "width": 356,
+            "height": 10,
+            "radius": 5
+          },
+          "style": {
+            "fill": "ui.highlightGradient"
+          },
+          "track": "ui.surface",
+          "value": 0.7
+        }
+      ]
+    },
+    {
+      "id": "boss-bar",
+      "viewBox": [
+        0,
+        0,
+        460,
+        52
+      ],
+      "layers": [
+        {
+          "id": "boss-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 460,
+            "height": 52,
+            "radius": 10
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "boss-name",
+          "shape": "text",
+          "rect": {
+            "x": 12,
+            "y": 6,
+            "width": 380,
+            "height": 18
+          },
+          "style": {
+            "fill": "ui.accent"
+          },
+          "text": {
+            "value": "Dark Dragon  Lv.85",
+            "font": "ui.font.title",
+            "size": 14,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "left"
+          }
+        },
+        {
+          "id": "boss-pct",
+          "shape": "text",
+          "rect": {
+            "x": 380,
+            "y": 6,
+            "width": 68,
+            "height": 18
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
+          "text": {
+            "value": "62%",
+            "font": "ui.font.primary",
+            "size": 12,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "right"
+          }
+        },
+        {
+          "id": "boss-progress",
+          "shape": "progressBar",
+          "rect": {
+            "x": 12,
+            "y": 32,
+            "width": 436,
+            "height": 12,
+            "radius": 6
+          },
+          "style": {
+            "fill": "ui.accent"
+          },
+          "track": "ui.surface",
+          "value": 0.62
+        }
+      ]
+    },
+    {
+      "id": "skill-slot",
+      "viewBox": [
+        0,
+        0,
+        80,
+        80
+      ],
+      "layers": [
+        {
+          "id": "slot-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 80,
+            "height": 80,
+            "radius": 14
+          },
           "style": {
             "fill": "ui.surface",
             "stroke": "ui.strokeLight",
@@ -58,37 +345,88 @@
           }
         },
         {
-          "id": "skill-cooldown",
+          "id": "slot-icon",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 20,
+            "y": 14,
+            "width": 40,
+            "height": 34,
+            "radius": 8
+          },
+          "style": {
+            "fill": "ui.primaryGradient"
+          }
+        },
+        {
+          "id": "slot-cooldown",
           "shape": "cooldownOverlay",
-          "rect": { "x": 0, "y": 0, "width": 64, "height": 64 },
-          "style": { "fill": "ui.accent" },
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 80,
+            "height": 80
+          },
+          "style": {
+            "fill": "ui.accent"
+          },
           "progress": 0.0,
-          "direction": "bottomToTop",
-          "bind": { "value": { "var": "skill.cooldown" } }
+          "direction": "bottomToTop"
         }
       ]
     },
     {
-      "id": "hud-toggle",
-      "viewBox": [0, 0, 96, 48],
+      "id": "auto-toggle",
+      "viewBox": [
+        0,
+        0,
+        80,
+        80
+      ],
       "layers": [
         {
-          "id": "auto-toggle",
-          "shape": "toggle",
-          "rect": { "x": 0, "y": 4, "width": 96, "height": 40 },
-          "style": { "fill": "ui.surface" },
-          "knobFill": "ui.accent",
-          "state": "on",
-          "bind": {
-            "value": { "var": "settings.auto" },
-            "enabledWhen": { "var": "settings.autoEnabled" }
+          "id": "auto-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 80,
+            "height": 80,
+            "radius": 14
+          },
+          "style": {
+            "fill": "ui.surface",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 2
           }
         },
         {
-          "id": "auto-label",
+          "id": "toggle-sw",
+          "shape": "toggle",
+          "rect": {
+            "x": 12,
+            "y": 10,
+            "width": 56,
+            "height": 30
+          },
+          "style": {
+            "fill": "ui.surface"
+          },
+          "knobFill": "ui.accent",
+          "state": "on"
+        },
+        {
+          "id": "toggle-label",
           "shape": "text",
-          "rect": { "x": 0, "y": 0, "width": 96, "height": 16 },
-          "style": { "fill": "ui.textSecondary" },
+          "rect": {
+            "x": 0,
+            "y": 52,
+            "width": 80,
+            "height": 20
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
           "text": {
             "value": "AUTO",
             "font": "ui.font.primary",
@@ -102,30 +440,72 @@
       ]
     },
     {
-      "id": "hud-badge",
-      "viewBox": [0, 0, 80, 32],
+      "id": "wave-counter",
+      "viewBox": [
+        0,
+        0,
+        200,
+        60
+      ],
       "layers": [
         {
-          "id": "notice-badge",
-          "shape": "badge",
-          "rect": { "x": 0, "y": 0, "width": 80, "height": 32 },
-          "style": { "fill": "ui.accent" },
-          "textStyle": { "fill": "ui.textPrimary" },
+          "id": "wave-bg",
+          "shape": "roundedRect",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 60,
+            "radius": 12
+          },
+          "style": {
+            "fill": "ui.textDark",
+            "stroke": "ui.strokeLight",
+            "strokeWidth": 1
+          }
+        },
+        {
+          "id": "wave-label",
+          "shape": "text",
+          "rect": {
+            "x": 0,
+            "y": 8,
+            "width": 200,
+            "height": 18
+          },
+          "style": {
+            "fill": "ui.textSecondary"
+          },
           "text": {
-            "value": "3",
+            "value": "WAVE",
             "font": "ui.font.primary",
-            "size": 16,
+            "size": 11,
             "maxLines": 1,
             "overflow": "ellipsis",
-            "fit": "shrink",
+            "fit": "none",
             "align": "center"
+          }
+        },
+        {
+          "id": "wave-num",
+          "shape": "text",
+          "rect": {
+            "x": 0,
+            "y": 28,
+            "width": 200,
+            "height": 26
           },
-          "bind": {
-            "value": { "var": "badge.count" },
-            "visibleWhen": {
-              "op": "gt",
-              "args": [{ "var": "badge.count" }, 0]
-            }
+          "style": {
+            "fill": "ui.accent"
+          },
+          "text": {
+            "value": "3  /  5",
+            "font": "ui.font.title",
+            "size": 20,
+            "maxLines": 1,
+            "overflow": "ellipsis",
+            "fit": "none",
+            "align": "center"
           }
         }
       ]
@@ -133,40 +513,154 @@
   ],
   "instances": [
     {
-      "id": "hud-hp",
-      "componentId": "hud-hp-bar",
+      "id": "bg",
+      "componentId": "canvas-bg",
       "anchorTo": "canvas",
       "anchor": "topLeft",
-      "offset": { "x": 48, "y": 32 },
-      "size": { "width": 320, "height": 32 },
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1280,
+        "height": 720
+      },
       "zIndex": 0
     },
     {
-      "id": "hud-toggle-auto",
-      "componentId": "hud-toggle",
+      "id": "bottom-bar",
+      "componentId": "bottom-hud-bar",
       "anchorTo": "canvas",
-      "anchor": "topRight",
-      "offset": { "x": -220, "y": 32 },
-      "size": { "width": 96, "height": 48 },
+      "anchor": "bottomLeft",
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "width": 1280,
+        "height": 100
+      },
       "zIndex": 1
     },
     {
-      "id": "hud-skill-1",
-      "componentId": "hud-skill",
+      "id": "player-hp-mp",
+      "componentId": "player-status",
       "anchorTo": "canvas",
-      "anchor": "topRight",
-      "offset": { "x": -96, "y": 32 },
-      "size": { "width": 64, "height": 64 },
+      "anchor": "topLeft",
+      "offset": {
+        "x": 32,
+        "y": 24
+      },
+      "size": {
+        "width": 380,
+        "height": 88
+      },
       "zIndex": 2
     },
     {
-      "id": "hud-badge",
-      "componentId": "hud-badge",
+      "id": "enemy-bar",
+      "componentId": "boss-bar",
+      "anchorTo": "canvas",
+      "anchor": "top",
+      "offset": {
+        "x": 30,
+        "y": 20
+      },
+      "size": {
+        "width": 460,
+        "height": 52
+      },
+      "zIndex": 3
+    },
+    {
+      "id": "wave",
+      "componentId": "wave-counter",
+      "anchorTo": "canvas",
+      "anchor": "topRight",
+      "offset": {
+        "x": -32,
+        "y": 24
+      },
+      "size": {
+        "width": 200,
+        "height": 60
+      },
+      "zIndex": 4
+    },
+    {
+      "id": "skill-1",
+      "componentId": "skill-slot",
       "anchorTo": "canvas",
       "anchor": "bottomRight",
-      "offset": { "x": -48, "y": -48 },
-      "size": { "width": 80, "height": 32 },
-      "zIndex": 3
+      "offset": {
+        "x": -468,
+        "y": -10
+      },
+      "size": {
+        "width": 80,
+        "height": 80
+      },
+      "zIndex": 5
+    },
+    {
+      "id": "skill-2",
+      "componentId": "skill-slot",
+      "anchorTo": "canvas",
+      "anchor": "bottomRight",
+      "offset": {
+        "x": -376,
+        "y": -10
+      },
+      "size": {
+        "width": 80,
+        "height": 80
+      },
+      "zIndex": 6
+    },
+    {
+      "id": "skill-3",
+      "componentId": "skill-slot",
+      "anchorTo": "canvas",
+      "anchor": "bottomRight",
+      "offset": {
+        "x": -284,
+        "y": -10
+      },
+      "size": {
+        "width": 80,
+        "height": 80
+      },
+      "zIndex": 7
+    },
+    {
+      "id": "skill-4",
+      "componentId": "skill-slot",
+      "anchorTo": "canvas",
+      "anchor": "bottomRight",
+      "offset": {
+        "x": -192,
+        "y": -10
+      },
+      "size": {
+        "width": 80,
+        "height": 80
+      },
+      "zIndex": 8
+    },
+    {
+      "id": "toggle-auto",
+      "componentId": "auto-toggle",
+      "anchorTo": "canvas",
+      "anchor": "bottomRight",
+      "offset": {
+        "x": -100,
+        "y": -10
+      },
+      "size": {
+        "width": 80,
+        "height": 80
+      },
+      "zIndex": 9
     }
   ]
 }

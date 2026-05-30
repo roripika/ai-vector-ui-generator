@@ -19,6 +19,39 @@ window.addEventListener('DOMContentLoaded', () => {
   _setupEditorCallbacks();
   _setupCanvasMouseCoords();
 
+  document.getElementById('btn-refresh-assets').addEventListener('click', _refreshAssetBrowser);
+
+  let btnSetAssetDir = document.getElementById('btn-set-asset-dir');
+  if (btnSetAssetDir) {
+    btnSetAssetDir.addEventListener('click', async () => {
+      const dir = await window.api.selectAssetDir();
+      if (dir) {
+        Editor.getState().assetDir = dir;
+        localStorage.setItem('assetDir', dir);
+        _refreshAssetBrowser();
+        Editor.renderCanvas(); // 変更を即座に反映
+      }
+    });
+  }
+
+  // Restore settings from localStorage
+  const savedAssetDir = localStorage.getItem('assetDir');
+  if (savedAssetDir) {
+    Editor.getState().assetDir = savedAssetDir;
+    _refreshAssetBrowser();
+  }
+
+  const savedWorkspaceDir = localStorage.getItem('workspaceDir');
+  if (savedWorkspaceDir && window.api.setWorkspaceDir) {
+    window.api.setWorkspaceDir(savedWorkspaceDir).then((success) => {
+      if (!success) {
+        localStorage.removeItem('workspaceDir');
+      }
+    });
+  }
+
+
+
   // 初期キャンバスサイズ適用
   _applyCanvasSize('1280x720');
   Editor.fitZoom();
@@ -69,7 +102,7 @@ function _setupToolbar() {
     const result = await window.api.newFile(st.workspaceDir, name + '.json');
     if (result.success) {
       st.currentFilePath = result.filePath;
-      Editor.loadJSON({ canvas: { width: st.canvasWidth, height: st.canvasHeight } });
+      await Editor.loadJSON({ canvas: { width: st.canvasWidth, height: st.canvasHeight } });
       _setCurrentFile(result.filePath);
     }
   });
@@ -87,9 +120,28 @@ function _setupToolbar() {
   document.getElementById('btn-delete').addEventListener('click', () => Editor.deleteSelected());
 
   document.getElementById('canvas-size-select').addEventListener('change', (e) => {
-    _applyCanvasSize(e.target.value);
-    Editor.fitZoom();
+    if (e.target.value === 'custom') {
+      document.getElementById('custom-canvas-inputs').style.display = 'flex';
+      const st = Editor.getState();
+      document.getElementById('canvas-custom-w').value = st.canvasWidth;
+      document.getElementById('canvas-custom-h').value = st.canvasHeight;
+    } else {
+      document.getElementById('custom-canvas-inputs').style.display = 'none';
+      _applyCanvasSize(e.target.value);
+      Editor.fitZoom();
+    }
   });
+  
+  const updateCustomSize = () => {
+    if (document.getElementById('canvas-size-select').value === 'custom') {
+      const w = parseInt(document.getElementById('canvas-custom-w').value) || 100;
+      const h = parseInt(document.getElementById('canvas-custom-h').value) || 100;
+      _applyCanvasSize(w + 'x' + h);
+      Editor.fitZoom();
+    }
+  };
+  document.getElementById('canvas-custom-w').addEventListener('change', updateCustomSize);
+  document.getElementById('canvas-custom-h').addEventListener('change', updateCustomSize);
 
   document.getElementById('btn-zoom-in').addEventListener('click', () => { Editor.zoomIn(); _updateZoomDisplay(); });
   document.getElementById('btn-zoom-out').addEventListener('click', () => { Editor.zoomOut(); _updateZoomDisplay(); });
@@ -140,8 +192,10 @@ function _updateZoomDisplay() {
 function _setupWorkspaceIPC() {
   window.api.onWorkspaceOpened((data) => {
     Editor.getState().workspaceDir = data.dir;
+    localStorage.setItem('workspaceDir', data.dir);
     document.getElementById('btn-new-file').disabled = false;
     _renderWorkspaceFiles(data.files);
+    _refreshAssetBrowser();
 
     // ファイルタブに自動切替
     document.querySelectorAll('.tab-btn').forEach(b => {
@@ -175,25 +229,42 @@ function _renderWorkspaceFiles(files) {
 }
 
 async function _openWorkspaceFile(filePath) {
-  const data = await window.api.readJsonFile(filePath);
-  if (!data) return;
+  try {
+    const result = await window.api.readJsonFile(filePath);
+    if (!result || !result.success) {
+      alert("JSON読み込みエラー: " + (result ? result.error : "Unknown"));
+      return;
+    }
+    const data = result.data;
 
-  Editor.loadJSON(data);
-  Editor.getState().currentFilePath = filePath;
-  _setCurrentFile(filePath);
+    await Editor.loadJSON(data);
+    Editor.getState().currentFilePath = filePath;
+    _setCurrentFile(filePath);
 
-  // アクティブ表示
-  document.querySelectorAll('.ws-file-item').forEach(el => {
-    el.classList.toggle('active', el.getAttribute('data-path') === filePath);
-  });
+    // アクティブ表示
+    document.querySelectorAll('.ws-file-item').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('data-path') === filePath);
+    });
 
-  // canvas-size-selectを同期
-  const st = Editor.getState();
-  const key = `${st.canvasWidth}x${st.canvasHeight}`;
-  const sel = document.getElementById('canvas-size-select');
-  if ([...sel.options].some(o => o.value === key)) sel.value = key;
-  Editor.fitZoom();
-  _updateZoomDisplay();
+    // canvas-size-selectを同期
+    const st = Editor.getState();
+    const key = `${st.canvasWidth}x${st.canvasHeight}`;
+    const sel = document.getElementById('canvas-size-select');
+    if ([...sel.options].some(o => o.value === key)) {
+      sel.value = key;
+      document.getElementById('custom-canvas-inputs').style.display = 'none';
+    } else {
+      sel.value = 'custom';
+      document.getElementById('custom-canvas-inputs').style.display = 'flex';
+      document.getElementById('canvas-custom-w').value = st.canvasWidth;
+      document.getElementById('canvas-custom-h').value = st.canvasHeight;
+    }
+    Editor.fitZoom();
+    _updateZoomDisplay();
+  } catch (err) {
+    alert("ファイルを開く際にエラーが発生しました:\n" + err.stack);
+    console.error(err);
+  }
 }
 
 async function _saveCurrentFile() {
@@ -285,7 +356,7 @@ function _renderPropertiesPanel(el) {
   if (p.strokeWidth !== undefined) html += _row('枠幅', `<input class="prop-input-num" type="number" id="prop-sw" value="${p.strokeWidth}" data-prop="strokeWidth" min="0">`);
   if (p.opacity !== undefined) html += _row('透明度', `<input class="prop-input-num" type="number" id="prop-opacity" value="${p.opacity}" data-prop="opacity" min="0" max="1" step="0.05">`);
   if (p.value !== undefined) html += _row('値 (0-1)', `<input class="prop-input-num" type="number" id="prop-value" value="${p.value}" data-prop="value" min="0" max="1" step="0.05">`);
-  if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="fill" ${p.objectFit==='fill'?'selected':''}>fill</option></select>`);
+  if (p.objectFit !== undefined) html += _row('Fit', `<select class="prop-select" data-prop="objectFit"><option value="contain" ${p.objectFit==='contain'?'selected':''}>contain</option><option value="cover" ${p.objectFit==='cover'?'selected':''}>cover</option><option value="100% 100%" ${p.objectFit==='100% 100%'?'selected':''}>stretch (100%)</option></select>`);
   if (p.animation !== undefined) html += _row('アニメ', `<select class="prop-select" data-prop="animation">
     <optgroup label="None">
       <option value="none" ${p.animation==='none'?'selected':''}>なし</option>
@@ -313,41 +384,57 @@ function _renderPropertiesPanel(el) {
   html += `</div><div class="prop-sep"></div>`;
 
   // --- Layout ---
-  if (p.columns !== undefined || p.spacingX !== undefined || p.scrollDirection !== undefined || p.alignment !== undefined || p.tabNames !== undefined || p.refPath !== undefined || p.staggerChildren !== undefined) {
-    html += `<div class="prop-section">`;
-    html += `<div class="prop-section-title">レイアウト / 特殊設定</div>`;
-    if (p.refPath !== undefined) html += _row('Prefab参照', `<input class="prop-input" value="${_esc(p.refPath)}" data-prop="refPath" placeholder="ex: ui_common_header.json">`);
-    if (p.tabNames !== undefined) html += _row('タブ名', `<input class="prop-input" value="${_esc(p.tabNames)}" data-prop="tabNames" placeholder="Tab1,Tab2...">`);
-    
-    if (p.columns !== undefined) html += _row('列数 (固定)', `<input class="prop-input-num" type="number" value="${p.columns}" data-prop="columns" min="1">`);
-    if (p.spacingX !== undefined) html += _row('横余白', `<input class="prop-input-num" type="number" value="${p.spacingX}" data-prop="spacingX" min="0">`);
-    if (p.spacingY !== undefined) html += _row('縦余白', `<input class="prop-input-num" type="number" value="${p.spacingY}" data-prop="spacingY" min="0">`);
-    if (p.staggerChildren !== undefined) html += _row('子を時間差表示', `<input type="checkbox" id="prop-staggerChildren" data-prop="staggerChildren" ${p.staggerChildren?'checked':''}>`);
-    if (p.cellHeight !== undefined) html += _row('セル高さ', `<input class="prop-input-num" type="number" value="${p.cellHeight}" data-prop="cellHeight" min="1">`);
-    
-    if (p.alignment !== undefined) html += _row('揃え位置', `<select class="prop-select" data-prop="alignment">
-      <option value="start" ${p.alignment==='start'?'selected':''}>start</option>
-      <option value="center" ${p.alignment==='center'?'selected':''}>center</option>
-      <option value="end" ${p.alignment==='end'?'selected':''}>end</option>
-      <option value="space-between" ${p.alignment==='space-between'?'selected':''}>space-between</option>
-    </select>`);
-    
-    if (p.scrollDirection !== undefined) html += _row('スクロール方向', `<select class="prop-select" data-prop="scrollDirection">
-      <option value="vertical" ${p.scrollDirection==='vertical'?'selected':''}>縦 (Vertical)</option>
-      <option value="horizontal" ${p.scrollDirection==='horizontal'?'selected':''}>横 (Horizontal)</option>
-      <option value="both" ${p.scrollDirection==='both'?'selected':''}>両方 (Both)</option>
-    </select>`);
-    if (p.contentWidth !== undefined) html += _row('内包幅', `<input class="prop-input-num" type="number" value="${p.contentWidth}" data-prop="contentWidth" min="1">`);
-    if (p.contentHeight !== undefined) html += _row('内包高さ', `<input class="prop-input-num" type="number" value="${p.contentHeight}" data-prop="contentHeight" min="1">`);
-    
-    html += `</div><div class="prop-sep"></div>`;
-  }
+  // Always show Layout section for alignment
+  html += `<div class="prop-section">`;
+  html += `<div class="prop-section-title">レイアウト / 特殊設定</div>`;
+  
+  // Responsive alignment
+  // Responsive alignment
+  const alignX = el.alignX || 'left';
+  const alignY = el.alignY || 'top';
+  html += _row('Align X', `<select class="prop-select" data-prop="alignX">
+    <option value="left" ${alignX==='left'?'selected':''}>Left</option>
+    <option value="center" ${alignX==='center'?'selected':''}>Center</option>
+    <option value="right" ${alignX==='right'?'selected':''}>Right</option>
+    <option value="stretch" ${alignX==='stretch'?'selected':''}>Stretch</option>
+  </select>`);
+  html += _row('Align Y', `<select class="prop-select" data-prop="alignY">
+    <option value="top" ${alignY==='top'?'selected':''}>Top</option>
+    <option value="center" ${alignY==='center'?'selected':''}>Center</option>
+    <option value="bottom" ${alignY==='bottom'?'selected':''}>Bottom</option>
+    <option value="stretch" ${alignY==='stretch'?'selected':''}>Stretch</option>
+  </select>`);
+
+  if (p.refPath !== undefined) html += _row('Prefab参照', `<input class="prop-input" value="${_esc(p.refPath)}" data-prop="refPath" placeholder="ex: ui_common_header.json">`);
+  if (p.tabNames !== undefined) html += _row('タブ名', `<input class="prop-input" value="${_esc(p.tabNames)}" data-prop="tabNames" placeholder="Tab1,Tab2...">`);
+  if (p.columns !== undefined) html += _row('列数 (固定)', `<input class="prop-input-num" type="number" value="${p.columns}" data-prop="columns" min="1">`);
+  if (p.spacingX !== undefined) html += _row('横余白', `<input class="prop-input-num" type="number" value="${p.spacingX}" data-prop="spacingX" min="0">`);
+  if (p.spacingY !== undefined) html += _row('縦余白', `<input class="prop-input-num" type="number" value="${p.spacingY}" data-prop="spacingY" min="0">`);
+  if (p.staggerChildren !== undefined) html += _row('子を時間差表示', `<input type="checkbox" id="prop-staggerChildren" data-prop="staggerChildren" ${p.staggerChildren?'checked':''}>`);
+  if (p.cellHeight !== undefined) html += _row('セル高さ', `<input class="prop-input-num" type="number" value="${p.cellHeight}" data-prop="cellHeight" min="1">`);
+  
+  if (p.alignment !== undefined) html += _row('揃え位置', `<select class="prop-select" data-prop="alignment">
+    <option value="start" ${p.alignment==='start'?'selected':''}>start</option>
+    <option value="center" ${p.alignment==='center'?'selected':''}>center</option>
+    <option value="end" ${p.alignment==='end'?'selected':''}>end</option>
+    <option value="space-between" ${p.alignment==='space-between'?'selected':''}>space-between</option>
+  </select>`);
+  
+  if (p.scrollDirection !== undefined) html += _row('スクロール方向', `<select class="prop-select" data-prop="scrollDirection">
+    <option value="vertical" ${p.scrollDirection==='vertical'?'selected':''}>縦 (Vertical)</option>
+    <option value="horizontal" ${p.scrollDirection==='horizontal'?'selected':''}>横 (Horizontal)</option>
+    <option value="both" ${p.scrollDirection==='both'?'selected':''}>両方 (Both)</option>
+  </select>`);
+  if (p.contentWidth !== undefined) html += _row('内包幅', `<input class="prop-input-num" type="number" value="${p.contentWidth}" data-prop="contentWidth" min="1">`);
+  if (p.contentHeight !== undefined) html += _row('内包高さ', `<input class="prop-input-num" type="number" value="${p.contentHeight}" data-prop="contentHeight" min="1">`);
+  
+  html += `</div><div class="prop-sep"></div>`;
 
   // --- Images ---
   if (p.imagePath !== undefined || p.imageNormal !== undefined) {
     html += `<div class="prop-section">`;
     html += `<div class="prop-section-title">画像ソース (Workspace基準)</div>`;
-    if (p.imagePath !== undefined) html += _row('Path', `<input class="prop-input" id="prop-img-path" value="${_esc(p.imagePath)}" data-prop="imagePath" placeholder="ex: assets/bg.png">`);
+    if (p.imagePath !== undefined) html += _row('Path', `<div style="display:flex;gap:4px;"><input class="prop-input" id="prop-img-path" value="${_esc(p.imagePath)}" data-prop="imagePath" placeholder="ex: assets/bg.png" style="flex:1;"><button class="btn-browse" data-target="imagePath" style="padding:2px 6px;background:#444;border:1px solid #666;border-radius:3px;color:#fff;cursor:pointer;">📁</button></div>`);
     if (p.imageNormal !== undefined) html += _row('Normal', `<input class="prop-input" id="prop-img-n" value="${_esc(p.imageNormal)}" data-prop="imageNormal">`);
     if (p.imagePressed !== undefined) html += _row('Pressed', `<input class="prop-input" id="prop-img-p" value="${_esc(p.imagePressed)}" data-prop="imagePressed">`);
     if (p.imageDisabled !== undefined) html += _row('Disabled', `<input class="prop-input" id="prop-img-d" value="${_esc(p.imageDisabled)}" data-prop="imageDisabled">`);
@@ -360,6 +447,7 @@ function _renderPropertiesPanel(el) {
     html += `<div class="prop-section-title">テキスト</div>`;
     if (p.text !== undefined) html += _row('内容', `<input class="prop-input" id="prop-text" value="${_esc(p.text)}" data-prop="text">`);
     if (p.fontSize !== undefined) html += _row('サイズ', `<input class="prop-input-num" type="number" id="prop-fs" value="${p.fontSize}" data-prop="fontSize" min="6" max="120">`);
+  if (p.fontPath !== undefined) html += _row('Font Path', `<div style="display:flex;gap:4px;"><input class="prop-input" type="text" id="prop-fontPath" value="${_esc(p.fontPath)}" data-prop="fontPath" placeholder="ex: fonts/MyFont.ttf" style="flex:1;"><button class="btn-browse" data-target="fontPath" style="padding:2px 6px;background:#444;border:1px solid #666;border-radius:3px;color:#fff;cursor:pointer;">📁</button></div>`);
     if (p.textAlign !== undefined) html += _row('揃え', `<select class="prop-select" id="prop-align" data-prop="textAlign">
       <option value="left" ${p.textAlign === 'left' ? 'selected' : ''}>左</option>
       <option value="center" ${p.textAlign === 'center' ? 'selected' : ''}>中央</option>
@@ -380,10 +468,54 @@ function _renderPropertiesPanel(el) {
   html += _row('Importance', `<select class="prop-select" id="prop-imp" data-prop="importance">${IMPORTANCE.map(i => `<option value="${i}" ${el.importance === i ? 'selected' : ''}>${i}</option>`).join('')}</select>`);
   html += `</div>`;
 
+  // --- ブラウズボタンのイベント ---
+  panel.querySelectorAll('.btn-browse').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const propName = btn.getAttribute('data-target');
+      const st = Editor.getState();
+      const baseDir = st.assetDir || st.workspaceDir;
+      const fullPath = await window.api.selectFile(baseDir);
+      if (fullPath) {
+        // baseDirからの相対パスに変換
+        let rel = fullPath;
+        if (fullPath.startsWith(baseDir)) {
+          rel = fullPath.substring(baseDir.length).replace(/^[\\\/]+/, '').replace(/\\/g, '/');
+        } else {
+          // workspaceDir外の場合はそのまま絶対パスを入れてしまうか、エラーにするか
+          // ここでは一応そのままフルパスを入れる（WebViewのローカルファイルアクセス設定次第では表示可能）
+        }
+        Editor.updateProp(propName, rel);
+        Editor.selectElement(el.id); // refresh panel
+      }
+    });
+  });
+
   // --- 削除ボタン ---
   html += `<button class="btn-danger" id="prop-delete">🗑 この要素を削除</button>`;
 
   panel.innerHTML = html;
+
+  // --- ブラウズボタンのイベント ---
+  panel.querySelectorAll('.btn-browse').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const propName = btn.getAttribute('data-target');
+      const st = Editor.getState();
+      const baseDir = st.assetDir || st.workspaceDir;
+      const fullPath = await window.api.selectFile(baseDir);
+      if (fullPath) {
+        // baseDirからの相対パスに変換
+        let rel = fullPath;
+        if (fullPath.startsWith(baseDir)) {
+          rel = fullPath.substring(baseDir.length).replace(/^[/\\]+/, '').replace(/\\/g, '/');
+        } else {
+          // workspaceDir外の場合はそのまま絶対パスを入れてしまうか、エラーにするか
+          // ここでは一応そのままフルパスを入れる（WebViewのローカルファイルアクセス設定次第では表示可能）
+        }
+        Editor.updateProp(propName, rel);
+        Editor.selectElement(el.id); // refresh panel
+      }
+    });
+  });
 
   // イベント登録
   panel.querySelectorAll('[data-prop]').forEach(input => {
@@ -553,3 +685,93 @@ function _setupCanvasMouseCoords() {
     coords.textContent = `X: ${x}  Y: ${y}`;
   });
 }
+
+// ======================================================
+// アセットブラウザ
+// ======================================================
+async function _refreshAssetBrowser() {
+  const st = Editor.getState();
+  if (!st.workspaceDir && !st.assetDir) return;
+  const targetDir = st.assetDir || st.workspaceDir;
+  const images = await window.api.listImageAssets(targetDir);
+  const container = document.getElementById('asset-browser');
+  const countEl   = document.getElementById('asset-count');
+  if (!images || images.length === 0) {
+    container.innerHTML = '<div class="panel-empty">画像が見つかりません<br><small>CLI で render を実行すると<br>out/ に画像が生成されます</small></div>';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+  if (countEl) countEl.textContent = `${images.length} 枚`;
+  container.innerHTML = '';
+  for (const img of images) {
+    const safePath = img.fullPath.replace(/\\/g, '/');
+    const item = document.createElement('div');
+    item.className = 'asset-item';
+    item.title = img.relativePath;
+    item.setAttribute('data-rel-path', img.relativePath);
+    item.innerHTML = `
+      <div class="asset-thumb" style="background-image:url('file://${safePath}');"></div>
+      <div class="asset-name">${img.name}</div>`;
+    item.addEventListener('click', (e) => { e.stopPropagation(); _showAssetAttachMenu(img.relativePath, e); });
+    container.appendChild(item);
+  }
+}
+
+function _showAssetAttachMenu(relPath, e) {
+  _closeAssetAttachMenu();
+  const el = Editor.getSelected();
+  const p  = el ? el.props : null;
+  const menu = document.createElement('div');
+  menu.id = 'asset-attach-menu';
+  menu.className = 'asset-attach-menu';
+
+  if (!el) {
+    menu.innerHTML = '<div class="asset-attach-menu-item" style="color:#888;cursor:default;">要素を選択してください</div>';
+  } else if (p.imageNormal !== undefined) {
+    for (const [label, prop] of [['🖼 Normal', 'imageNormal'], ['👆 Pressed', 'imagePressed'], ['🚫 Disabled', 'imageDisabled']]) {
+      const mi = document.createElement('div');
+      mi.className = 'asset-attach-menu-item';
+      mi.textContent = label;
+      mi.addEventListener('click', () => {
+        Editor.updateProp(prop, relPath);
+        Editor.selectElement(el.id);
+        _closeAssetAttachMenu();
+      });
+      menu.appendChild(mi);
+    }
+  } else if (p.fontPath !== undefined && relPath.match(/\.(ttf|otf|woff|woff2)$/i)) {
+    const mi = document.createElement('div');
+    mi.className = 'asset-attach-menu-item';
+    mi.textContent = '🅰 フォントをアタッチ';
+    mi.addEventListener('click', () => {
+      Editor.updateProp('fontPath', relPath);
+      Editor.selectElement(el.id);
+      _closeAssetAttachMenu();
+    });
+    menu.appendChild(mi);
+  } else if (p.imagePath !== undefined) {
+    const mi = document.createElement('div');
+    mi.className = 'asset-attach-menu-item';
+    mi.textContent = '🖼 画像をアタッチ';
+    mi.addEventListener('click', () => {
+      Editor.updateProp('imagePath', relPath);
+      Editor.selectElement(el.id);
+      _closeAssetAttachMenu();
+    });
+    menu.appendChild(mi);
+  } else {
+    menu.innerHTML = '<div class="asset-attach-menu-item" style="color:#888;cursor:default;">この要素は画像未対応<br><small>image-view / sprite-button を選択</small></div>';
+  }
+
+  menu.style.left = Math.min(e.clientX, window.innerWidth  - 150) + 'px';
+  menu.style.top  = Math.min(e.clientY, window.innerHeight - 130) + 'px';
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', _closeAssetAttachMenu, { once: true }), 0);
+}
+
+function _closeAssetAttachMenu() {
+  const menu = document.getElementById('asset-attach-menu');
+  if (menu) menu.remove();
+}
+
+  
